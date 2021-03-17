@@ -1,12 +1,16 @@
 # FourInARow
 A simple, secure FourInARow client-server application for the Foundations of Cybersecurity project.
 
+# Project Objectives
+
+// TODO
+
 # Project Structure
 
 We have 4 folders. Folders purpose is:
 
 - `bin` - **tput executables** goes here
-- `doc` - This folder contains **project documentation**
+- `documentation` - This folder contains **project documentation**
 - `include` - **public** header file (.h files)
 - `libs` third party libraries we depend on 
 - `src` - **private** source files (.h and .cpp files)
