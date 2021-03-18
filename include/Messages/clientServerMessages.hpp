@@ -5,6 +5,8 @@
  *  - Receive the opponent's information
  *  - Launch a challenge
  */
+#ifndef _CLIENTSERVERMESSAGES_H_
+#define _CLIENTSERVERMESSAGES_H_
 #include <string>
 #include <vector>
 
@@ -66,3 +68,4 @@ struct serverGameResponseData
     short unsigned int dh_par_g {0};
     std::string gcm_tag {NULL};
 };
+#endif

@@ -7,6 +7,7 @@ A simple, secure FourInARow client-server application for the Foundations of Cyb
 
 # Project Structure
 
+## Folder
 We have 4 folders. Folders purpose is:
 
 - `bin` - **tput executables** goes here
@@ -17,3 +18,11 @@ We have 4 folders. Folders purpose is:
 - `test` - **tests** files if has been written
 
 **Note**: Headers files in include are under folder named after our library domain . The reason behind this strategy is that in this way when we expose public headers files, we expose only include directory and when we literally `#include` files from library we're going to do this: `#include <RAND/Algorithm.h>` instead of `#include "Algorithm.h"` if it was in root of `include`.
+
+## Naming Convention
+
+We adopt the following naming convention:
+
+- Class name: CamelCase
+- Class member: CamelCase
+- Variable: under_score

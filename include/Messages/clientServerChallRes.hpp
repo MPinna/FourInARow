@@ -3,6 +3,8 @@
  * The clientServerChallRes (Client and Server challenge response) header file, describe packet used to: 
  *  - manage all messages exchanged between a Client and a Server during authentication phase
  */
+#ifndef _CLIENTSERVERCHALLRES_H_
+#define _CLIENTSERVERCHALLRES_H_
 #include <string>
 
 struct clientHello
@@ -47,3 +49,4 @@ struct clientResponse
     short unsigned int sig_size {0};
     std::string signature {NULL};
 };
+#endif

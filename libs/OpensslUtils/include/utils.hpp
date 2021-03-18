@@ -4,3 +4,6 @@
  *      - Computationally Secure Pseudo Random Number Generator
  *      - Reading and Writing ".pem" format file
  */
+#ifndef _OPENSSL_UTILS_H_
+#define _OPENSSL_UTILS_H_
+#endif

@@ -1,10 +1,12 @@
-#include <string>
-
 /**
  * SECTION
  * The p2pChallResp (Peer to peer challenge response) header file, describe packet used to:
  *  - manage all messages exchanged between a Client and a Server during authentication phase
  */
+#ifndef _P2PCHALLRES_H_
+#define _P2PCHALLRES_H_
+#include <string>
+
 struct peerHello
 {
     /* data */
@@ -34,3 +36,4 @@ struct peerResponse
     short unsigned int sig_size {0};
     std::string signature {NULL};
 };
+#endif
