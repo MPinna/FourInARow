@@ -1,9 +1,10 @@
+/**
+ * SECTION
+ * The clientServerChallRes (Client and Server challenge response) header file, describe packet used to: 
+ *  - manage all messages exchanged between a Client and a Server during authentication phase
+ */
 #include <string>
 
-/**
- * SECTION 
- * Client - Server challenge response 
- */
 struct clientHello
 {
     /* data size = 36 Bytes */

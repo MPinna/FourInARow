@@ -1,10 +1,13 @@
+/**
+ * SECTION
+ * cliSerMessages.hpp (Client and Server Messages) header file, describe packet used to:
+ *  - Exchange information messages between client and server
+ *  - Receive the opponent's information
+ *  - Launch a challenge
+ */
 #include <string>
 #include <vector>
 
-/**
- * SECTION
- * Client / Server messages to excheange informations
- */
 struct clientListRequest // TOCHECK if you can send this packet even without randomness field
 {
     /* data */
@@ -61,17 +64,5 @@ struct serverGameResponseData
     std::string opponent_pubkey {NULL};
     short unsigned int dh_par_p {0};
     short unsigned int dh_par_g {0};
-    std::string gcm_tag {NULL};
-};
-
-/**
- * SECTION
- * Peer to peer messages
- */
-struct gameMove
-{
-    /* data */
-    std::string randomness {NULL};
-    short unsigned int column_num {0};
     std::string gcm_tag {NULL};
 };

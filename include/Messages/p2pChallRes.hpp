@@ -2,7 +2,8 @@
 
 /**
  * SECTION
- * Peer to peer challenge response 
+ * The p2pChallResp (Peer to peer challenge response) header file, describe packet used to:
+ *  - manage all messages exchanged between a Client and a Server during authentication phase
  */
 struct peerHello
 {

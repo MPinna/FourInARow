@@ -1,5 +1,11 @@
 /**
- * TODO naming convention
+ * SECTION
+ * The board class is responsible for:
+ *  - Init a board
+ *  - Print a board
+ *  - Check the game turn
+ *  - Check the board status
+ *  - Check the winner
  */
 #include <string>
 

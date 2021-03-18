@@ -1,5 +1,5 @@
 /**
- * The packetHeader.h file has the main scope to define the structure of the packet used to exchange message in the Four-in-a-row game
+ * The packetHeader.h file define the structure of the packet header used to exchange message in the Four-in-a-row game
  */
 #include <string>
 #include <vector>
