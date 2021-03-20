@@ -8,27 +8,38 @@
 #ifndef _CONNECTION_H_
 #define _CONNECTION_H_
 #include <arpa/inet.h>
+#include <unistd.h>
+#include <cstring>
+#include <iostream>
 #include <string>
+
+#define DEFAULT_SERVER_ADDR "localhost"
+#define DEFAULT_SERVER_PORT 8888
 
 class Connection
 {
 private:
     /* data */
-    int sock;
-    std::string port;
+    int _sock_fd;
+    int _port;
+    int opp_port;
+    int _optvalue;
     std::string _addr;
-    struct sockaddr_in opponent_addr;
-
+    std::string opp_addr;
+    struct sockaddr_in _addr_in;
+    struct sockaddr_in opp_addr_in;
 public:
-    /* constructor */
+    /* Constructor */
     Connection();
-    Connection(int sock, std::string port, std::string _addr);
+    // TODO fai i test e poi vedi se puoi prendere la roba dal `this`
+    Connection(int _sock_fd, int _port, int opp_port, int _optvalue, std::string _addr, std::string opp_addr);
+    
     /* Destructor */
     ~Connection();
 
-    bool Connection::sendData();
-    std::string Connection::receiveData();
-    bool Connection::connectClient();
+    bool Connection::sendData(std::string data);
+    std::string Connection::receiveData(int size);
+    bool Connection::connectClient(std::string _addr, int _port);
     bool Connection::connectServer();
 };
 #endif

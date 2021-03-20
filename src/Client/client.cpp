@@ -7,3 +7,37 @@
  *  - Play a four-in-a-row game
  *  - Init a board
  */
+#include "../../include/Connection/connection.hpp"
+
+class Client
+{
+private:
+    /* data */
+    std::string username;
+
+public:
+    Client(/* args */);
+    Client(std::string username);
+    ~Client();
+};
+
+Client::Client()
+{
+}
+
+Client::Client(std::string username_val)
+    : username{username_val}
+{
+}
+
+Client::~Client()
+{
+}
+
+int main()
+{
+    Client user {"Player1"};
+    
+
+    return 0;
+}
