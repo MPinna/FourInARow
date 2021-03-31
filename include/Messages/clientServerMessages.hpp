@@ -9,63 +9,72 @@
 #define _CLIENTSERVERMESSAGES_H_
 #include <string>
 #include <vector>
+#include "Utils/constant.h"
 
 struct clientListRequest // TOCHECK if you can send this packet even without randomness field
 {
     /* data */
-    std::string randomness {NULL};
-    std::string gcm_tag {NULL};
+    unsigned short int  rand_size {0};
+    unsigned char       *randomness;
+    unsigned short int  gcm_size {0};
+    unsigned char       *gcm_tag;
 };
 
 struct serverListResponse
 {
     /* data */
-    short unsigned int num_of_clients {0};
-    std::vector<std::string> clients_list {NULL};
-    std::string gcm_tag {NULL};
+    short unsigned int  num_of_clients {0};
+    unsigned char       *clients_list;
+    short unsigned int  gcm_tag_size {0};
+    unsigned char       *gcm_tag;
 };
 
 struct clientGameRequest
 {
     /* data */
-    std::string opponent_username {NULL};
-    std::string gcm_tag {NULL};
+    char    opponent_username [_16_BYTES];
+    int     gcm_size;
+    char    *gcm_tag;
 };
 
 struct serverGameForward
 {
     /* data */
-    std::string opponent_username {NULL};
-    std::string gcm_tag {NULL};
+    unsigned char   *opponent_username[_16_BYTES];
+    int             gcm_size;
+    unsigned char   *gcm_tag;
 };
 
 
 struct peerGameResponse
 {
     /* data */
-    std::string randomness {NULL};
+    unsigned char randomness {NULL};
     bool flag;
-    std::string gcm_tag {NULL};
+    int             gcm_size;
+    unsigned char   *gcm_tag;
 };
 
 
 struct serverGameResponse
 {
     /* data */
-    std::string opponent_username {NULL};
-    bool challenge;
-    std::string gcm_tag {NULL};
+    std::string     opponent_username {NULL};
+    enum challenge  { ACCEPTED = 0, REJECTED = 1 };
+    int             gcm_size;
+    unsigned char   *gcm_tag;
 };
 
 struct serverGameResponseData
 {
     /* data */
-    std::string opponent_username {NULL};
-    short unsigned int peer_port {0};
-    short unsigned int pubkey_size {0};
-    std::string opponent_pubkey {NULL};
-    short unsigned int dh_par_p {0};
-    short unsigned int dh_par_g {0};
-    std::string gcm_tag {NULL};
+    unsigned char       *opponent_username;
+    short unsigned int  peer_port {0};
+    short unsigned int  pubkey_size {0};
+    unsigned char       *opponent_pubkey;
+    short unsigned int  dh_par_p {0};
+    short unsigned int  dh_par_g {0};
+    int                 gcm_size;
+    unsigned char       *gcm_tag;
 };
 #endif

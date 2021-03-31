@@ -6,34 +6,35 @@
 #ifndef _P2PCHALLRES_H_
 #define _P2PCHALLRES_H_
 #include <string>
+#include "Utils/constant.h"
 
 struct peerHello
 {
     /* data */
-    std::string username {NULL};
-    int nounce {0};
-    short unsigned int sig_size {0};
-    std::string signature {NULL};
+    unsigned char       *username[_16_BYTES];
+    int                 nounce {0};
+    short unsigned int  sig_size {0};
+    unsigned char       *signature;
 };
 
 struct peerChallenge
 {
     /* data */
-    int nounce {0};
-    int peer_nounce {0};
-    short unsigned int dh_key_size {0};
-    std::string dh_key {NULL};
-    short unsigned int sig_size {0};
-    std::string signature {NULL};
+    int                 nounce {0};
+    int                 peer_nounce {0};
+    short unsigned int  dh_key_size {0};
+    unsigned char       *dh_key;
+    short unsigned int  sig_size {0};
+    unsigned char       *signature;
 };
 
 struct peerResponse
 {
     /* data */
-    int peer_nounce {0};
-    short unsigned int dh_key_size {0};
-    std::string dh_key {NULL};
-    short unsigned int sig_size {0};
-    std::string signature {NULL};
+    int                 peer_nounce {0};
+    short unsigned int  dh_key_size {0};
+    unsigned char       *dh_key;
+    short unsigned int  sig_size {0};
+    unsigned char       *signature;
 };
 #endif

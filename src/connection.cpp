@@ -1,4 +1,4 @@
-#include "../Connection/connection.hpp"
+#include "Connection/connection.hpp"
 
 /**
  * SECTION
@@ -19,11 +19,6 @@ Connection::Connection(int _sock_fd_val, int _port_val, int opp_port_val, int _o
 {
 }
 
-/* DESTRUCTOR */
-Connection::~Connection()
-{
-}
-
 /**
  * CLASS MEMBER 
  */
@@ -38,7 +33,7 @@ bool
 Connection::sendData(std::string data)
 {
     // Send some data
-    if (send(_sock_fd, data.c_str(), std::string(data.c_str()).length(), 0) < 0)
+    if (send(this->_sock_fd, data.c_str(), std::string(data.c_str()).length(), 0) < 0)
     {
         perror("send() failed");
         return false;
@@ -61,7 +56,7 @@ Connection::receiveData(int size)
     std::string received_data;
 
     //Receive a reply from the server
-    if (recv(_sock_fd, buffer, sizeof(buffer), 0) < 0)
+    if (recv(this->_sock_fd, buffer, sizeof(buffer), 0) < 0)
     {
         puts("read() failed");
         return NULL;

@@ -5,4 +5,8 @@
  */
 #ifndef _UTILS_H_
 #define _UTILS_H_
+
+/**
+ * SECTION serialization / deserialization test
+ */
 #endif

@@ -11,17 +11,21 @@
 struct gameMove // TOCHECK if it is possible to send 
 {
     /* data */
-    std::string randomness {NULL};
-    short unsigned int column_num {0};
-    std::string gcm_tag {NULL};
+    unsigned short int  rand_size{0};
+    unsigned char       *randomness;
+    short unsigned int  column_num {0};
+    unsigned short int  gcm_size{0};
+    unsigned char       *gcm_tag;
 };
 
 // TODO gameEnd message
 struct endGame // TOCHECK if it is possible to send
 {
     /* data */
-    std::string randomness {NULL};
-    std::string signal {NULL};
-    std::string gcm_tag {NULL};
+    unsigned short int  rand_size{0};
+    unsigned char       *randomness;
+    unsigned short int  signal{0};
+    unsigned short int  gcm_size{0};
+    unsigned char       *gcm_tag;
 };
 #endif

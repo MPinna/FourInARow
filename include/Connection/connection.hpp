@@ -33,13 +33,10 @@ public:
     Connection();
     // TODO fai i test e poi vedi se puoi prendere la roba dal `this`
     Connection(int _sock_fd, int _port, int opp_port, int _optvalue, std::string _addr, std::string opp_addr);
-    
-    /* Destructor */
-    ~Connection();
 
-    bool Connection::sendData(std::string data);
-    std::string Connection::receiveData(int size);
-    bool Connection::connectClient(std::string _addr, int _port);
-    bool Connection::connectServer();
+    bool sendData(std::string data);
+    std::string receiveData(int size);
+    bool connectClient(std::string _addr, int _port);
+    bool connectServer();
 };
 #endif
