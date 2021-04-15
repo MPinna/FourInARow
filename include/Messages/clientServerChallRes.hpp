@@ -6,7 +6,7 @@
 #ifndef _CLIENTSERVERCHALLRES_H_
 #define _CLIENTSERVERCHALLRES_H_
 #include <string>
-#include "Utils/constant.h"
+#include "Utils/constant.hpp"
 
 struct clientHello
 {

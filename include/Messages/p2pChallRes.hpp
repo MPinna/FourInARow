@@ -6,7 +6,7 @@
 #ifndef _P2PCHALLRES_H_
 #define _P2PCHALLRES_H_
 #include <string>
-#include "Utils/constant.h"
+#include "Utils/constant.hpp"
 
 struct peerHello
 {

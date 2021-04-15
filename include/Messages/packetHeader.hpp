@@ -10,8 +10,8 @@
 struct header
 {
     /* data size = 9 Bytes */
-    unsigned int    counter {0};
-    enum type{}; // TODO check allpacket type
-    unsigned int    payload_size {0};
+    short unsigned int  type{0}; // TODO check allpacket type
+    unsigned int        counter{0};
+    unsigned int        payload_size{0};
 };
 #endif
