@@ -8,7 +8,7 @@
 
 using namespace std;
 
-typedef struct MSG
+typedef struct
 {
     int type;
     int priority;
