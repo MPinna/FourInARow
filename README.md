@@ -10,14 +10,29 @@ A simple, secure FourInARow client-server application for the Foundations of Cyb
 ## Folder
 We have 4 folders. Folders purpose is:
 
-- `bin` - **tput executables** goes here
-- `documentation` - This folder contains **project documentation**
-- `include` - **public** header file (.h files)
-- `libs` third party libraries we depend on 
-- `src` - **private** source files (.h and .cpp files)
-- `test` - **tests** files if has been written
+- `documentation/` (doxygen or any kind of documentation)
+- `include/` (**public** interface for the library *.h)
+- `libs/` (source **third party** for the application library *.cpp *.hpp)
+- `src/` (**private** source for the application)
+- `tmp/` (for quick tests)
+- `bin` - **input executables** goes here
 
-**Note**: Headers files in include are under folder named after our library domain . The reason behind this strategy is that in this way when we expose public headers files, we expose only include directory and when we literally `#include` files from library we're going to do this: `#include <RAND/Algorithm.h>` instead of `#include "Algorithm.h"` if it was in root of `include`.
+**Note**: headers files in include goes under folder named after your library domain. Reason behind this is that when we expose public header files we expose only include directory and when we `#include` files from library, instead, you  do this> `#inlcude <HMM/Algorithm.h>` instead of `#include "Algorithm.h"` if it was in root of include
+
+Concrete example:
+```
+HMM
+ ├── include
+ │   └── HMM
+ │       └── Algorithm.h
+ ├── src
+ │   ├── Algorithm.cpp
+ │   ├── someMath.h
+ │   └── someMath.cpp
+ └── test
+     ├── AlgorithmTests.cpp
+     └── mathTests.cpp
+```
 
 ## Naming Convention
 
