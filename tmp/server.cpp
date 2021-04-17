@@ -106,26 +106,26 @@ int main(int argc, char const *argv[])
 	int addrlen = sizeof(address);
 	char buffer[4096] = {0};
 	char *hello = "./server.o uno due tre";
-	// create obj	
-	server_user_response obj1;
+	// // create obj	
+	// server_user_response obj1;
 	
-	// Fill object with junk
-	obj1.num_of_user = argc;
-	for (size_t i = 0; i < argc; i++)
-	{
-		obj1.list_users.push_back(argv[i]);
-	}
+	// // Fill object with junk
+	// obj1.num_of_user = argc;
+	// for (size_t i = 0; i < argc; i++)
+	// {
+	// 	obj1.list_users.push_back(argv[i]);
+	// }
 
-	std::string set_up_data{""};
+	// std::string set_up_data{""};
 
-	set_up_data.append(std::to_string(obj1.num_of_user) + "\n");
+	// set_up_data.append(std::to_string(obj1.num_of_user) + "\n");
 
-	for (std::string tmp : obj1.list_users)
-		set_up_data.append(tmp);
+	// for (std::string tmp : obj1.list_users)
+	// 	set_up_data.append(tmp);
 	
-	// Fill the array of char
-	char msg[sizeof(set_up_data)] = {""};
-	std::strncat(msg, set_up_data.c_str(), sizeof(set_up_data));
+	// // Fill the array of char
+	// char msg[sizeof(set_up_data)] = {""};
+	// std::strncat(msg, set_up_data.c_str(), sizeof(set_up_data));
 
 	// std::cout << "sizeof - msg: " << strlen(msg) << std::endl;
 	// std::cout << "sizeof - msg: " << sizeof(msg) << std::endl;

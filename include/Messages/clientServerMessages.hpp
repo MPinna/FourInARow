@@ -76,7 +76,7 @@ struct serverGameResponseData
     unsigned char *opponent_pubkey;
     short unsigned int dh_par_p{0};
     short unsigned int dh_par_g{0};
-    int gcm_size;
+    short unsigned int gcm_size{0};
     unsigned char *gcm_tag;
 };
 #endif

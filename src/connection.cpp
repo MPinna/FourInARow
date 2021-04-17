@@ -8,16 +8,17 @@
  *  - class members
  */
 
-/* CONSTRUCTOR */
+/* DEFAULT CONSTRUCTOR */
 Connection::Connection()
-    : _sock_fd{-1}, _port{0}, opp_port{0}, _optvalue{0}, _addr{NULL}, opp_addr{NULL}, _addr_in{NULL}, opp_addr_in{NULL}
+    : _sock_fd{0}, _port{DEFAULT_PORT}, _optvalue{0}, _addr_in{NULL}
 {
 }
-
-Connection::Connection(int _sock_fd_val, int _port_val, int opp_port_val, int _opt_value_val, std::string _addr_val, std::string opp_addr_val)
-    : _sock_fd{_sock_fd_val}, _port{_port_val}, opp_port{opp_port_val}, _optvalue{_opt_value_val}, _addr{_addr_val}, opp_addr{opp_addr_val}
-{
-}
+/* SPECIALIZED SERVER CONSTRUCTOR */
+// Connection::Connection(int _sock_fd_val, int _port_val, int opp_port_val, int _opt_value_val, std::string _addr_val, std::string opp_addr_val)
+//     : _sock_fd{_sock_fd_val}, _port{_port_val}, opp_port{opp_port_val}, _optvalue{_opt_value_val}, opp_addr{opp_addr_val}
+// {
+// }
+/* SPECIALIZED PEER / CLIENT CONSTRUCTOR */
 
 /**
  * CLASS MEMBER 
