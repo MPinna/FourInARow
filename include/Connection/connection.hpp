@@ -28,13 +28,16 @@ public:
     
     /* Default constructor */
     Connection();
-    // TODO fai i test e poi vedi se puoi prendere la roba dal `this`
     // Connection(int _sock_fd, int _port, int opp_port, int _optvalue, std::string _addr, std::string _opp_addr);
 
     /* Class members */
+    // ATTENTION 
+    // -- da rivedere -- START
     bool connectClient(std::string _addr, int _port);
     bool sendData(std::string data);
     bool connectServer();
     std::string receiveData(int size);
+    // -- da rivedere -- END
+    bool readNBytes(int socket, char *buf, std::size_t N);
 };
 #endif

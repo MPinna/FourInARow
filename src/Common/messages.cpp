@@ -1,114 +1,116 @@
-#include "include/Messages/header.hpp"
+#include "include/Messages/packet.hpp"
 #include <cstring>
 #include <iostream>
 #include <stdlib.h>
 #include <netinet/in.h>
 
-Header::Header()
+Packet::Packet()
     : _type{0}, _counter{0}, _payload_size{0}, _payload{}
 {
 }
 
-Header::Header(unsigned short int type)
+Packet::Packet(unsigned short int type)
     : _type{type}, _counter{0}, _payload_size{0}, _payload{}
 {
 }
 
-Header::Header(unsigned short int type, unsigned int count)
+Packet::Packet(unsigned short int type, unsigned int count)
     : _type{type}, _counter{count}, _payload_size{0}, _payload{}
 {
 }
 
-Header::Header(unsigned short int type, unsigned int count, unsigned char *payload)
+Packet::Packet(unsigned short int type, unsigned int count, unsigned char *payload)
     : _type{type}, _counter{count}, _payload_size{strlen((char *)payload)}, _payload{payload}
 {
 }
 
 // SECTION: Setter
 void 
-Header::set_type(short unsigned int type) 
+Packet::set_type(short unsigned int type) 
 {
     this->_type = type;
 }
 
 void 
-Header::set_count(unsigned int count) 
+Packet::set_count(unsigned int count) 
 {
     this->_counter = count; 
 }
 
 void 
-Header::set_csize(char *payload) 
+Packet::set_csize(char *payload) 
 {
-    this->_payload_size = strlen(payload) + 1; 
+    this->_payload_size = strlen(payload) + 1; // TOCHECK va qua ?
 }
 
 void 
-Header::set_isize(unsigned int size) 
+Packet::set_isize(unsigned short int size) 
 {
     this->_payload_size = size;
 }
 
 void
-Header::set_payl(char *payload)
+Packet::set_payl(char *payload)
 {
     this->_payload = (unsigned char *)malloc(strlen(payload) + 1);
-    memcpy(this->_payload, payload + '\0', strlen(payload));
+    memcpy(this->_payload, payload + '\0', strlen(payload)); // TOCHECK va qua?
 }
 
 // SECTION: Getter
 short unsigned int 
-Header::get_type()
+Packet::get_type()
 {
     return this->_type; 
 }
 unsigned int 
-Header::get_count()
+Packet::get_count()
 {
     return this->_counter; 
 }
 unsigned int 
-Header::get_psize()
+Packet::get_psize()
 {
     return this->_payload_size; 
 }
 unsigned char *
-Header::get_payload()
+Packet::get_payload()
 {
     return this->_payload;
 }
 
-// SECTION Class members
-void Header::serialize(Header *packet, char *buf)
+/**
+ * SECTION Class members
+ */
+void Packet::serialize(char *to_ser_buf)
 {
     short int pos{0};
-    uint16_t type{htons(packet->get_type())};
-    uint32_t count{htonl(packet->get_count())}, psize{htonl(packet->get_psize())};
-    memcpy(buf, &type, sizeof(type));
+    uint16_t type{htons(this->_type)}, psize{htons(this->_payload_size)};
+    uint32_t count{htonl(this->_counter)};
+    memcpy(to_ser_buf, &type, sizeof(type));
     pos += sizeof(type);
-    memcpy(buf + pos, &count, sizeof(count));
+    memcpy(to_ser_buf + pos, &count, sizeof(count));
     pos += sizeof(count);
-    memcpy(buf + pos, &psize, sizeof(psize));
+    memcpy(to_ser_buf + pos, &psize, sizeof(psize));
     pos += sizeof(psize);
-    memcpy(buf + pos, packet->get_payload(), packet->get_psize());
+    memcpy(to_ser_buf + pos, this->_payload, this->_payload_size);
 }
 
-void Header::deserilize(char *buf, Header *packet)
+void Packet::deserialize(char *to_deser_buf)
 {
     short int pos{0};
-    u_int16_t dtype;
-    u_int32_t dcount, dpsize;
+    u_int16_t dtype, dpsize;
+    u_int32_t dcount;
 
-    memcpy(&dtype, buf, sizeof(dtype));
-    packet->set_type(ntohs(dtype));
+    memcpy(&dtype, to_deser_buf, sizeof(dtype));
+    this->set_type(ntohs(dtype));
     pos += sizeof(dtype);
-    memcpy(&dcount, buf + pos, sizeof(dcount));
-    packet->set_count(ntohl(dcount));
+    memcpy(&dcount, to_deser_buf + pos, sizeof(dcount));
+    this->set_count(ntohl(dcount));
     pos += sizeof(dcount);
-    memcpy(&dpsize, buf + pos, sizeof(dpsize));
-    packet->set_isize(ntohl(dpsize));
+    memcpy(&dpsize, to_deser_buf + pos, sizeof(dpsize));
+    this->set_isize(ntohl(dpsize));
     pos += sizeof(dpsize);
     char tmp_msg[ntohl(dpsize)];
-    memcpy(tmp_msg, buf + pos, packet->get_psize());
-    packet->set_payl(tmp_msg);
+    memcpy(tmp_msg, to_deser_buf + pos, this->get_psize());
+    this->set_payl(tmp_msg);
 }

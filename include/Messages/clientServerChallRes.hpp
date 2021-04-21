@@ -5,49 +5,64 @@
  */
 #ifndef _CLIENTSERVERCHALLRES_H_
 #define _CLIENTSERVERCHALLRES_H_
-#include <string>
 #include "Utils/constant.hpp"
 
 struct clientHello
 {
     /* data size = 40 Bytes */
-    unsigned int        nounce {0};
-    char                username[_16_BYTES];
-    short unsigned int  port_number {0};
-    short unsigned int  sig_size {0};
-    char                *signature;
-};
+    unsigned int        nounce{0};
+    unsigned char       username[_16_BYTES];
+    unsigned short int  port_number {0};
+    unsigned short int  sig_size {0};
+    unsigned char *     signature;
+
+    // SECTION: Member methods
+    void serialize(clientHello *packet, char *ser_buf);
+    void deserilize(char *ser_buf, clientHello *packet);
+}__attribute__((packed));
 
 struct serverHello
 {
     /* data size = 20 + cert */
-    short unsigned int  cert_size {0};
+    unsigned short int  cert_size {0};
     unsigned char       *certificate;
-    short unsigned int  sig_size {0};
+    unsigned short int  sig_size {0};
     unsigned char       *signature;
-};
+
+    // SECTION: Member methods
+    void serialize(serverHello *packet, char *ser_buf);
+    void deserilize(char *ser_buf, serverHello *packet);
+}__attribute__((packed));
 
 struct serverChallenge
 {
     /* data size = 544 */
     unsigned int        server_nounce {0};
     unsigned int        client_nounce {0};
-    short unsigned int  dh_param_p {0};
-    short unsigned int  dh_param_g {0};
-    short unsigned int  dh_key_size {0};
+    unsigned short int  dh_param_p {0};
+    unsigned short int  dh_param_g {0};
+    unsigned short int  dh_key_size {0};
     unsigned char       *dh_key; 
-    short unsigned int  sig_size {0};
-    unsigned char       *signature; 
-};
+    unsigned short int  sig_size {0};
+    unsigned char       *signature;
+
+    // SECTION: Member methods
+    void serialize(serverChallenge *packet, char *ser_buf);
+    void deserilize(char *ser_buf, serverChallenge *packet);
+}__attribute__((packed));
 
 struct clientResponse
 {
     /* data size = 534 */
     unsigned int        server_nounce {0};
-    short unsigned int  dh_param_g {0};
-    short unsigned int  dh_key_size {0}; 
+    unsigned short int  dh_param_g {0};
+    unsigned short int  dh_key_size {0}; 
     unsigned char       *dh_key;
-    short unsigned int  sig_size {0};
+    unsigned short int  sig_size {0};
     unsigned char       *signature;
-};
+
+    // SECTION: Member methods
+    void serialize(clientResponse *packet, char *ser_buf);
+    void deserilize(char *ser_buf, clientResponse *packet);
+}__attribute__((packed));
 #endif

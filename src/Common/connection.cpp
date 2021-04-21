@@ -1,5 +1,5 @@
 #include "Connection/connection.hpp"
-
+#include "Utils/constant.hpp"
 /**
  * SECTION
  * The source file has structured as follows:
@@ -93,7 +93,7 @@ Connection::connectServer()
     }
     this->_addr_in.sin_family = AF_INET;
     this->_addr_in.sin_addr.s_addr = INADDR_ANY;
-    this->_addr_in.sin_port = htons(DEFAULT_SERVER_PORT);
+    this->_addr_in.sin_port = htons(DEFAULT_PORT);
 
     if (bind(this->_sock_fd, (struct sockaddr *)&this->_addr_in, sizeof(this->_addr_in)) < 0)
     {
@@ -108,4 +108,39 @@ Connection::connectServer()
     }
 
     return true;
+}
+
+// Reads N bytes VERIFIED
+bool
+Connection::readNBytes(int socket, char *buf, std::size_t N)
+{
+    std::size_t offset = 0;
+    while (true) {
+        ssize_t ret = recv(socket, buf + offset, N - offset, MSG_WAITALL);
+        std::cout << ret << std::endl;
+        if (ret < 0) {
+            if (errno != EINTR) {
+                // Error occurred
+                std::cout << "IOException(strerror(errno)" << std::endl;
+                return false;
+            }
+        } else if (ret == 0) {
+            // No data available anymore
+            if (offset == 0)
+            {
+                std::cout << "No Data!" << std::endl;
+                return false;
+            }
+            else
+            {
+                std::cout << "ProtocolException(\"Unexpected end of stream)" << std::endl;
+                return false;
+            }
+        } else if (offset + ret == N) {
+            // All n bytes read
+            return true;
+        } else {
+            offset += ret;
+        }
+    }
 }
