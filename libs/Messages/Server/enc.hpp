@@ -5,22 +5,9 @@
  *  - Receive the opponent's information
  *  - Launch a challenge
  */
-#ifndef _CLIENTSERVERMESSAGES_H_
-#define _CLIENTSERVERMESSAGES_H_
+#ifndef _SERVER_ENCRYPTED_H_
+#define _SERVER_ENCRYPTED_H_
 #include "Utils/constant.hpp"
-
-struct ListRequest // TOCHECK if you can send this packet even without randomness field
-{
-    /* data */
-    unsigned short int  rand_size{0};
-    unsigned char *     randomness[_16_BYTES];
-    unsigned short int  gcm_tag_size{0};
-    unsigned char *     gcm_tag;
-
-    // SECTION: Member methods
-    void serialize(ListRequest *packet, char *ser_buf);
-    void deserilize(char *ser_buf, ListRequest *packet);
-}__attribute__((packed));
 
 struct ListResponse
 {
@@ -33,18 +20,6 @@ struct ListResponse
     // SECTION: Member methods
     void serialize(ListResponse *packet, char *ser_buf);
     void deserilize(char *ser_buf, ListResponse *packet);
-}__attribute__((packed));
-
-struct GameRequest
-{
-    /* data */
-    unsigned char       opponent_username[_16_BYTES];
-    unsigned short int  gcm_size;
-    unsigned char *     gcm_tag;
-
-    // SECTION: Member methods
-    void serialize(GameRequest *packet, char *ser_buf);
-    void deserilize(char *ser_buf, GameRequest *packet);
 }__attribute__((packed));
 
 struct OppGameResponse

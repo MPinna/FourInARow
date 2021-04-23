@@ -3,23 +3,9 @@
  * The clientServerChallRes (Client and Server challenge response) header file, describe packet used to: 
  *  - manage all messages exchanged between a Client and a Server during authentication phase
  */
-#ifndef _CLIENTSERVERCHALLRES_H_
-#define _CLIENTSERVERCHALLRES_H_
-#include "Utils/constant.hpp"
-
-struct clientHello
-{
-    /* data size = 40 Bytes */
-    unsigned int        nounce{0};
-    unsigned char       username[_16_BYTES];
-    unsigned short int  port_number {0};
-    unsigned short int  sig_size {0};
-    unsigned char *     signature;
-
-    // SECTION: Member methods
-    void serialize(clientHello *packet, char *ser_buf);
-    void deserilize(char *ser_buf, clientHello *packet);
-}__attribute__((packed));
+#ifndef _SERVER_AUTH_H_
+#define _SERVER_AUTH_H_
+// TOCHECK review all struct -> remove redundant 
 
 struct serverHello
 {
@@ -49,20 +35,5 @@ struct serverChallenge
     // SECTION: Member methods
     void serialize(serverChallenge *packet, char *ser_buf);
     void deserilize(char *ser_buf, serverChallenge *packet);
-}__attribute__((packed));
-
-struct clientResponse
-{
-    /* data size = 534 */
-    unsigned int        server_nounce {0};
-    unsigned short int  dh_param_g {0};
-    unsigned short int  dh_key_size {0}; 
-    unsigned char       *dh_key;
-    unsigned short int  sig_size {0};
-    unsigned char       *signature;
-
-    // SECTION: Member methods
-    void serialize(clientResponse *packet, char *ser_buf);
-    void deserilize(char *ser_buf, clientResponse *packet);
 }__attribute__((packed));
 #endif

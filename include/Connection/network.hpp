@@ -13,22 +13,24 @@
 #include <iostream>
 #include <cstring>
 #include <string>
-
+// TOCHECK ha senso avere una classe qua ? 
 class Connection
 {
 private:
-    /* data */
-    struct sockaddr_in _addr_in;
+    /* data related to connection */
+    struct sockaddr_in _addr;
     int _optvalue;
     int _sock_fd;
     int _port;
 public:
-    int opp_port;
-    struct sockaddr_in opp_addr_in;
-    
-    /* Default constructor */
+    // SECTION: constructor
+    // TODO: define default and specialized
     Connection();
     // Connection(int _sock_fd, int _port, int opp_port, int _optvalue, std::string _addr, std::string _opp_addr);
+
+    // SECTION: setter
+
+    // SECTION: getter
 
     /* Class members */
     // ATTENTION 

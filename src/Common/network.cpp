@@ -10,7 +10,7 @@
 
 /* DEFAULT CONSTRUCTOR */
 Connection::Connection()
-    : _sock_fd{0}, _port{DEFAULT_PORT}, _optvalue{0}, _addr_in{NULL}
+    : _sock_fd{0}, _port{DEFAULT_PORT}, _optvalue{0}, _addr{NULL}
 {
 }
 /* SPECIALIZED SERVER CONSTRUCTOR */
@@ -85,17 +85,17 @@ Connection::connectServer()
     }
 
     // Setup options for the socket referred to by the file descriptor sock
-    bzero((char *)&this->_addr_in, sizeof(this->_addr_in));
+    bzero((char *)&this->_addr, sizeof(this->_addr));
     if (setsockopt(this->_sock_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &this->_optvalue, sizeof(this->_optvalue)))
     {
         perror("setsockopt()");
         return false;
     }
-    this->_addr_in.sin_family = AF_INET;
-    this->_addr_in.sin_addr.s_addr = INADDR_ANY;
-    this->_addr_in.sin_port = htons(DEFAULT_PORT);
+    this->_addr.sin_family = AF_INET;
+    this->_addr.sin_addr.s_addr = INADDR_ANY;
+    this->_addr.sin_port = htons(DEFAULT_PORT);
 
-    if (bind(this->_sock_fd, (struct sockaddr *)&this->_addr_in, sizeof(this->_addr_in)) < 0)
+    if (bind(this->_sock_fd, (struct sockaddr *)&this->_addr, sizeof(this->_addr)) < 0)
     {
         perror("ERROR on binding");
         return false;
