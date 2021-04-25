@@ -1,5 +1,5 @@
 /**
- * SECTION
+ * DESCRIPTION
  * The packetHeader.h file define the structure of the packet header used to exchange message in the Four-in-a-row game
  */
 #ifndef _PACKET_H_
@@ -12,7 +12,7 @@ struct Packet
     Header          _header;    
     unsigned char * _payload;
 
-    // SECTION: Member methods
+    // DESCRIPTION: Member methods
     void set_csize(char * payload);
     void set_isize(unsigned short int size);
     void set_payl(char * payload);
