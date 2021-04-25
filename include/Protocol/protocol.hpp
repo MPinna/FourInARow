@@ -27,7 +27,4 @@ struct enc_protocol
     Packet data;
     unsigned char * _tag;
 }__attribute__((packed));
-
-
-
 #endif
