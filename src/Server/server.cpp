@@ -7,37 +7,21 @@
  *  - Maintain the online player list
  *  - Maintain the public key list associated to each registered user
  */
-#include "include/Connection/connection.hpp"
+#include <iostream>
 
 class Server    
 {
 private:
-    /* data */
+    // TODO
     std::string _name;
 public:
     Server();
-    Server(std::string _name);
     ~Server();
-    Connection connection;
 };
 
-Server::Server()
-{
-}
-
-Server::Server(std::string _name_val)
-    : _name {_name_val}
-{
-}
-
-Server::~Server()
-{
-}
 
 int main()
 {
-    Server server;
-    server.connection.connectServer();
     
     return 0;
 }

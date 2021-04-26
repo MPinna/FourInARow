@@ -7,7 +7,7 @@
  *  - Play a four-in-a-row game
  *  - Init a board
  */
-#include "Connection/connection.hpp"
+#include <iostream>
 
 class Client
 {

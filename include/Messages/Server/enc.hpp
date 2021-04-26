@@ -5,8 +5,8 @@
  *  - Receive the opponent's information
  *  - Launch a challenge
  */
-#ifndef _SERVER_ENCRYPTED_H_
-#define _SERVER_ENCRYPTED_H_
+#ifndef _SERVER_ENCRYPTED_MESSAGES_H_
+#define _SERVER_ENCRYPTED_MESSAGES_H_
 #include "Utils/constant.hpp"
 
 struct ListResponse

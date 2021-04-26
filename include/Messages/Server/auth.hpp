@@ -3,8 +3,8 @@
  * The clientServerChallRes (Client and Server challenge response) header file, describe packet used to: 
  *  - manage all messages exchanged between a Client and a Server during authentication phase
  */
-#ifndef _SERVER_AUTH_H_
-#define _SERVER_AUTH_H_
+#ifndef _SERVER_AUTH_MESSAGES_H_
+#define _SERVER_AUTH_MESSAGES_H_
 // TOCHECK review all struct -> remove redundant 
 
 struct serverHello

@@ -5,8 +5,8 @@
  *  - Receive the opponent's information
  *  - Launch a challenge
  */
-#ifndef _PEER_ENCRYPTED_MESSAGES_H_
-#define _PEER_ENCRYPTED_MESSAGES_H_
+#ifndef _CLIENT_ENCRYPTED_MESSAGES_H_
+#define _CLIENT_ENCRYPTED_MESSAGES_H_
 #include "Utils/constant.hpp"
 
 struct ListRequest // TOCHECK if you can send this packet even without randomness field

@@ -3,8 +3,8 @@
  * The clientServerChallRes (Client and Server challenge response) header file, describe packet used to: 
  *  - manage all messages exchanged between a Client and a Server during authentication phase
  */
-#ifndef _PEER_AUTH_MESSAGES_H_
-#define _PEER_AUTH_MESSAGES_H_
+#ifndef _CLIENT_AUTH_MESSAGES_H_
+#define _CLIENT_AUTH_MESSAGES_H_
 
 #include "Utils/constant.hpp"
 

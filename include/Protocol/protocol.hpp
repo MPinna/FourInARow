@@ -12,7 +12,7 @@
  * DESCRIPTION:
  * This structure is used to manage authentication packet (e.g. packet with require digital signature)
  */
-struct auth_protocol 
+struct auth_protocol
 {
     Packet          data;
     unsigned char * _signature;
