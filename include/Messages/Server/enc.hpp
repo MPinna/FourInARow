@@ -12,43 +12,40 @@
 struct ListResponse
 {
     /* data */
-    unsigned short int  num_of_clients{0};
-    unsigned char *     clients_list;
-    unsigned short int  gcm_tag_size{0};
-    unsigned char *     gcm_tag;
+    unsigned short int  _num_of_clients{0};
+    unsigned char *     _clients_list; // TOCHECK
+    AEAD                _tag;
 
-    // SECTION: Member methods
-    void serialize(ListResponse *packet, char *ser_buf);
-    void deserilize(char *ser_buf, ListResponse *packet);
+    // DESCRIPTION: Member methods
+    void serialize(char *to_ser_buf);
+    void deserilize(char *ser_buf);
 }__attribute__((packed));
 
 struct OppGameResponse
 {
     /* data */
-    unsigned char       opponent_username[_16_BYTES];
-    bool                flag;
-    unsigned short int  gcm_size;
-    unsigned char *     gcm_tag;
+    unsigned char       _opponent_username[_16_BYTES];
+    bool                _flag;
+    AEAD                _tag;
 
-    // SECTION: Member methods
-    void serialize(OppGameResponse *packet, char *ser_buf);
-    void deserilize(char *ser_buf, OppGameResponse *packet);
+    // DESCRIPTION: Member methods
+    void serialize(char *to_ser_buf);
+    void deserilize(char *ser_buf);
 }__attribute__((packed));
 
 struct GameChallengeInfo
 {
     /* data */
-    unsigned char *     opponent_username;
-    unsigned short int  peer_port{0};
-    unsigned short int  pubkey_size{0};
-    unsigned char *     opponent_pubkey;
-    unsigned short int  dh_par_p{0};
-    unsigned short int  dh_par_g{0};
-    unsigned short int  gcm_size{0};
-    unsigned char *     gcm_tag;
+    unsigned char *     _opponent_username[_16_BYTES];
+    unsigned short int  _peer_port{0};
+    unsigned short int  _pubkey_size{0};
+    unsigned char *     _opponent_pubkey;
+    unsigned short int  _dh_par_p{0};
+    unsigned short int  _dh_par_g{0};
+    AEAD                _tag;
 
-    // SECTION: Member methods
-    void serialize(GameChallengeInfo *packet, char *ser_buf);
-    void deserilize(char *ser_buf, GameChallengeInfo *packet);
+    // DESCRIPTION: Member methods
+    void serialize(char *to_ser_buf);
+    void deserilize(char *ser_buf);
 }__attribute__((packed));
 #endif

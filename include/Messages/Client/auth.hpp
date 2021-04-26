@@ -5,36 +5,33 @@
  */
 #ifndef _CLIENT_AUTH_MESSAGES_H_
 #define _CLIENT_AUTH_MESSAGES_H_
-
 #include "Utils/constant.hpp"
 
 struct clientHello
 {
     /* data size = 40 Bytes */
-    unsigned int        nounce{0};
-    unsigned char       username[_16_BYTES];
-    unsigned short int  port_number {0};
-    unsigned short int  sig_size {0};
-    unsigned char *     signature;
+    unsigned int        _nounce{0};
+    unsigned char       _username[_16_BYTES];
+    unsigned short int  _port_number {0};
+    Signature           _signature;
 
-    // SECTION: Member methods
-    void serialize(clientHello *packet, char *ser_buf);
-    void deserilize(char *ser_buf, clientHello *packet);
+    // DESCRIPTION: Member methods
+    void serialize(char *to_ser_buf);
+    void deserilize(char *ser_buf);
 }__attribute__((packed));
 
 struct clientResponse
 {
     /* data size = 534 */
-    unsigned int        server_nounce {0};
-    unsigned short int  dh_param_g {0};
-    unsigned short int  dh_key_size {0}; 
-    unsigned char       *dh_key;
-    unsigned short int  sig_size {0};
-    unsigned char       *signature;
+    unsigned int        _server_nounce {0};
+    unsigned short int  _dh_param_g {0};
+    unsigned short int  _dh_key_size {0}; 
+    unsigned char *     _dh_key;
+    Signature           _signature;
 
     // DESCRIPTION: Member methods
-    void serialize(clientResponse *packet, char *ser_buf);
-    void deserilize(char *ser_buf, clientResponse *packet);
+    void serialize(char *to_ser_buf);
+    void deserilize(char *ser_buf);
 }__attribute__((packed));
 #endif
 
@@ -44,43 +41,39 @@ struct clientResponse
 struct peerHello
 {
     /* data */
-    unsigned char *     username[_16_BYTES];
-    int                 nounce {0};
-    short unsigned int  sig_size {0};
-    unsigned char *     signature;
+    unsigned char *     _username[_16_BYTES]{0};
+    int                 _nounce {0};
+    Signature           _signature;
 
     // DESCRIPTION: Member methods
-    void serialize(peerHello *packet, char *ser_buf);
-    void deserialize(char *ser_buf, peerHello *packet);
+    void serialize(char *to_ser_buf);
+    void deserilize(char *ser_buf);
 }__attribute__((packed));
 
 struct peerChallenge
 {
     /* data */
-    int                 nounce {0};
-    int                 peer_nounce {0};
-    short unsigned int  dh_key_size {0};
-    unsigned char *     dh_key;
-    short unsigned int  sig_size {0};
-    unsigned char *     signature;
+    int                 _nounce {0};
+    int                 _peer_nounce {0};
+    short unsigned int  _dh_key_size {0};
+    unsigned char *     _dh_key;
+    Signature           _signature;
 
     // DESCRIPTION: Member methods
-    void serialize(peerChallenge *packet, char *ser_buf);
-    void deserilize(char *ser_buf, peerChallenge *packet);
+    void serialize(char *to_ser_buf);
+    void deserilize(char *ser_buf);
 }__attribute__((packed));
 
 struct peerResponse
 {
     /* data */
-    int                 peer_nounce {0};
-    short unsigned int  dh_key_size {0};
-    unsigned char *     dh_key;
-    short unsigned int  sig_size {0};
-    unsigned char *     signature;
+    int                 _peer_nounce {0};
+    short unsigned int  _dh_key_size {0};
+    unsigned char *     _dh_key;
+    Signature           _signature;
 
     // DESCRIPTION: Member methods
-    void serialize(peerResponse *packet, char *ser_buf);
-    void deserilize(char *ser_buf, peerResponse *packet);
+    void serialize(char *to_ser_buf);
+    void deserilize(char *ser_buf);
 }__attribute__((packed));
-
 #endif

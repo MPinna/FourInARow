@@ -1,3 +1,6 @@
+/**
+ * DESCRIPTION
+ */
 #include "Utils/strinops.hpp"
 #include <iostream>
 

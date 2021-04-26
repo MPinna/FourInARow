@@ -1,7 +1,7 @@
 #include "Connection/network.hpp"
 #include "Utils/constant.hpp"
 /**
- * SECTION
+ * DESCRIPTION
  * The source file has structured as follows:
  *  - constructor
  *  - destructor

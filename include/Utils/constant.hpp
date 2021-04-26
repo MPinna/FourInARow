@@ -1,5 +1,5 @@
 /**
- * SECTION
+ * DESCRIPTION
  * This file it is used to declare all usefull constants for the include files
  */
 

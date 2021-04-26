@@ -14,7 +14,7 @@
  */
 struct auth_protocol
 {
-    Packet          data;
+    Packet          _data;
     unsigned char * _signature;
 }__attribute__((packed));
 
@@ -24,7 +24,7 @@ struct auth_protocol
  */
 struct enc_protocol
 {
-    Packet data;
+    Packet          _data;
     unsigned char * _tag;
 }__attribute__((packed));
 #endif

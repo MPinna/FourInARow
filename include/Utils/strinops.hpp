@@ -1,5 +1,5 @@
 /**
- * SECTION
+ * DESCRIPTION
  * 
  */
 #ifndef _STRINGOPS_H_

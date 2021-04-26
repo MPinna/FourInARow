@@ -7,5 +7,4 @@ struct Header
     unsigned int        _counter;
     unsigned short int  _payload_size; // To allocate buffer space
 } __attribute__((packed));
-
 #endif
