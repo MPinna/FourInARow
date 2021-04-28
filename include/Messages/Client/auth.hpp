@@ -1,7 +1,6 @@
 /**
  * DESCRIPTION
- * The clientServerChallRes (Client and Server challenge response) header file, describe packet used to: 
- *  - manage all messages exchanged between a Client and a Server during authentication phase
+ * The client challenge response header file, describe packet used to authentication phase sent by client only
  */
 #ifndef _CLIENT_AUTH_MESSAGES_H_
 #define _CLIENT_AUTH_MESSAGES_H_
@@ -9,9 +8,8 @@
 
 struct clientHello
 {
-    /* data size = 40 Bytes */
     unsigned int        _nounce{0};
-    unsigned char       _username[_16_BYTES];
+    unsigned char       _username[_16_BYTES]{0};
     unsigned short int  _port_number {0};
     Signature           _signature;
 
@@ -22,7 +20,6 @@ struct clientHello
 
 struct clientResponse
 {
-    /* data size = 534 */
     unsigned int        _server_nounce {0};
     unsigned short int  _dh_param_g {0};
     unsigned short int  _dh_key_size {0}; 
@@ -40,8 +37,7 @@ struct clientResponse
  */
 struct peerHello
 {
-    /* data */
-    unsigned char *     _username[_16_BYTES]{0};
+    unsigned char       _username[_16_BYTES]{0};
     int                 _nounce {0};
     Signature           _signature;
 
@@ -52,7 +48,6 @@ struct peerHello
 
 struct peerChallenge
 {
-    /* data */
     int                 _nounce {0};
     int                 _peer_nounce {0};
     short unsigned int  _dh_key_size {0};
@@ -66,7 +61,6 @@ struct peerChallenge
 
 struct peerResponse
 {
-    /* data */
     int                 _peer_nounce {0};
     short unsigned int  _dh_key_size {0};
     unsigned char *     _dh_key;

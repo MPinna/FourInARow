@@ -11,7 +11,6 @@
 
 struct ListResponse
 {
-    /* data */
     unsigned short int  _num_of_clients{0};
     unsigned char *     _clients_list; // TOCHECK
     AEAD                _tag;
@@ -23,8 +22,7 @@ struct ListResponse
 
 struct OppGameResponse
 {
-    /* data */
-    unsigned char       _opponent_username[_16_BYTES];
+    unsigned char       _opponent_username[_16_BYTES]{0};
     bool                _flag;
     AEAD                _tag;
 
@@ -35,8 +33,7 @@ struct OppGameResponse
 
 struct GameChallengeInfo
 {
-    /* data */
-    unsigned char *     _opponent_username[_16_BYTES];
+    unsigned char       _opponent_username[_16_BYTES]{0};
     unsigned short int  _peer_port{0};
     unsigned short int  _pubkey_size{0};
     unsigned char *     _opponent_pubkey;

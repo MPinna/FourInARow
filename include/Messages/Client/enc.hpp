@@ -11,9 +11,8 @@
 
 struct ListRequest // TOCHECK if you can send this packet even without randomness field
 {
-    /* data */
     unsigned short int  _rand_size{0};
-    unsigned char *     _randomness[_16_BYTES];
+    unsigned char       _randomness[_16_BYTES]{0};
     AEAD                _tag;
 
     // DESCRIPTION: Member methods
@@ -23,9 +22,8 @@ struct ListRequest // TOCHECK if you can send this packet even without randomnes
 
 struct GameRequest
 {
-    /* data */
-    unsigned char       _opponent_username[_16_BYTES];
-    AEAD                _tag;
+    unsigned char   _opponent_username[_16_BYTES]{0};
+    AEAD            _tag;
 
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
@@ -38,7 +36,6 @@ struct GameRequest
  */
 struct gameMove // TOCHECK if it is possible to send without randomness exploiting AAD only
 {
-    /* data */
     unsigned char       _randomness[_16_BYTES];
     short unsigned int  _column_num {0};
     AEAD                _tag;
@@ -51,7 +48,6 @@ struct gameMove // TOCHECK if it is possible to send without randomness exploiti
 // TOCHECK gameEnd message
 struct endGame
 {
-    /* data */
     unsigned char       _randomness[_16_BYTES];
     unsigned short int  _signal{0};
     AEAD                _tag;
