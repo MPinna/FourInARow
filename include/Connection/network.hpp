@@ -17,11 +17,10 @@ class Connection
 {
 private:
     /* data related to generic connection connection */
-    struct sockaddr_in _addr, _opp_addr;
+    struct sockaddr_in _serv_addr;
     int _sock_fd;
+    int _server_port;
     int _optval;
-    int _port;
-
 public:
     // DESCRIPTION: constructor
     Connection();
@@ -44,16 +43,17 @@ public:
                                 );
 
     // DESCRIPTION: Class members
-    int setSock(int family, int socktype, int protocol);
-    int setBind(uint16_t port, int socktype);
-    int setTcpBind(uint16_t port);
-    int setUdpBind(uint16_t port);
-    int setListen(uint16_t port, int socktype);
-    int setAccept(int socket, struct sockaddr *addr, socklen_t *addrlen);
-    int setConnect(struct addrinfo info);
-    bool sendData(int socket, const void *buf, size_t len, struct addrinfo *info);
+    int _sock(int family, int socktype, int protocol);
+    int _bind(int socktype);
+    int _tcpBind();
+    int _udpBind();
+    int _listen(); 
+    // NOTE: from here
+    int _accept(struct sockaddr *addr, socklen_t *addrlen);
+    int _connect(struct addrinfo info);
+    bool _sendData(int socket, const void *buf, size_t len, struct addrinfo *info);
     bool recvData(int socket, void *buf, size_t len);
     bool readNBytes(int socket, char *buf, std::size_t N);
-    void setClose(int socket);
+    void _close(int socket);
 };
 #endif

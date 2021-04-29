@@ -11,112 +11,117 @@
 
 // Constructor
 Connection::Connection()
-    : _sock_fd{0}, _port{DEFAULT_PORT}, _optval{0}
+    : _sock_fd{0}, _server_port{DEFAULT_PORT}, _optval{0}
 {
 }
 
 Connection::Connection(int _sock_fd_val, int _opt_value_val, int _port_val)
-    : _sock_fd{_sock_fd_val}, _optval{_opt_value_val}, _port{_port_val}
+    : _sock_fd{_sock_fd_val}, _optval{_opt_value_val}, _server_port{_port_val}
 {
 }
 
-void
-Connection::setSockFD(int sockfd)
+void Connection::setSockFD(int sockfd)
 {
     this->_sock_fd = sockfd;
 }
 
-void
-Connection::setOptval(int optval)
+void Connection::setOptval(int optval)
 {
     this->_optval = optval;
 }
 
-void
-Connection::setPort(int port)
+void Connection::setPort(int port)
 {
-    this->_port = port;
+    this->_server_port = port;
 }
 
-int
-Connection::getSockFD()
+int Connection::getSockFD()
 {
     return this->_sock_fd;
 }
 
-int
-Connection::getOptval()
+int Connection::getOptval()
 {
     return this->_optval;
 }
 
-int
-Connection::getPort()
+int Connection::getPort()
 {
-    return this->_port;
+    return this->_server_port;
 }
 
 struct addrinfo *
 Connection::getAddrInfo(const char *node, const char *service, int family, int sock_type)
 {
-    // TODO    
+    // TODO
 }
 
-int
-Connection::setSock(int family, int socktype, int protocol)
+int Connection::_sock(int family, int socktype, int protocol)
 {
     // socket(int domain, int type, int protocol)
-    this->_sock_fd =  socket(family, socktype, protocol);
-    if (this->_sock_fd < 0) 
-            std::cout << "ERROR creating an endpoint for communication" << std::endl;
+    this->_sock_fd = socket(family, socktype, protocol);
+    if (this->_sock_fd < 0)
+        std::cout << "ERROR creating an endpoint for communication" << std::endl;
 
     return this->_sock_fd;
 }
 
-int
-Connection::setBind(uint16_t port, int socktype)
+int Connection::_bind(int socktype)
 {
-    this->_sock_fd = setSock(AF_INET, socktype, 0);
-	if (this->_sock_fd == -1)
-		return -1;
-	// struct sockaddr_in6 sockaddr;
-	memset(&this->_addr, 0, sizeof(struct sockaddr_in));
-	this->_addr.sin_family = AF_INET;
-    this->_addr.sin_addr.s_addr = INADDR_ANY;
-    this->_addr.sin_port = htons(port);
-	if (bind(this->_sock_fd, (const struct sockaddr*)&this->_addr, sizeof(this->_addr)) == -1) {
-		std::cout << "bind() failed.";
-		return -1;
-	}
-	return this->_sock_fd;
+    this->_sock_fd = _sock(AF_INET, socktype, 0);
+    if (this->_sock_fd == -1)
+        return -1;
+    // struct sockaddr_in6 sockaddr;
+    memset(&this->_serv_addr, 0, sizeof(struct sockaddr_in));
+    this->_serv_addr.sin_family = AF_INET;
+    this->_serv_addr.sin_addr.s_addr = INADDR_ANY;
+    this->_serv_addr.sin_port = htons(this->_server_port);
+    if (bind(this->_sock_fd, (const struct sockaddr *)&this->_serv_addr, sizeof(this->_serv_addr)) == -1)
+    {
+        std::cout << "ERROR: bind() failed";
+        return -1;
+    }
+    return this->_sock_fd;
 }
 
-int
-Connection::setTcpBind(uint16_t port)
+int Connection::_tcpBind()
 {
-    return setBind(port, SOCK_STREAM);
+    return _bind(SOCK_STREAM);
 }
 
-int
-Connection::setUdpBind(uint16_t port)
+int Connection::_udpBind()
 {
-    return setBind(port, SOCK_DGRAM);
+    return _bind(SOCK_DGRAM);
+}
+
+int Connection::_listen()
+{
+    if (listen(this->_sock_fd, BACKLOG_QUEUE) == -1)
+    {
+        std::cout << "listen() failed" << std::endl;
+        return -1;
+    }
+    return this->_sock_fd;
 }
 
 // Reads N bytes VERIFIED
-bool
-Connection::readNBytes(int socket, char *buf, std::size_t N)
+bool Connection::readNBytes(int socket, char *buf, std::size_t N)
 {
     std::size_t offset = 0;
-    while (true) {
+    while (true)
+    {
         ssize_t ret = recv(socket, buf + offset, N - offset, MSG_WAITALL);
-        if (ret < 0) {
-            if (errno != EINTR) {
+        if (ret < 0)
+        {
+            if (errno != EINTR)
+            {
                 // Error occurred
                 std::cout << "IOException(strerror(errno)" << std::endl;
                 return false;
             }
-        } else if (ret == 0) {
+        }
+        else if (ret == 0)
+        {
             // No data available anymore
             if (offset == 0)
             {
@@ -128,10 +133,14 @@ Connection::readNBytes(int socket, char *buf, std::size_t N)
                 std::cout << "ProtocolException (\"Unexpected end of stream)" << std::endl;
                 return false;
             }
-        } else if (offset + ret == N) {
+        }
+        else if (offset + ret == N)
+        {
             // All n bytes read
             return true;
-        } else {
+        }
+        else
+        {
             offset += ret;
         }
     }

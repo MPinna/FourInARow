@@ -6,13 +6,13 @@
 #ifndef _UTIL_COSTANTS_H_
 #define _UTIL_COSTANTS_H_
 
-#define _16_BYTES 16
-#define _32_BYTES 32
+#define _16_BYTES           16
+#define _32_BYTES           32
 
-#define DEFAULT_ADDR "localhost"
-#define DEFAULT_PORT 8888
+#define DEFAULT_ADDR        "localhost"
+#define DEFAULT_PORT        8888
 
-// TOIMPLEMENT take in mind this logic
+// DESCRIPTION packet type
 #define CLIENT_HELLO        1
 #define SERVER_HELLO        2
 #define SERVER_CHALLENGE    3
@@ -23,5 +23,8 @@
 #define GAME_RESPONSE       8
 #define OPP_GAME_RESPONSE   9
 #define GAME_CHALL_INFO     10
+
+// DESCRIPTION network constants
+#define BACKLOG_QUEUE       5
 
 #endif
