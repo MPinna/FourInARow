@@ -18,23 +18,22 @@ class Connection
 private:
     /* data related to generic connection connection */
     struct sockaddr_in _serv_addr;
-    int _sock_fd;
     int _server_port;
-    int _optval;
+    int _sockfd;
+
 public:
     // DESCRIPTION: constructor
     Connection();
-    Connection(int sock_fd, int _optvalue, int port);
+    Connection(int sock_fd, int port);
     // NOTE: i setter e getter vanno rivisti, alcuni potrebbero non servire
     // DESCRIPTION: setter
     void setSockFD(int sock);
-    void setOptval(int optval);
     void setPort(int port);
     
     // DESCRIPTION: getter
     int getSockFD();
-    int getOptval();
     int getPort();
+    
     struct addrinfo *getAddrInfo(  
                                     const char *node, 
                                     const char *service,
@@ -43,17 +42,17 @@ public:
                                 );
 
     // DESCRIPTION: Class members
-    int _sock(int family, int socktype, int protocol);
-    int _bind(int socktype);
-    int _tcpBind();
-    int _udpBind();
-    int _listen(); 
+    int Sock(int family, int socktype, int protocol);
+    int Bind(int socktype);
+    int TcpBind();
+    int UdpBind();
+    int Listen(); 
     // NOTE: from here
-    int _accept(struct sockaddr *addr, socklen_t *addrlen);
-    int _connect(struct addrinfo info);
-    bool _sendData(int socket, const void *buf, size_t len, struct addrinfo *info);
-    bool recvData(int socket, void *buf, size_t len);
-    bool readNBytes(int socket, char *buf, std::size_t N);
-    void _close(int socket);
+    int Accept(struct sockaddr *addr, socklen_t *addrlen);
+    int Connect(struct addrinfo info);
+    bool SendData(int socket, const void *buf, size_t len, struct addrinfo *info);
+    bool RecvData(int socket, void *buf, size_t len);
+    bool ReadNBytes(int socket, char *buf, std::size_t N);
+    void Close(int socket);
 };
 #endif

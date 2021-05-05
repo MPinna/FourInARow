@@ -11,24 +11,21 @@
 
 // Constructor
 Connection::Connection()
-    : _sock_fd{0}, _server_port{DEFAULT_PORT}, _optval{0}
+    : _sockfd{0}, _server_port{DEFAULT_PORT}
 {
 }
 
-Connection::Connection(int _sock_fd_val, int _opt_value_val, int _port_val)
-    : _sock_fd{_sock_fd_val}, _optval{_opt_value_val}, _server_port{_port_val}
+Connection::Connection(int _sockfd_val, int _port_val)
+    : _sockfd{_sockfd_val}, _server_port{_port_val}
 {
 }
 
 void Connection::setSockFD(int sockfd)
 {
-    this->_sock_fd = sockfd;
+    this->_sockfd = sockfd;
 }
 
-void Connection::setOptval(int optval)
-{
-    this->_optval = optval;
-}
+
 
 void Connection::setPort(int port)
 {
@@ -37,12 +34,7 @@ void Connection::setPort(int port)
 
 int Connection::getSockFD()
 {
-    return this->_sock_fd;
-}
-
-int Connection::getOptval()
-{
-    return this->_optval;
+    return this->_sockfd;
 }
 
 int Connection::getPort()
@@ -56,56 +48,56 @@ Connection::getAddrInfo(const char *node, const char *service, int family, int s
     // TODO
 }
 
-int Connection::_sock(int family, int socktype, int protocol)
+int Connection::Sock(int family, int socktype, int protocol)
 {
     // socket(int domain, int type, int protocol)
-    this->_sock_fd = socket(family, socktype, protocol);
-    if (this->_sock_fd < 0)
+    this->_sockfd = socket(family, socktype, protocol);
+    if (this->_sockfd < 0)
         std::cout << "ERROR creating an endpoint for communication" << std::endl;
 
-    return this->_sock_fd;
+    return this->_sockfd;
 }
 
-int Connection::_bind(int socktype)
+int Connection::Bind(int socktype)
 {
-    this->_sock_fd = _sock(AF_INET, socktype, 0);
-    if (this->_sock_fd == -1)
+    this->_sockfd = Sock(AF_INET, socktype, 0);
+    if (this->_sockfd == -1)
         return -1;
     // struct sockaddr_in6 sockaddr;
     memset(&this->_serv_addr, 0, sizeof(struct sockaddr_in));
     this->_serv_addr.sin_family = AF_INET;
     this->_serv_addr.sin_addr.s_addr = INADDR_ANY;
     this->_serv_addr.sin_port = htons(this->_server_port);
-    if (bind(this->_sock_fd, (const struct sockaddr *)&this->_serv_addr, sizeof(this->_serv_addr)) == -1)
+    if (bind(this->_sockfd, (const struct sockaddr *)&this->_serv_addr, sizeof(this->_serv_addr)) == -1)
     {
         std::cout << "ERROR: bind() failed";
         return -1;
     }
-    return this->_sock_fd;
+    return this->_sockfd;
 }
 
-int Connection::_tcpBind()
+int Connection::TcpBind()
 {
-    return _bind(SOCK_STREAM);
+    return Bind(SOCK_STREAM);
 }
 
-int Connection::_udpBind()
+int Connection::UdpBind()
 {
-    return _bind(SOCK_DGRAM);
+    return Bind(SOCK_DGRAM);
 }
 
-int Connection::_listen()
+int Connection::Listen()
 {
-    if (listen(this->_sock_fd, BACKLOG_QUEUE) == -1)
+    if (listen(this->_sockfd, BACKLOG_QUEUE) == -1)
     {
         std::cout << "listen() failed" << std::endl;
         return -1;
     }
-    return this->_sock_fd;
+    return this->_sockfd;
 }
 
 // Reads N bytes VERIFIED
-bool Connection::readNBytes(int socket, char *buf, std::size_t N)
+bool Connection::ReadNBytes(int socket, char *buf, std::size_t N)
 {
     std::size_t offset = 0;
     while (true)
