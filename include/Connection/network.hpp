@@ -5,54 +5,39 @@
  *  - Initialize Client socket (Socket, Connect)
  *  - Manage send() / receive() (for both Client and Server)
  */
+
 #ifndef _CONNECTION_H_
 #define _CONNECTION_H_
 #include "Utils/constant.hpp"
 #include <arpa/inet.h>
-#include <iostream>
-#include <cstring>
+#include <string>
 
-// TOCHECK ha senso avere una classe qua ?
-class Connection
-{
-private:
-    /* data related to generic connection connection */
-    struct sockaddr_in _serv_addr;
-    int _server_port;
-    int _sockfd;
+int InitSocket(int domain, int socktype, int protocol);
 
-public:
-    // DESCRIPTION: constructor
-    Connection();
-    Connection(int sock_fd, int port);
-    // NOTE: i setter e getter vanno rivisti, alcuni potrebbero non servire
-    // DESCRIPTION: setter
-    void setSockFD(int sock);
-    void setPort(int port);
-    
-    // DESCRIPTION: getter
-    int getSockFD();
-    int getPort();
-    
-    struct addrinfo *getAddrInfo(  
-                                    const char *node, 
-                                    const char *service,
-                                    int family,
-                                    int sock_type
-                                );
+void SetSockOpt(int sockfd, int level, int optname, void *optval);
 
-    // DESCRIPTION: Class members
-    int Sock(int family, int socktype, int protocol);
-    int Bind(int socktype);
-    int TcpBind();
-    int UdpBind();
-    int Listen(); 
-    // NOTE: from here
-    int Accept(struct sockaddr *addr, socklen_t *addrlen);
-    int Connect(struct addrinfo info);
-    bool SendData(int socket, const void *buf, size_t len, struct addrinfo *info);
-    bool RecvData(int socket, void *buf, size_t len);
-    bool ReadNBytes(int socket, char *buf, std::size_t N);
-    void Close(int socket);
-};
+void SockBind(
+            int sockfd, 
+            std::string ipaddr, 
+            std::string port, 
+            struct sockaddr_in sockaddress);
+
+void SockListen(int sockfd, int max_queue);
+
+int SockAccept(int sockfd, struct sockaddr_in sockaddress);
+
+void SockConnect(int sockfd, struct addrinfo info);
+
+bool SockReceive(int rec_sockfd, void *rec_buf, size_t len);
+
+bool SockSend(int send_sockfd, const char *send_buf, size_t len);
+
+void SockClose(int sockfd);
+
+struct addrinfo *GetAddrInfo(
+                            const char *node, 
+                            const char *port, 
+                            int family, 
+                            int socktype);
+
 #endif
