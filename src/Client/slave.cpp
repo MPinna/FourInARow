@@ -57,9 +57,9 @@ Slave::InitPeerReceiver(struct sockaddr_in _peersock, int backlog_queue)
 	std::cout << "READY! Waiting for a client to connect..." << std::endl;
 	SockListen(this->_peerfd, backlog_queue);
 	int _acceptfd = SockAccept(this->_peerfd, _peersock);
-	// TOCHECK could be useful to have getnameinfo here to keep track of received messages ? 
+	// TOCHECK could be useful to have getnameinfo here to keep track of received messages ?
 	std::cout << "Connected with peer!" << std::endl;
-	return _acceptfd; 
+	return _acceptfd;
 }
 
 int
