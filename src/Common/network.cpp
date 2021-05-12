@@ -150,7 +150,6 @@ void SockClose(int sockfd)
 	close(sockfd);
 }
 
-// Reads N bytes VERIFIED
 bool ReadNBytes(int socket, char *buf, std::size_t N)
 {
 	std::size_t offset = 0;

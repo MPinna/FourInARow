@@ -1,6 +1,7 @@
 #include "Connection/network.hpp"
 #include "Utils/constant.hpp"
 #include "Client/slave.hpp"
+#include <iostream>
 #include <netdb.h>
 
 Slave::Slave()
@@ -28,29 +29,49 @@ Slave::Slave(std::string serverport, std::string serveraddr)
 {
 }
 
-int
-Slave::InitClient()
+Slave::~Slave()
 {
-    this->_clientfd = InitSocket(AF_INET, SOCK_STREAM, 0);
-    _serverinfo = GetAddrInfo(this->_serveraddr.c_str(),
-                                    this->_serverport.c_str(), 
-                                    AF_INET, 
-                                    SOCK_STREAM);
+}
+
+int
+Slave::InitClient(int domain, int socktype, int protocol, int family)
+{
+    this->_clientfd = InitSocket(domain, socktype, protocol);
+    _serverinfo = GetAddrInfo(
+		this->_serveraddr.c_str(),
+        this->_serverport.c_str(), 
+        family, 
+        socktype);
 	SockConnect(this->_clientfd, *this->_serverinfo);
+	return this->_clientfd;
 }
 
 int
-Slave::InitPeerReceiver()
+Slave::InitPeerReceiver(struct sockaddr_in _peersock, int backlog_queue)
 {
-	// TODO
-
-	return 0;
+	int opt{1};
+	this->_peerfd = InitSocket(AF_INET, SOCK_STREAM, 0);
+	SetSockOpt(this->_peerfd, SOL_SOCKET, SO_REUSEADDR, &opt);
+	SockBind(this->_peerfd, this->_peeraddr, this->_peerport, _peersock);
+	// FIXME: remove this print
+	std::cout << "READY! Waiting for a client to connect..." << std::endl;
+	SockListen(this->_peerfd, backlog_queue);
+	int _acceptfd = SockAccept(this->_peerfd, _peersock);
+	// TOCHECK could be useful to have getnameinfo here to keep track of received messages ? 
+	std::cout << "Connected with peer!" << std::endl;
+	return _acceptfd; 
 }
 
 int
-Slave::InitPeerSender()
+Slave::InitPeerSender(struct sockaddr_in _peersock_, int domain, int socktype, int protocol, int family)
 {
-	// TODO
+	this->_peerfd = InitSocket(domain, socktype, protocol);
+	this->_peerinfo = GetAddrInfo(
+		this->_peeraddr.c_str(), 
+		this->_peerport.c_str(), 
+		family, 
+		socktype);
+	SockConnect(this->_peerfd, *this->_peerinfo);
 
 	return 0;
 }
