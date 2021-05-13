@@ -18,6 +18,6 @@ struct Packet
     void set_payl(char * payload);
     void serialize(char *to_ser_buf);
     void deserializeHeader(char * ser_buf);
-    void deserializePayload(char * ser_payload);
+    void deserializePayload(PacketType);
 } __attribute__((packed));
 #endif

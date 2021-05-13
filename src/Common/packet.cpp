@@ -2,11 +2,11 @@
  * DESCRIPTION
  * This file it is used to manage serialization / desarialization over defined messages
  */
-#include "Messages/Client/auth.hpp"
-#include "Messages/Server/auth.hpp"
-#include "Messages/Client/enc.hpp"
-#include "Messages/Server/enc.hpp"
-#include "Messages/packet.hpp"
+#include "../Messages/Client/auth.hpp"
+#include "../Messages/Server/auth.hpp"
+#include "../Messages/Client/enc.hpp"
+#include "../Messages/Server/enc.hpp"
+#include "../Messages/packet.hpp"
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <cstring>
@@ -64,12 +64,8 @@ void Packet::deserializeHeader(char *ser_buf)
     pos += sizeof(dpsize);
 }
 
-void Packet::deserializePayload(char *ser_payload)
+void Packet::deserializePayload(PacketType)
 {
-    unsigned short int size = this->_header._payload_size;
-    char tmp_msg[ntohs(size)];
-    memcpy(tmp_msg, ser_payload, size);
-    this->set_payl(tmp_msg);
-}
+    // NOTE: before implementing ser / des class member, check its correctness
 
-// NOTE: before implementing ser / des class member, check its correctness
+}

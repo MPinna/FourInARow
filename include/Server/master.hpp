@@ -14,8 +14,10 @@ private:
     std::string _ipserveraddr, _portno;
     struct addrinfo *info;
 public:
+    /* public data */
     struct sockaddr_in _serversock;
     int _serverfd, _exchangefd;
+    
     // DESCRIPTION: default constructor
     Master();
     Master(std::string port);
@@ -25,10 +27,7 @@ public:
     // DESCRIPTION: Getter / Setter
     std::string getIPAddr(){return this->_ipserveraddr;};
     std::string getPort(){return this->_portno;};
-    // int getServerfd(){return this->_serverfd;};
-    // int getExchangefd(){return this->_exchangefd;};
-    // void setServerfd(int value){this->_serverfd = value;};
-    // void setExchangefd(int value){this->_exchangefd = value;};
+
     // DESCRIPTION Class member
     int InitServer(int domain, int socktype, int protocol, int family, int level, int optname, int optval, int backlog_queue);
 };

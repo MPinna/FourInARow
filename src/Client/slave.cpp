@@ -34,7 +34,7 @@ Slave::InitClient(int domain, int socktype, int protocol, int family)
 	return this->_clientfd;
 }
 
-int
+void
 Slave::InitPeerReceiver(
 	int domain, 
     int socktype, 
@@ -55,11 +55,10 @@ Slave::InitPeerReceiver(
 	SockListen(this->_peerfd, backlog_queue);
 	int _acceptfd = SockAccept(this->_peerfd, _peersock);
 	// TOCHECK could be useful to have getnameinfo here to keep track of received messages ?
-	std::cout << "Connected with peer!" << std::endl;
-	return _acceptfd;
+	std::cout << "Connected with peer!" << std::endl;	
 }
 
-int
+void
 Slave::InitPeerSender(
 	int domain,
     int socktype, 
@@ -75,6 +74,4 @@ Slave::InitPeerSender(
 		family, 
 		socktype);
 	SockConnect(this->_peerfd, *this->_peerinfo);
-
-	return 0;
 }

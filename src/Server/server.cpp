@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     unsigned char buf[1024];
     bool _check{false};
     // Create socket, configure parameters, bind it, make it ready for listen
-    server->InitServer(AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, 5);
+    server->InitServer(AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE);
 
     for (;;)
     {

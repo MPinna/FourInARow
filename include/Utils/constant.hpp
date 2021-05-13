@@ -2,7 +2,6 @@
  * DESCRIPTION
  * This file it is used to declare all usefull constants for the include files
  */
-
 #ifndef _UTIL_COSTANTS_H_
 #define _UTIL_COSTANTS_H_
 
@@ -18,18 +17,19 @@
 #define DEFAULT_RPEER_PORT  "11001"     // S stands for sender
 
 // DESCRIPTION: packet type
-#define CLIENT_HELLO        1
-#define SERVER_HELLO        2
-#define SERVER_CHALLENGE    3
-#define CLIENT_RESPONSE     4
-#define LIST_REQUEST        5
-#define LIST_RESPONSE       6
-#define GAME_REQUEST        7
-#define GAME_RESPONSE       8
-#define OPP_GAME_RESPONSE   9
-#define GAME_CHALL_INFO     10
+enum PacketType { 
+    CLIENT_HELLO,
+    SERVER_HELLO,
+    SERVER_CHALLENGE,
+    CLIENT_RESPONSE,
+    LIST_REQUEST,
+    LIST_RESPONSE,
+    GAME_REQUEST,
+    GAME_RESPONSE,
+    OPP_GAME_RESPONSE,
+    GAME_CHALL_INFO
+}; // TOCHECK check if this is the complete list of messages
 
 // DESCRIPTION network constants
 #define BACKLOG_QUEUE       5
-
 #endif

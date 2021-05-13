@@ -4,6 +4,7 @@
  */
 #ifndef _CLIENT_SOCKET_H_
 #define _CLIENT_SOCKET_H_
+
 #include "../Connection/network.hpp"
 #include "../Utils/constant.hpp"
 #include <sys/socket.h>
@@ -39,7 +40,7 @@ public:
     // DESCRIPTION: class members
     int InitClient(int domain, int socktype, int protocol, int family);
     
-    int InitPeerReceiver(
+    void InitPeerReceiver(
         int domain, 
         int socktype, 
         int protocol, 
@@ -51,7 +52,7 @@ public:
         struct sockaddr_in _peersock
     );
     
-    int InitPeerSender(
+    void InitPeerSender(
         int domain,
         int socktype, 
         int protocol, 
