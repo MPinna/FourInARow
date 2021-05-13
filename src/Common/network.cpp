@@ -31,12 +31,13 @@ void SockBind(
 	int sockfd,
 	std::string ipaddr,
 	std::string port,
+	int family,
 	struct sockaddr_in sockaddress)
 {
 	uint32_t _port = atoi(port.c_str());
 	uint32_t _addr = atoi(ipaddr.c_str());
 	memset(&sockaddress, 0, sizeof(struct sockaddr_in));
-	sockaddress.sin_family = AF_INET;
+	sockaddress.sin_family = family;
 	sockaddress.sin_addr.s_addr = htonl(_addr);
 	sockaddress.sin_port = htons(_port);
 	if (bind(sockfd, (const struct sockaddr *)&sockaddress, sizeof(sockaddr)) == -1)

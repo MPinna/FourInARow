@@ -19,6 +19,7 @@ void SockBind(
     int sockfd,
     std::string ipaddr,
     std::string port,
+    int family,
     struct sockaddr_in sockaddress);
 
 void SockListen(int sockfd, int max_queue);

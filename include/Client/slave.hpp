@@ -4,6 +4,8 @@
  */
 #ifndef _CLIENT_SOCKET_H_
 #define _CLIENT_SOCKET_H_
+#include "Connection/network.hpp"
+#include "Utils/constant.hpp"
 #include <sys/socket.h>
 #include <string>
 
@@ -21,18 +23,41 @@ public:
     Slave();
     Slave(std::string peerport);
     Slave(std::string peerport, std::string peeraddr);
-    Slave(std::string serverport);
-    Slave(std::string serverport, std::string serveraddr);
     ~Slave();
+    // DESCRIPTION: Getter / Setter
+    std::string getServerAddr(){return this->_serveraddr;};
+    std::string getServerPort(){return this->_serverport;};
+    std::string getPeerAddr(){return this->_peeraddr;};
+    std::string getPeerAddr(){return this->_peerport;};
+    int getClientfd(){return this->_clientfd;};
+    int getPeerfd(){return this->_peerfd;};
+    void setServerAddr(std::string addr){this->_serveraddr = addr;};
+    void setServerPort(std::string port){this->_serverport = port;};
+    void setPeerAddr(std::string addr){this->_peeraddr = addr;};
+    void setPeerPort(std::string port){this->_peerport = port;};
+    
     // DESCRIPTION: class members
     int InitClient(int domain, int socktype, int protocol, int family);
-    int InitPeerReceiver(struct sockaddr_in _peersock, int backlog_queue);
+    
+    int InitPeerReceiver(
+        int domain, 
+        int socktype, 
+        int protocol, 
+        int family,
+	    int level,
+	    int optname,
+        int optval,
+        int backlog_queue, 
+        struct sockaddr_in _peersock
+    );
+    
     int InitPeerSender(
-        struct sockaddr_in _peersock,
         int domain,
         int socktype, 
         int protocol, 
-        int family);
+        int family,
+        struct sockaddr_in _peersock
+    );
 };
 
 #endif

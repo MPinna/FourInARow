@@ -11,7 +11,18 @@
 #include "Server/master.hpp"
 #include <iostream>
 
-Master::Master(/* args */)
+Master::Master()
+    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{DEFAULT_SERVER_PORT}, _serverfd{0}, _exchangefd{0}
+{
+}
+
+Master::Master(std::string port)
+    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{port}, _serverfd{0}, _exchangefd{0}
+{
+}
+
+Master::Master(std::string ipaddr, std::string port)
+    : _ipserveraddr{ipaddr}, _portno{port}, _serverfd{0}, _exchangefd{0}
 {
 }
 
@@ -20,11 +31,11 @@ Master::~Master()
 }
 
 int
-Master::InitServer(int domain, int socktype, int protocol, int family, int level, int optname, int backlog_queue)
+Master::InitServer(int domain, int socktype, int protocol, int family, int level, int optname, int optval, int backlog_queue)
 {   
     this->_serverfd = InitSocket(domain, socktype, protocol);
-    SetSockOpt(this->_serverfd, level, optname, &this->opt);
-    SockBind(this->_serverfd, this->_ipserveraddr, _portno, this->_serversock);
+    SetSockOpt(this->_serverfd, level, optname, &optval);
+    SockBind(this->_serverfd, this->_ipserveraddr, _portno, family, this->_serversock);
     SockListen(this->_serverfd, backlog_queue);
 
     return this->_serverfd;
