@@ -5,8 +5,8 @@
 #ifndef _SERVER_SOCKET_H
 #define _SERVER_SOCKET_H
 
-#include "Connection/network.hpp"
-#include "Utils/constant.hpp"
+#include "../Connection/network.hpp"
+#include "../Utils/constant.hpp"
 class Master
 {
 private:

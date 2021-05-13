@@ -7,7 +7,7 @@
  *  - Play a four-in-a-row game
  *  - Init a board
  */
-#include "Client/slave.hpp"
+#include "../../include/Client/slave.hpp"
 #include <iostream>
 #include <cstring>
 

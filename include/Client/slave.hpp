@@ -4,8 +4,8 @@
  */
 #ifndef _CLIENT_SOCKET_H_
 #define _CLIENT_SOCKET_H_
-#include "Connection/network.hpp"
-#include "Utils/constant.hpp"
+#include "../Connection/network.hpp"
+#include "../Utils/constant.hpp"
 #include <sys/socket.h>
 #include <string>
 
@@ -28,7 +28,7 @@ public:
     std::string getServerAddr(){return this->_serveraddr;};
     std::string getServerPort(){return this->_serverport;};
     std::string getPeerAddr(){return this->_peeraddr;};
-    std::string getPeerAddr(){return this->_peerport;};
+    std::string getPeerPort(){return this->_peerport;};
     int getClientfd(){return this->_clientfd;};
     int getPeerfd(){return this->_peerfd;};
     void setServerAddr(std::string addr){this->_serveraddr = addr;};

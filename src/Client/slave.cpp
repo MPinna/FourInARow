@@ -1,4 +1,4 @@
-#include "Client/slave.hpp"
+#include "../../include/Client/slave.hpp"
 #include <iostream>
 #include <netdb.h>
 

@@ -7,8 +7,8 @@
  *  - Maintain the online player list
  *  - Maintain the public key list associated to each registered user
  */
-#include "Connection/network.hpp"
-#include "Server/master.hpp"
+#include "../../include/Connection/network.hpp"
+#include "../../include/Server/master.hpp"
 #include <iostream>
 
 Master::Master()

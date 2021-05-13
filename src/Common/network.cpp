@@ -2,8 +2,8 @@
  * DESCRIPTION
  * Functions implementation of the network.hpp header
  */
-#include "Connection/network.hpp"
-#include "Utils/constant.hpp"
+#include "../../include/Connection/network.hpp"
+#include "../../include/Utils/constant.hpp"
 #include <iostream>
 #include <unistd.h>
 #include <sys/un.h>

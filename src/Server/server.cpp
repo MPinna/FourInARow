@@ -4,7 +4,7 @@
  *  - List online players
  *  - Make possible to run challenge between two 
 */
-#include "Server/master.hpp"
+#include "../../include/Server/master.hpp"
 #include <iostream>
 #include <cstring>
 

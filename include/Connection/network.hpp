@@ -7,7 +7,7 @@
  */
 #ifndef _CONNECTION_H_
 #define _CONNECTION_H_
-#include "Utils/constant.hpp"
+#include "../Utils/constant.hpp"
 #include <arpa/inet.h>
 #include <string>
 
