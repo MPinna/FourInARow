@@ -67,5 +67,4 @@ void Packet::deserializeHeader(char *ser_buf)
 void Packet::deserializePayload(PacketType)
 {
     // NOTE: before implementing ser / des class member, check its correctness
-
 }

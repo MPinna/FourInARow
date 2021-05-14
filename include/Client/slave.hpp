@@ -60,5 +60,4 @@ public:
         struct sockaddr_in _peersock
     );
 };
-
 #endif
