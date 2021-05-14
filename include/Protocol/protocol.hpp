@@ -1,8 +1,9 @@
 /**
  * DESCRIPTION 
  * The protocol section is responsible to 
- *  - manage the structure of the packet sent over the network between client and server or peer-to-peer. 
- *  - manage all generic settings used to set-up the SSL connection
+ *  - manage all message which will be sent over the network between client and server or peer-to-peer
+ *  - manage all generic settings used to set-up the SSL connection ? NOTE: here or another package ? Maybe i could split and recognize proto_message and proto_setup ? 
+ * TOCHECK
  */
 #ifndef _PROTOCOL_H_
 #define _PROTOCOL_H_
