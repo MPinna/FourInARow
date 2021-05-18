@@ -5,6 +5,7 @@
 #ifndef _CLIENT_AUTH_MESSAGES_H_
 #define _CLIENT_AUTH_MESSAGES_H_
 #include "Utils/constant.hpp"
+#include "../sectype.hpp"
 
 struct ClientHello
 {

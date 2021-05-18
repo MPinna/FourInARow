@@ -17,7 +17,7 @@
 #define DEFAULT_RPEER_PORT  "11001"     // S stands for sender
 
 // DESCRIPTION: packet type
-enum PacketType { 
+enum PacketType : uint16_t{ 
     CLIENT_HELLO,
     SERVER_HELLO,
     SERVER_CHALLENGE,

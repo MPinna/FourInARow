@@ -9,7 +9,7 @@ struct Signature
 {
     unsigned short int  _sig_size;
     unsigned char *     _signature;
-
+    
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);

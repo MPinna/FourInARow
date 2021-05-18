@@ -5,6 +5,8 @@
 #ifndef _SERVER_AUTH_MESSAGES_H_
 #define _SERVER_AUTH_MESSAGES_H_
 #include "Messages/sectype.hpp"
+#include "../sectype.hpp"
+
 // TOCHECK review all struct -> remove redundant 
 
 struct ServerHello

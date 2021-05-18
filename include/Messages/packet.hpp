@@ -5,20 +5,20 @@
 #ifndef _PACKET_H_
 #define _PACKET_H_
 #include "header.hpp"
+#include "../Utils/constant.hpp"
 
 struct Packet
 {
     /* data size = 9 Bytes */
-    Header          _header;    
+    Header          _header;
     unsigned char * _payload;
 
     // DESCRIPTION: Member methods
     void setCharSize(char * payload);
     void setCharSize(unsigned short int size);
-    void setPayload(char * payload);
     void SerializeHeader(char *to_ser_buf);
-    void SerializePayload(PacketType);
     void DeserializeHeader(char * ser_buf);
-    void DeserializePayload(PacketType);
-} __attribute__((packed));
+    void SerializePayload(PacketType type);
+    void DeserializePayload(PacketType type);
+}__attribute__((packed));
 #endif

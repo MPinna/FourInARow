@@ -8,6 +8,7 @@
 #ifndef _SERVER_ENCRYPTED_MESSAGES_H_
 #define _SERVER_ENCRYPTED_MESSAGES_H_
 #include "Utils/constant.hpp"
+#include "../sectype.hpp"
 
 struct ListResponse
 {

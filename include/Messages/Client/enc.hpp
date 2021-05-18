@@ -8,6 +8,7 @@
 #ifndef _CLIENT_ENCRYPTED_MESSAGES_H_
 #define _CLIENT_ENCRYPTED_MESSAGES_H_
 #include "Utils/constant.hpp"
+#include "../sectype.hpp"
 
 struct ListRequest // TOCHECK if you can send this packet even without randomness field
 {
