@@ -103,6 +103,11 @@ void SockConnect(int sockfd, struct addrinfo info)
 	}
 }
 
+void SockSelect()
+{
+	// TODO
+}
+
 bool SockReceive(int rec_sockfd, void *rec_buf, size_t len)
 {
 	size_t read{0};

@@ -6,7 +6,7 @@
 #define _CLIENT_AUTH_MESSAGES_H_
 #include "Utils/constant.hpp"
 
-struct clientHello
+struct ClientHello
 {
     unsigned int        _nounce{0};
     unsigned char       _username[_16_BYTES]{0};
@@ -18,7 +18,7 @@ struct clientHello
     void deserilize(char *ser_buf);
 }__attribute__((packed));
 
-struct clientResponse
+struct ClientResponse
 {
     unsigned int        _server_nounce {0};
     unsigned short int  _dh_param_g {0};
@@ -35,7 +35,7 @@ struct clientResponse
 /**
  * DESCRIPTION peer to peer messages
  */
-struct peerHello
+struct PeerHello
 {
     unsigned char       _username[_16_BYTES]{0};
     int                 _nounce {0};
@@ -46,7 +46,7 @@ struct peerHello
     void deserilize(char *ser_buf);
 }__attribute__((packed));
 
-struct peerChallenge
+struct PeerChallenge
 {
     int                 _nounce {0};
     int                 _peer_nounce {0};
@@ -59,7 +59,7 @@ struct peerChallenge
     void deserilize(char *ser_buf);
 }__attribute__((packed));
 
-struct peerResponse
+struct PeerResponse
 {
     int                 _peer_nounce {0};
     short unsigned int  _dh_key_size {0};

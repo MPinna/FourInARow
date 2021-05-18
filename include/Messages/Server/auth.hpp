@@ -7,7 +7,7 @@
 #include "Messages/sectype.hpp"
 // TOCHECK review all struct -> remove redundant 
 
-struct serverHello
+struct ServerHello
 {
     unsigned short int  _cert_size {0};
     unsigned char *     _certificate; // TOCHECK cosi' oppure X509? 
@@ -18,7 +18,7 @@ struct serverHello
     void deserialize(char * ser_buf);
 }__attribute__((packed));
 
-struct serverChallenge
+struct ServerChallenge
 {
     unsigned int        _server_nounce {0};
     unsigned int        _client_nounce {0};

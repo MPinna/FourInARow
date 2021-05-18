@@ -13,7 +13,7 @@
  * DESCRIPTION:
  * This structure is used to manage authentication packet (e.g. packet with require digital signature)
  */
-struct auth_protocol
+struct AuthProtocol
 {
     Packet          _data;
     unsigned char * _signature;
@@ -23,7 +23,7 @@ struct auth_protocol
  * DESCRIPTION:
  * This structure is used to manage AEAD packet (e.g. a form of encryption which simultaneously assure the confidentiality and authenticity of data)
  */
-struct enc_protocol
+struct EncProtocol
 {
     Packet          _data;
     unsigned char * _tag;

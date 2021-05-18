@@ -34,7 +34,7 @@ struct GameRequest
 /**
  * SECTION peer to peer messages
  */
-struct gameMove // TOCHECK if it is possible to send without randomness exploiting AAD only
+struct GameMove // TOCHECK if it is possible to send without randomness exploiting AAD only
 {
     unsigned char       _randomness[_16_BYTES];
     short unsigned int  _column_num {0};
@@ -46,7 +46,7 @@ struct gameMove // TOCHECK if it is possible to send without randomness exploiti
 }__attribute__((packed));
 
 // TOCHECK gameEnd message
-struct endGame
+struct EndGame
 {
     unsigned char       _randomness[_16_BYTES];
     unsigned short int  _signal{0};

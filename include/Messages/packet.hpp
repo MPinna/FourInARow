@@ -13,11 +13,12 @@ struct Packet
     unsigned char * _payload;
 
     // DESCRIPTION: Member methods
-    void set_csize(char * payload);
-    void set_isize(unsigned short int size);
-    void set_payl(char * payload);
-    void serialize(char *to_ser_buf);
-    void deserializeHeader(char * ser_buf);
-    void deserializePayload(PacketType);
+    void setCharSize(char * payload);
+    void setCharSize(unsigned short int size);
+    void setPayload(char * payload);
+    void SerializeHeader(char *to_ser_buf);
+    void SerializePayload(PacketType);
+    void DeserializeHeader(char * ser_buf);
+    void DeserializePayload(PacketType);
 } __attribute__((packed));
 #endif
