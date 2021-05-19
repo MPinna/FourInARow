@@ -32,4 +32,5 @@ enum PacketType : uint16_t{
 
 // DESCRIPTION network constants
 #define BACKLOG_QUEUE       5
+
 #endif

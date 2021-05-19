@@ -4,10 +4,10 @@
  */
 #ifndef _CLIENT_AUTH_MESSAGES_H_
 #define _CLIENT_AUTH_MESSAGES_H_
-#include "Utils/constant.hpp"
-#include "../sectype.hpp"
+#include "../../Utils/constant.hpp"
+#include "../crypto.hpp"
 
-struct ClientHello
+typedef struct
 {
     unsigned int        _nounce{0};
     unsigned char       _username[_16_BYTES]{0};
@@ -17,9 +17,9 @@ struct ClientHello
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+} ClientHello, __attribute__((packed));
 
-struct ClientResponse
+typedef struct 
 {
     unsigned int        _server_nounce {0};
     unsigned short int  _dh_param_g {0};
@@ -30,13 +30,13 @@ struct ClientResponse
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}ClientResponse, __attribute__((packed));
 #endif
 
 /**
  * DESCRIPTION peer to peer messages
  */
-struct PeerHello
+typedef struct 
 {
     unsigned char       _username[_16_BYTES]{0};
     int                 _nounce {0};
@@ -45,9 +45,9 @@ struct PeerHello
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}PeerHello, __attribute__((packed));
 
-struct PeerChallenge
+typedef struct 
 {
     int                 _nounce {0};
     int                 _peer_nounce {0};
@@ -58,9 +58,9 @@ struct PeerChallenge
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}PeerChallenge, __attribute__((packed));
 
-struct PeerResponse
+typedef struct 
 {
     int                 _peer_nounce {0};
     short unsigned int  _dh_key_size {0};
@@ -70,5 +70,5 @@ struct PeerResponse
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}PeerResponse, __attribute__((packed));
 #endif

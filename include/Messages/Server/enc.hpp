@@ -7,10 +7,10 @@
  */
 #ifndef _SERVER_ENCRYPTED_MESSAGES_H_
 #define _SERVER_ENCRYPTED_MESSAGES_H_
-#include "Utils/constant.hpp"
-#include "../sectype.hpp"
+#include "../../Utils/constant.hpp"
+#include "../crypto.hpp"
 
-struct ListResponse
+typedef struct 
 {
     unsigned short int  _num_of_clients{0};
     unsigned char *     _clients_list; // TOCHECK
@@ -19,9 +19,9 @@ struct ListResponse
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}ListResponse, __attribute__((packed));
 
-struct OppGameResponse
+typedef struct 
 {
     unsigned char       _opponent_username[_16_BYTES]{0};
     bool                _flag;
@@ -30,9 +30,9 @@ struct OppGameResponse
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}OppGameResponse, __attribute__((packed));
 
-struct GameChallengeInfo
+typedef struct 
 {
     unsigned char       _opponent_username[_16_BYTES]{0};
     unsigned short int  _peer_port{0};
@@ -45,5 +45,5 @@ struct GameChallengeInfo
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}GameChallengeInfo, __attribute__((packed));
 #endif

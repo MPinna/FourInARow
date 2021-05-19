@@ -4,12 +4,12 @@
  */
 #ifndef _SERVER_AUTH_MESSAGES_H_
 #define _SERVER_AUTH_MESSAGES_H_
-#include "Messages/sectype.hpp"
-#include "../sectype.hpp"
+#include "../../Utils/constant.hpp"
+#include "../crypto.hpp"
 
 // TOCHECK review all struct -> remove redundant 
 
-struct ServerHello
+typedef struct 
 {
     unsigned short int  _cert_size {0};
     unsigned char *     _certificate; // TOCHECK cosi' oppure X509? 
@@ -18,9 +18,9 @@ struct ServerHello
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
-}__attribute__((packed));
+}ServerHello, __attribute__((packed));
 
-struct ServerChallenge
+typedef struct 
 {
     unsigned int        _server_nounce {0};
     unsigned int        _client_nounce {0};
@@ -33,5 +33,5 @@ struct ServerChallenge
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
-}__attribute__((packed));
+}ServerChallenge, __attribute__((packed));
 #endif

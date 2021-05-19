@@ -1,11 +1,13 @@
 /**
  * DESCRIPTION 
- * The sectype header it is used to manage the case in which the packet it is signed only or AEAD (authenticated and encypted)
+ * The crypto header it is used to manage the possible action applied to messages:
+ *  - signature (used during authentication phase)
+ *  - AEAD (Authenticated Encryption Authenticated data, used during communication phase)
+ * The structure is common both for client messages and server messages
  */
 #ifndef _ENCRYPTION_FORMS_H_
 #define _ENCRYPTION_FORMS_H_
-
-struct Signature
+typedef struct 
 {
     unsigned short int  _sig_size;
     unsigned char *     _signature;
@@ -13,9 +15,9 @@ struct Signature
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
-}__attribute__((packed));
+}Signature, __attribute__((packed));
 
-struct AEAD
+typedef struct 
 {
     unsigned short int  _tag_size;
     unsigned char *     _tag;
@@ -23,5 +25,5 @@ struct AEAD
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
-}__attribute__((packed));
+}AEAD, __attribute__((packed));
 #endif

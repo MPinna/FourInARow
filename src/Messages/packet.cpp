@@ -53,12 +53,22 @@ void Packet::DeserializeHeader(char *ser_buf)
     pos += sizeof(dpsize);
 }
 
-void Packet::SerializePayload(PacketType type)
-{
-
-}
-
-void Packet::DeserializePayload(PacketType type)
-{
+// void Packet::SerializePayload(PacketType type)
+// {   
+//     switch (type)
+//     {
+//     case CLIENT_HELLO:
+//         break;
     
-}
+//     case SERVER_HELLO:
+//         break;
+
+//     default:
+//         break;
+//     }
+// }
+
+// void Packet::DeserializePayload(PacketType type)
+// {
+    
+// }

@@ -7,10 +7,10 @@
  */
 #ifndef _CLIENT_ENCRYPTED_MESSAGES_H_
 #define _CLIENT_ENCRYPTED_MESSAGES_H_
-#include "Utils/constant.hpp"
-#include "../sectype.hpp"
+#include "../../Utils/constant.hpp"
+#include "../crypto.hpp"
 
-struct ListRequest // TOCHECK if you can send this packet even without randomness field
+typedef struct  // TOCHECK if you can send this packet even without randomness field
 {
     unsigned short int  _rand_size{0};
     unsigned char       _randomness[_16_BYTES]{0};
@@ -19,9 +19,9 @@ struct ListRequest // TOCHECK if you can send this packet even without randomnes
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}ListRequest, __attribute__((packed));
 
-struct GameRequest
+typedef struct 
 {
     unsigned char   _opponent_username[_16_BYTES]{0};
     AEAD            _tag;
@@ -29,13 +29,13 @@ struct GameRequest
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}GameRequest, __attribute__((packed));
 #endif
 
 /**
  * SECTION peer to peer messages
  */
-struct GameMove // TOCHECK if it is possible to send without randomness exploiting AAD only
+typedef struct  // TOCHECK if it is possible to send without randomness exploiting AAD only
 {
     unsigned char       _randomness[_16_BYTES];
     short unsigned int  _column_num {0};
@@ -44,10 +44,10 @@ struct GameMove // TOCHECK if it is possible to send without randomness exploiti
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}GameMove, __attribute__((packed));
 
-// TOCHECK gameEnd message
-struct EndGame
+// TOCHECK we need something to close the game
+typedef struct 
 {
     unsigned char       _randomness[_16_BYTES];
     unsigned short int  _signal{0};
@@ -56,5 +56,5 @@ struct EndGame
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}__attribute__((packed));
+}EndGame, __attribute__((packed));
 #endif

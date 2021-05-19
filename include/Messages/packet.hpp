@@ -1,13 +1,19 @@
 /**
  * DESCRIPTION
- * The packetHeader.h file define the structure of the packet header used to exchange message in the Four-in-a-row game
+ * The Packet structure define the generic structure of a packet, made up by:
+ *  - header (type, count, payload size)
+ *  - payload(which is used to carry out the information)
+ * The Packet class member is in charge of:
+ *  - set the payload size (given an array of char)
+ *  - manage serialization / deserialization for both:
+ *      - header
+ *      - payload
  */
 #ifndef _PACKET_H_
 #define _PACKET_H_
 #include "header.hpp"
 #include "../Utils/constant.hpp"
-
-struct Packet
+typedef struct
 {
     /* data size = 9 Bytes */
     Header          _header;
@@ -20,5 +26,5 @@ struct Packet
     void DeserializeHeader(char * ser_buf);
     void SerializePayload(PacketType type);
     void DeserializePayload(PacketType type);
-}__attribute__((packed));
+}Packet, __attribute__((packed));
 #endif
