@@ -9,29 +9,25 @@
 
 // TOCHECK review all struct -> remove redundant 
 
-typedef struct 
+typedef struct __attribute__((packed))
 {
-    unsigned short int  _cert_size {0};
-    unsigned char *     _certificate; // TOCHECK cosi' oppure X509? 
-    Signature           _signature;
+    Certificate _server_cert;
+    Auth        _auth_data;
 
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
-}ServerHello, __attribute__((packed));
+} ServerHello;
 
-typedef struct 
+typedef struct __attribute__((packed))
 {
-    unsigned int        _server_nounce {0};
-    unsigned int        _client_nounce {0};
     unsigned short int  _dh_param_p {0};
-    unsigned short int  _dh_param_g {0};
-    unsigned short int  _dh_key_size {0};
-    unsigned char *     _dh_key; 
-    Signature           _signature;
+    unsigned short int  _dh_param_a {0};
+    unsigned char       _dh_key[DH_SECRET_LEN];
+    Auth                _auth_data;
 
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
-}ServerChallenge, __attribute__((packed));
+} ServerChallenge;
 #endif

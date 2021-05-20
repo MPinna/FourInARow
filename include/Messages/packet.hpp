@@ -13,7 +13,8 @@
 #define _PACKET_H_
 #include "header.hpp"
 #include "../Utils/constant.hpp"
-typedef struct
+
+typedef struct __attribute__((packed))
 {
     /* data size = 9 Bytes */
     Header          _header;
@@ -26,5 +27,5 @@ typedef struct
     void DeserializeHeader(char * ser_buf);
     void SerializePayload(PacketType type);
     void DeserializePayload(PacketType type);
-}Packet, __attribute__((packed));
+} Packet;
 #endif

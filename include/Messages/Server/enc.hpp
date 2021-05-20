@@ -10,34 +10,22 @@
 #include "../../Utils/constant.hpp"
 #include "../crypto.hpp"
 
-typedef struct 
+typedef struct __attribute__((packed))
 {
     unsigned short int  _num_of_clients{0};
-    unsigned char *     _clients_list; // TOCHECK
+    unsigned char  *    _clients_list; // TOCHECK
     AEAD                _tag;
 
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}ListResponse, __attribute__((packed));
+} ListResponse;
 
-typedef struct 
+typedef struct __attribute__((packed))
 {
-    unsigned char       _opponent_username[_16_BYTES]{0};
-    bool                _flag;
-    AEAD                _tag;
-
-    // DESCRIPTION: Member methods
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
-}OppGameResponse, __attribute__((packed));
-
-typedef struct 
-{
-    unsigned char       _opponent_username[_16_BYTES]{0};
+    unsigned char       _opponent_username[_16_BYTES+1]{NULL};
     unsigned short int  _peer_port{0};
-    unsigned short int  _pubkey_size{0};
-    unsigned char *     _opponent_pubkey;
+    unsigned char       _opponent_pubkey[RSA_2048_LEN+1]{NULL};
     unsigned short int  _dh_par_p{0};
     unsigned short int  _dh_par_g{0};
     AEAD                _tag;
@@ -45,5 +33,5 @@ typedef struct
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
-}GameChallengeInfo, __attribute__((packed));
+} GameInfo;
 #endif

@@ -7,23 +7,42 @@
  */
 #ifndef _ENCRYPTION_FORMS_H_
 #define _ENCRYPTION_FORMS_H_
-typedef struct 
+
+#include <cstddef>
+
+typedef struct __attribute__((packed))
 {
-    unsigned short int  _sig_size;
-    unsigned char *     _signature;
+    uint32_t        _nonce{0};
+    uint32_t        _opp_nounce{0};
+    unsigned char   _digest[DIGEST_256_LEN+1]{NULL};
+    unsigned char   _signature[RSA_2048_LEN+1]{NULL};
     
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
-}Signature, __attribute__((packed));
+} Auth;
 
-typedef struct 
+typedef struct __attribute__((packed))
 {
-    unsigned short int  _tag_size;
-    unsigned char *     _tag;
-
+    unsigned char _digest[DIGEST_256_LEN+1]{NULL};
+    unsigned char _tag[TAG_SIZE_LEN+1]{NULL};
+    
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
-}AEAD, __attribute__((packed));
+} AEAD; // Auth Encryption Auth Data
+
+
+typedef struct __attribute__((packed))
+{
+    uint32_t _len{0};
+    unsigned char cert[];
+} Certificate;
+
+// typedef struct __attribute__((packed))
+// {
+//      uint32_t        nonce;
+// 	    uint32_t        len;
+// 	    unsigned char   key[];
+// } DHKey;
 #endif
