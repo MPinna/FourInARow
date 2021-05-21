@@ -8,14 +8,17 @@
 #ifndef _ENCRYPTION_FORMS_H_
 #define _ENCRYPTION_FORMS_H_
 
+#include "../Utils/constant.hpp"
 #include <cstddef>
 
 typedef struct __attribute__((packed))
 {
-    uint32_t        _nonce{0};
-    uint32_t        _opp_nounce{0};
-    unsigned char   _digest[DIGEST_256_LEN+1]{NULL};
-    unsigned char   _signature[RSA_2048_LEN+1]{NULL};
+    unsigned int        _nonce{0};
+    unsigned int        _opp_nonce{0};
+    unsigned short int  _dig_size{0};
+    unsigned char *     _digest{NULL};
+    unsigned short int  _sig_size{0};
+    unsigned char *     _signature{NULL};
     
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
@@ -24,25 +27,32 @@ typedef struct __attribute__((packed))
 
 typedef struct __attribute__((packed))
 {
-    unsigned char _digest[DIGEST_256_LEN+1]{NULL};
-    unsigned char _tag[TAG_SIZE_LEN+1]{NULL};
-    
+    unsigned short int  _tag_size{0};
+    unsigned char *     _tag{NULL};
+     
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
 } AEAD; // Auth Encryption Auth Data
 
+typedef struct __attribute__((packed))
+{
+    unsigned short int  _lenght{0};
+    unsigned char *     _cert{NULL};
+
+    // DESCRIPTION: member structure
+    void serialize(char * to_ser_buf);
+    void deserialize(char * ser_buf);
+} Certificate;
 
 typedef struct __attribute__((packed))
 {
-    uint32_t _len{0};
-    unsigned char cert[];
-} Certificate;
+    unsigned int        _nonce{0}; // NOTE: Value computed as (g)^(a) mod p
+	unsigned short int  _dh_lenght{0};
+	unsigned char *     _dh_key[];
 
-// typedef struct __attribute__((packed))
-// {
-//      uint32_t        nonce;
-// 	    uint32_t        len;
-// 	    unsigned char   key[];
-// } DHKey;
+    // DESCRIPTION: member structure
+    void serialize(char * to_ser_buf);
+    void deserialize(char * ser_buf);
+} DHKey;
 #endif

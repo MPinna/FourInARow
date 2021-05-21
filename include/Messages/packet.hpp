@@ -12,7 +12,6 @@
 #ifndef _PACKET_H_
 #define _PACKET_H_
 #include "header.hpp"
-#include "../Utils/constant.hpp"
 
 typedef struct __attribute__((packed))
 {
@@ -23,9 +22,7 @@ typedef struct __attribute__((packed))
     // DESCRIPTION: Member methods
     void setCharSize(char * payload);
     void setCharSize(unsigned short int size);
-    void SerializeHeader(char *to_ser_buf);
+    void SerializePacket(char *to_ser_buf, char *payload);
     void DeserializeHeader(char * ser_buf);
-    void SerializePayload(PacketType type);
-    void DeserializePayload(PacketType type);
 } Packet;
 #endif

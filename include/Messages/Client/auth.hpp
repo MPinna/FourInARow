@@ -22,9 +22,10 @@ typedef struct __attribute__((packed))
 
 typedef struct __attribute__((packed))
 {
-    unsigned short int  _dh_param_g{0};
-    unsigned char       _dh_key[DH_SECRET_LEN]{NULL};
-    Auth                _auth_data;
+    unsigned int    _dh_param_g{0};
+    unsigned int    _dh_param_p{0};
+    Auth            _auth_data;
+    DHKey           _dh_key;
 
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);

@@ -25,9 +25,9 @@ typedef struct __attribute__((packed))
 {
     unsigned char       _opponent_username[_16_BYTES+1]{NULL};
     unsigned short int  _peer_port{0};
-    unsigned char       _opponent_pubkey[RSA_2048_LEN+1]{NULL};
-    unsigned short int  _dh_par_p{0};
-    unsigned short int  _dh_par_g{0};
+    unsigned short int  _pubkey_size{0};
+    unsigned char       _opponent_pubkey{NULL};
+    DHParameter         _dh_param;
     AEAD                _tag;
 
     // DESCRIPTION: Member methods

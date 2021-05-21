@@ -5,8 +5,8 @@
 
 typedef struct __attribute__((packed))
 {
-    PacketType          _type; // To distinguish packet type
+    Type                _type;          // To distinguish packet type
     unsigned int        _counter;
-    unsigned short int  _payload_size; // To allocate buffer space
+    unsigned short int  _payload_size;  // To allocate buffer space
 } Header;
 #endif

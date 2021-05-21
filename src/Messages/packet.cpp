@@ -2,7 +2,9 @@
  * DESCRIPTION
  * This file it is used to manage serialization / desarialization over defined messages
  */
-#include "../Messages/packet.hpp"
+#include "../../include/Messages/packet.hpp"
+#include "../../include/Messages/crypto.hpp"
+
 #include <netinet/in.h>
 #include <iostream>
 #include <stdlib.h>
@@ -22,7 +24,7 @@ void Packet::setCharSize(unsigned short int size)
     this->_header._payload_size = size;
 }
 
-void Packet::SerializeHeader(char *to_ser_buf)
+void Packet::SerializePacket(char *to_ser_buf, char *payload)
 {
     short int pos{0};
     uint16_t type{htons(this->_header._type)}, psize{htons(this->_header._payload_size)};
@@ -34,6 +36,7 @@ void Packet::SerializeHeader(char *to_ser_buf)
     pos += sizeof(count);
     memcpy(to_ser_buf + pos, &psize, sizeof(psize));
     pos += sizeof(psize);
+    memcpy(to_ser_buf + pos, payload, strlen(payload)); // TOCHECK
 }
 
 void Packet::DeserializeHeader(char *ser_buf)
@@ -52,23 +55,3 @@ void Packet::DeserializeHeader(char *ser_buf)
     this->_header._payload_size = (ntohs(dpsize));
     pos += sizeof(dpsize);
 }
-
-// void Packet::SerializePayload(PacketType type)
-// {   
-//     switch (type)
-//     {
-//     case CLIENT_HELLO:
-//         break;
-    
-//     case SERVER_HELLO:
-//         break;
-
-//     default:
-//         break;
-//     }
-// }
-
-// void Packet::DeserializePayload(PacketType type)
-// {
-    
-// }

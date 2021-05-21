@@ -45,8 +45,8 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
     // TOCHECK if it is possible to send without randomness exploiting AAD only
-    unsigned char       _randomness[_16_BYTES+1];
     short unsigned int  _column_num {0};
+    unsigned char       _randomness[_16_BYTES+1];
     AEAD                _tag;
 
     // DESCRIPTION: Member methods
