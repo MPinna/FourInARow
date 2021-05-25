@@ -3,10 +3,14 @@
 
 #include "../Utils/constant.hpp"
 
-typedef struct __attribute__((packed))
-{
-    Type                _type;          // To distinguish packet type
+struct Header 
+{   // 8 Bytes
+    unsigned short int  _type;          // To distinguish packet type
     unsigned int        _counter;
     unsigned short int  _payload_size;  // To allocate buffer space
-} Header;
+
+    // DESCRIPTION: default constructor
+    Header();
+    ~Header();
+} __attribute__((packed));
 #endif

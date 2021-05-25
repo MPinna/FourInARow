@@ -18,7 +18,7 @@
 #define DEFAULT_SPEER_PORT  "11001" // S stands for sender
 
 // DESCRIPTION: packet type
-enum Type : uint16_t
+typedef enum : uint16_t
 {
     PEER_HELLO,
     PEER_RESPONSE,
@@ -32,7 +32,7 @@ enum Type : uint16_t
     DH_PARAMS,
     LIST_RESPONSE,
     GAME_INFO
-}; // TOCHECK check if this is the complete list of messages
+} Type; // TOCHECK check if this is the complete list of messages
 
 // DESCRIPTION crypto algorithm parameters
 #define DIGEST_256_LEN  32

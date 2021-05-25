@@ -13,16 +13,27 @@
 #define _PACKET_H_
 #include "header.hpp"
 
-typedef struct __attribute__((packed))
+class Packet
 {
-    /* data size = 9 Bytes */
-    Header          _header;
+private:
+    Header          header;
     unsigned char * _payload;
-
-    // DESCRIPTION: Member methods
-    void setCharSize(char * payload);
-    void setCharSize(unsigned short int size);
-    void SerializePacket(char *to_ser_buf, char *payload);
-    void DeserializeHeader(char * ser_buf);
-} Packet;
+public:
+    // DESCRIPTION: Constructor
+    Packet();
+    ~Packet();
+    // DESCRIPTION: Setter / Getter
+    void setType(unsigned short int type);
+    void initCounter();
+    void incCounter();
+    void setPayloadSize(char * payload);
+    void setPayloadSize(unsigned short int size);
+    void setPayload(unsigned char * data, size_t size);
+    unsigned short int  getType();
+    unsigned int        getCounter();
+    unsigned short int  getPayloadSize();
+    // DESCRIPTION: member methods
+    void serialize(unsigned char *to_ser_buf);
+    void deserializeHeader(unsigned char * ser_buf);
+};
 #endif

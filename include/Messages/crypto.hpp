@@ -12,17 +12,19 @@
 #include <cstddef>
 
 typedef struct __attribute__((packed))
-{
-    unsigned int        _nonce{0};
-    unsigned int        _opp_nonce{0};
-    unsigned short int  _dig_size{0};
-    unsigned char *     _digest{NULL};
-    unsigned short int  _sig_size{0};
-    unsigned char *     _signature{NULL};
+{   // 12 Bytes + digest + signature
+    unsigned int        _nonce{0};      
+    unsigned int        _opp_nonce{0};  
+    unsigned short int  _dig_size{0};   
+    unsigned char *     _digest{NULL};  
+    unsigned short int  _sig_size{0};   
+    unsigned char *     _signature{NULL};   
     
     // DESCRIPTION: member structure
-    void serialize(char * to_ser_buf);
-    void deserialize(char * ser_buf);
+    void setDigest(unsigned char *digest);
+    void setSignature(unsigned char *sig);
+    void serialize(unsigned char * to_ser_buf);
+    void deserialize(unsigned char * ser_buf);
 } Auth;
 
 typedef struct __attribute__((packed))
