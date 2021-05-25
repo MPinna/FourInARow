@@ -11,11 +11,10 @@
 #include <cstring>
 
 void
-ClientHello::serialize(char *to_ser_buf)
+PeerHello::setUsername(unsigned char *name)
 {
-    short int pos{0};
-    uint16_t portno{htons(this->_port_number)};
-    uint32_t nounce{htonl(this->_nounce)};
-
-    
+    if(strlen((char *)name) > 16)
+        std::cout << "/*\\setUsername() lenght greater than: " << _16_BYTES << std::endl;
+        exit(1);
+    memcpy(this->_username, name, sizeof(this->_username));
 }

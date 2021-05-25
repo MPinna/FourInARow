@@ -15,6 +15,8 @@ typedef struct __attribute__((packed))
     unsigned short int  _port_number{0};
     Auth                _auth_data;
 
+    // DESCRIPTION: Setter
+    void setUsername(unsigned char *name);
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);
