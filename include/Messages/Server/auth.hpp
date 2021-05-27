@@ -21,17 +21,13 @@ typedef struct __attribute__((packed))
 
 typedef struct __attribute__((packed))
 {
-    DHKey   _dh_key;
-    Auth    _auth;
-} ServerResponse;
-
-typedef struct __attribute__((packed))
-{
-    unsigned int  _dh_param_p {0};
-    unsigned int  _dh_param_a {0};
+    unsigned int    _dh_param_p {0};
+    unsigned int    _dh_param_a {0};
+    DHKey           dh_key;
+    Auth            _auth;
 
     // DESCRIPTION: member structure
     void serialize(char * to_ser_buf);
     void deserialize(char * ser_buf);
-} DHParameter;
+} ServerResponse;
 #endif

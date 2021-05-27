@@ -3,58 +3,58 @@
 #include <iostream>
 #include <cstring>
 
-void
-Auth::setDigest(unsigned char *digest)
+void Digest::setDigest(unsigned char *digest)
 {
-    this->_digest = (unsigned char *)malloc(strlen((char *)digest));
-    memcpy(this->_digest, digest, strlen((char *)digest));
+    this->_digest = (unsigned char *)malloc(strlen((char *)digest) + 1);
+    memcpy(this->_digest, digest + '\0', strlen((char *)digest) + 1);
+    this->_dig_size = strlen((char *)digest) + 1;
 }
 
-void
-Auth::setSignature(unsigned char *signature)
-{
-    this->_signature = (unsigned char *)malloc(strlen((char *)signature));
-    memcpy(this->_signature, signature, strlen((char *)signature));
-}
-
-void
-Auth::serialize(unsigned char * to_ser_buf)
+void Digest::serialize(unsigned char *to_ser_buf)
 {
     size_t pos{0};
-    uint32_t nonce{htonl(this->_nonce)}, opp_nonce{htonl(this->_opp_nonce)};
-    uint16_t dig_size{htons(this->_dig_size)}, sig_size{htons(this->_sig_size)};
+    uint16_t dig_size{htons(this->_dig_size)};
 
-    memcpy(to_ser_buf, &nonce, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-    memcpy(to_ser_buf + pos, &opp_nonce, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
     memcpy(to_ser_buf + pos, &dig_size, sizeof(uint16_t));
     pos += sizeof(uint16_t);
     memcpy(to_ser_buf + pos, this->_digest, this->_dig_size);
     pos += this->_dig_size;
-    memcpy(to_ser_buf + pos, &sig_size, sizeof(uint16_t));
-    pos += sizeof(uint16_t);
-    memcpy(to_ser_buf + pos, this->_signature, this->_sig_size);
 }
 
-void
-Auth::deserialize(unsigned char *ser_buf)
+void Digest::deserialize(unsigned char *ser_buf)
 {
     size_t pos{0};
-    uint32_t nonce{0}, opp_nonce{0};
-    uint16_t dig_size{0}, sig_size{0};
-    
-    memcpy(&nonce, ser_buf, sizeof(uint32_t));
-    this->_nonce = ntohl(nonce);
-    pos += sizeof(uint32_t);
-    memcpy(&opp_nonce, ser_buf + pos, sizeof(uint32_t));
-    this->_opp_nonce = ntohl(opp_nonce);
-    pos += sizeof(uint32_t);
+    uint16_t dig_size{0};
+
     memcpy(&dig_size, ser_buf + pos, sizeof(uint16_t));
     this->_dig_size = ntohs(dig_size);
     pos += sizeof(uint16_t);
     this->setDigest(ser_buf + pos);
     pos += this->_dig_size;
+}
+
+void Signature::setSignature(unsigned char *signature)
+{
+    this->_signature = (unsigned char *)malloc(strlen((char *)signature) + 1);
+    memcpy(this->_signature, signature + '\0', strlen((char *)signature) + 1);
+    this->_sig_size = strlen((char *)signature) + 1;
+}
+
+void Signature::serialize(unsigned char *to_ser_buf)
+{
+    size_t pos{0};
+    uint16_t sig_size{htons(this->_sig_size)};
+
+    memcpy(to_ser_buf + pos, &sig_size, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    memcpy(to_ser_buf + pos, this->_signature, this->_sig_size);
+}
+
+void Signature::deserialize(unsigned char *ser_buf)
+{
+    size_t pos{0};
+    uint16_t sig_size{0};
+
     memcpy(&sig_size, ser_buf + pos, sizeof(uint16_t));
     this->_sig_size = ntohs(sig_size);
     pos += sizeof(uint16_t);
@@ -62,14 +62,15 @@ Auth::deserialize(unsigned char *ser_buf)
 }
 
 void
-AEAD::setTag(unsigned char *tag)
+Tag::setTag(unsigned char *tag)
 {
-    this->_tag = (unsigned char *)malloc(this->_tag_size);
-    memcpy(this->_tag, tag, this->_tag_size);
+    this->_tag = (unsigned char *)malloc(strlen((char *)tag + 1));
+    memcpy(this->_tag, tag + '\0', strlen((char *)tag+1));
+    this->_tag_size = strlen((char *)tag) + 1;
 }
 
 void
-AEAD::serialize(unsigned char *to_ser)
+Tag::serialize(unsigned char *to_ser)
 {
     short int pos{0};
     uint16_t tag_size{htons(this->_tag_size)};
@@ -80,7 +81,7 @@ AEAD::serialize(unsigned char *to_ser)
 }
 
 void
-AEAD::deserialize(unsigned char *ser_buf)
+Tag::deserialize(unsigned char *ser_buf)
 {
     short int pos{0};
     uint16_t tag_size;
@@ -93,9 +94,10 @@ AEAD::deserialize(unsigned char *ser_buf)
 
 void
 Certificate::setCert(unsigned char * cert)
-{
-    this->_cert = (unsigned char *)malloc(this->_lenght);
-    memcpy(this->_cert, cert, this->_lenght);
+{   // TOCHECK check if in this case you can assign length this way
+    this->_cert = (unsigned char *)malloc(strlen((char *)cert+1));
+    memcpy(this->_cert, cert, strlen((char *)cert+1));
+    this->_lenght = strlen((char *)cert) + 1;
 }
 
 void
@@ -121,14 +123,15 @@ Certificate::deserialize(unsigned char *ser_buf)
     this->setCert(ser_buf + pos);
 }
 
-void
+void 
 DHKey::setDHKey(unsigned char *dhkey)
 {
-    this->_dh_key = (unsigned char *)malloc(this->_dh_lenght);
-    memcpy(this->_dh_key, dhkey, this->_dh_lenght);
+    this->_dh_key = (unsigned char *)malloc(strlen((char *)dhkey) + 1);
+    memcpy(this->_dh_key, dhkey + '\0', strlen((char *)dhkey) + 1);
+    this->_dh_lenght = strlen((char *)dhkey) + 1;
 }
 
-void
+void 
 DHKey::serialize(unsigned char *to_ser)
 {
     unsigned short int pos{0};
@@ -142,7 +145,7 @@ DHKey::serialize(unsigned char *to_ser)
     memcpy(to_ser + pos, this->_dh_key, this->_dh_lenght);
 }
 
-void
+void 
 DHKey::deserialize(unsigned char *ser_buf)
 {
     unsigned short int pos{0};

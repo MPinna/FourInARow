@@ -23,13 +23,12 @@ typedef struct __attribute__((packed))
 
 typedef struct __attribute__((packed))
 {
-    unsigned char       _opponent_username[_16_BYTES+1]{NULL};
+    unsigned char       _ipaddr[ADDRESS_LENGTH];
     unsigned short int  _peer_port{0};
     unsigned short int  _pubkey_size{0};
-    unsigned char       _opponent_pubkey{NULL};
-    DHParameter         _dh_param;
-    AEAD                _tag;
-
+    unsigned char       _opp_pubkey{NULL};
+    Tag                 tag;
+    
     // DESCRIPTION: Member methods
     void serialize(char *to_ser_buf);
     void deserilize(char *ser_buf);

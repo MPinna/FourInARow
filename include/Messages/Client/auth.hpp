@@ -9,28 +9,69 @@
 #include "../crypto.hpp"
 #include <cstddef>
 
-typedef struct __attribute__((packed))
+typedef struct __attribute__((packed)) 
 {
-    unsigned char       _username[_16_BYTES + 1]{NULL};
+    unsigned char       _username[USERNAME_LENGHT_16];
     unsigned short int  _port_number{0};
-    Auth                _auth_data;
+    unsigned int        _nonce{0};
+    Digest              digest;
+    Signature           signature;
 
     // DESCRIPTION: Setter
+    void setUsername(char *user);
+    // DESCRIPTION: Member methods
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
+} ClientHello;
+
+typedef struct __attribute__((packed)) 
+{
+    unsigned int    _opp_nonce{0};
+    DHKey           dh_key;
+    Digest          digest;
+    Signature       signature;
+
+    // DESCRIPTION: Member methods
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
+} ClientResponse;
+
+typedef struct __attribute__((packed))
+{
+    unsigned char   _username[USERNAME_LENGHT_16];
+    unsigned int    _nonce{0};
+    Digest          digest;
+    Signature       signature;
+
     void setUsername(unsigned char *name);
     // DESCRIPTION: Member methods
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
 } PeerHello;
 
 typedef struct __attribute__((packed))
-{
-    unsigned int    _dh_param_g{0};
-    unsigned int    _dh_param_p{0};
-    Auth            _auth_data;
-    DHKey           _dh_key;
+{   
+    unsigned int    _nonce{0};
+    unsigned int    _opp_nonce{0};
+    DHKey           dh_key;
+    Digest          digest;
+    Signature       signature;
 
     // DESCRIPTION: Member methods
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
-} PeerResponse;
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
+} PeerChallenge;
+
+typedef struct __attribute__((packed)) 
+{
+    unsigned int    _opp_nonce{0};
+    short int       _signal{-1};
+    DHKey           dh_key;
+    Digest          digest;
+    Signature       signature;
+
+    // DESCRIPTION: Member methods
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
+} PeerResponse; 
 #endif
