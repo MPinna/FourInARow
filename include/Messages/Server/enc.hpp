@@ -13,12 +13,14 @@
 typedef struct __attribute__((packed))
 {
     unsigned short int  _num_of_clients{0};
-    unsigned char  *    _clients_list; // TOCHECK
-    AEAD                _tag;
+    unsigned char  **   _clients_list; 
+    Tag                 _tag;
 
+    // DESCRIPTION: setter
+    void setClientList(unsigned char *arr_clients[]);
     // DESCRIPTION: Member methods
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
+    void serialize(unsigned char *to_ser_buf, unsigned char *arr_clients[]);
+    void deserialize(unsigned char *ser_buf);
 } ListResponse;
 
 typedef struct __attribute__((packed))
@@ -30,7 +32,7 @@ typedef struct __attribute__((packed))
     Tag                 tag;
     
     // DESCRIPTION: Member methods
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
 } GameInfo;
 #endif

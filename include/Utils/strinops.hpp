@@ -6,6 +6,7 @@
 #define _STRINGOPS_H_
 
 char *StringToLower(char *str);
-unsigned char *writeInto(unsigned char *dest, unsigned char *src);
+void writeInto(unsigned char *dest, unsigned char *src);
+void writeInto(char *dest, char *src);
 
 #endif

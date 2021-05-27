@@ -359,3 +359,36 @@ GameEnd::deserialize(unsigned char *ser_buf)
  * SECTION
  * Server encrypted messages
  */
+void
+ListResponse::setClientList(unsigned char *arr_clients[])
+{
+    this->_clients_list = new unsigned char*[this->_num_of_clients];
+    for (size_t i = 0; i < this->_num_of_clients; i++)
+    {
+        this->_clients_list[i] = (unsigned char *)malloc(USERNAME_LENGHT_16);
+        writeInto(this->_clients_list[i], arr_clients[i] + '\0');
+    } // TOCHECK
+    
+}
+
+void
+ListResponse::serialize(unsigned char *to_ser_buf, unsigned char *arr_clients[])
+{
+    unsigned short int pos{0};
+    uint16_t num_of_cli{htons(this->_num_of_clients)};
+
+    memcpy(to_ser_buf, &num_of_cli, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    for (size_t i = 0; i < this->_num_of_clients; i++)
+    {
+        memcpy(to_ser_buf + pos, arr_clients[i], USERNAME_LENGHT_16);
+        pos += USERNAME_LENGHT_16;
+    }
+    this->_tag.serialize(to_ser_buf + pos);
+} // TOCHECK
+
+void
+ListResponse::deserialize(unsigned char *ser_buf)
+{
+
+}
