@@ -7,7 +7,7 @@
 
 // DESCRIPTION: size
 #define USERNAME_LENGHT_16      16 + 1
-#define RANDOMNESS_LENGTH_16    16
+#define RANDOMNESS_LENGTH_16    16 + 1
 
 // DESCRIPTION network constants
 #define BACKLOG_QUEUE 5

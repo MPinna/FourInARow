@@ -12,22 +12,23 @@
 typedef struct __attribute__((packed))
 {
     // TOCHECK here we don't need auth data (correct?)
-    Certificate _server_cert;
+    Certificate _certificate;
 
     // DESCRIPTION: member structure
-    void serialize(char * to_ser_buf);
-    void deserialize(char * ser_buf);
+    void serialize(unsigned char * to_ser_buf);
+    void deserialize(unsigned char * ser_buf);
 } ServerHello;
 
 typedef struct __attribute__((packed))
 {
     unsigned int    _dh_param_p {0};
-    unsigned int    _dh_param_a {0};
+    unsigned int    _dh_param_g {0};
     DHKey           dh_key;
-    Auth            _auth;
+    Digest          digest;
+    Signature       signature;
 
     // DESCRIPTION: member structure
-    void serialize(char * to_ser_buf);
-    void deserialize(char * ser_buf);
-} ServerResponse;
+    void serialize(unsigned char * to_ser_buf);
+    void deserialize(unsigned char * ser_buf);
+} ServerChallenge;
 #endif

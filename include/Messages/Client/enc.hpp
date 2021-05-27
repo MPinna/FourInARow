@@ -14,56 +14,55 @@
 typedef struct __attribute__((packed)) 
 {
     // TOCHECK if you can send this packet even without randomness field
-    unsigned char       _randomness[USERNAME_LENGHT_16];
-    AEAD                _tag;
+    unsigned char   _randomness[RANDOMNESS_LENGTH_16];
+    Tag             tag;
 
+    // TODO function to set N bytes at random in a string
     // DESCRIPTION: Member methods
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
 } PlayerList;
 
 typedef struct __attribute__((packed))
 {
-    unsigned char   _opponent_username[USERNAME_LENGHT_16];
-    AEAD            _tag;
+    unsigned char   _opp_username[USERNAME_LENGHT_16];
+    Tag             tag;
 
     // DESCRIPTION: Member methods
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
 } ChallengeRequest;
 
 typedef struct __attribute__((packed))
 {
-    bool _answer;
-    AEAD _tag;
+    bool    _answer;
+    Tag     tag;
 
     // DESCRIPTION: Member methods
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
 } ChallengeResponse;
 
 typedef struct __attribute__((packed))
 {
-    // TOCHECK if it is possible to send without randomness exploiting AAD only
-    short unsigned int  _column_num {0};
+    unsigned short int  _column_num {0};
     unsigned char       _randomness[RANDOMNESS_LENGTH_16];
-    AEAD                tag;
+    Tag                 tag;
 
     // DESCRIPTION: Member methods
-    // TODO generic methods to fill randomness with 16 random bytes
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf);
 } GameMove;
 
 // TOCHECK we need something to close the game
 typedef struct __attribute__((packed))
 {
-    unsigned char       _randomness[RANDOMNESS_LENGTH_16];
     unsigned short int  _signal{0};
-    AEAD                tag;
+    unsigned char       _randomness[RANDOMNESS_LENGTH_16];
+    Tag                 tag;
 
     // DESCRIPTION: Member methods
-    void serialize(char *to_ser_buf);
-    void deserilize(char *ser_buf);
+    void serialize(unsigned char *to_ser_buf);
+    void deserialize(unsigned char *ser_buf); 
 } GameEnd;
 #endif
