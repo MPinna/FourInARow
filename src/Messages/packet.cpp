@@ -122,3 +122,9 @@ Packet::deserializeHeader(unsigned char *ser_buf)
     memcpy(&dpsize, ser_buf + pos, sizeof(uint16_t));
     this->header._payload_size = (ntohs(dpsize));
 }
+
+void
+User::setName(char *name)
+{
+    memcpy(this->_name + '\0', name, USERNAME_LENGHT_16);
+} 

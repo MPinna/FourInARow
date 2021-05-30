@@ -354,41 +354,73 @@ GameEnd::deserialize(unsigned char *ser_buf)
     memcpy(this->_randomness, ser_buf + pos, RANDOMNESS_LENGTH_16);
     pos += RANDOMNESS_LENGTH_16;
     this->tag.deserialize(ser_buf + pos);
-}   
+}
+
 /**
  * SECTION
  * Server encrypted messages
  */
 void
-ListResponse::setClientList(unsigned char *arr_clients[])
+ClientList::addUser(char *name)
 {
-    this->_clients_list = new unsigned char*[this->_num_of_clients];
-    for (size_t i = 0; i < this->_num_of_clients; i++)
-    {
-        this->_clients_list[i] = (unsigned char *)malloc(USERNAME_LENGHT_16);
-        writeInto(this->_clients_list[i], arr_clients[i] + '\0');
-    } // TOCHECK
-    
+    User tmp;
+    tmp.setName(name);
+    this->users.emplace_back(tmp);
+    this->_n_of_elem++;
 }
 
 void
-ListResponse::serialize(unsigned char *to_ser_buf, unsigned char *arr_clients[])
+ClientList::print()
 {
-    unsigned short int pos{0};
-    uint16_t num_of_cli{htons(this->_num_of_clients)};
-
-    memcpy(to_ser_buf, &num_of_cli, sizeof(uint16_t));
-    pos += sizeof(uint16_t);
-    for (size_t i = 0; i < this->_num_of_clients; i++)
+    for(const auto& elem : this->users)
     {
-        memcpy(to_ser_buf + pos, arr_clients[i], USERNAME_LENGHT_16);
-        pos += USERNAME_LENGHT_16;
+        unsigned short int reminder = USERNAME_LENGHT_16 - strlen(elem._name);
+        char format[reminder] = "";
+        std::cout << 
+            "|" << elem._name << format << "\t| " << "status: " << elem._status << "|" <<
+            "\n----------------------------" <<
+        std::endl;
     }
-    this->_tag.serialize(to_ser_buf + pos);
-} // TOCHECK
+}
+
+char *
+ClientList::serialize()
+{
+    uint16_t n_of_elem{htons(this->_n_of_elem)};
+    char *ser_buf = new char[(this->_n_of_elem*USERNAME_LENGHT_16)+(this->_n_of_elem*sizeof(uint16_t))];
+    unsigned short int pos{0};
+
+    memcpy(ser_buf, &n_of_elem, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    for(const auto& elem : this->users)
+    {
+        uint16_t status{htons(elem._status)};
+        memcpy(ser_buf + pos, elem._name, USERNAME_LENGHT_16);
+        pos += USERNAME_LENGHT_16;
+        memcpy(ser_buf + pos, &status, sizeof(uint16_t));
+        pos += sizeof(uint16_t);
+    }
+    return ser_buf;
+} 
 
 void
-ListResponse::deserialize(unsigned char *ser_buf)
+ClientList::deserialize(char *ser_buf)
 {
+    unsigned short int pos{0};
+    uint16_t n_of_elem{0};
 
+    memcpy(&n_of_elem, ser_buf, sizeof(uint16_t));
+    this->_n_of_elem = ntohs(n_of_elem);
+    pos += sizeof(uint16_t);
+    for (size_t i = 0; i < this->_n_of_elem; i++)
+    {
+        uint16_t status{0};
+        User tmp;
+        memcpy(tmp._name, ser_buf + pos, USERNAME_LENGHT_16);
+        pos += USERNAME_LENGHT_16;
+        memcpy(&status, ser_buf + pos, sizeof(uint16_t));
+        tmp._status = ntohs(status);
+        pos += sizeof(uint16_t);
+        this->users.push_back(tmp);
+    }
 }

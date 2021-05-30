@@ -9,19 +9,19 @@
 #define _SERVER_ENCRYPTED_MESSAGES_H_
 #include "../../Utils/constant.hpp"
 #include "../crypto.hpp"
+#include "../packet.hpp"
+#include <vector>
 
 typedef struct __attribute__((packed))
 {
-    unsigned short int  _num_of_clients{0};
-    unsigned char  **   _clients_list; 
-    Tag                 _tag;
+    unsigned short int _n_of_elem{0};
+    std::vector<User>  users;
 
-    // DESCRIPTION: setter
-    void setClientList(unsigned char *arr_clients[]);
-    // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf, unsigned char *arr_clients[]);
-    void deserialize(unsigned char *ser_buf);
-} ListResponse;
+    void addUser(char *name);
+    void print();
+    char *serialize();
+    void deserialize(char *ser_buf);
+} ClientList;
 
 typedef struct __attribute__((packed))
 {
