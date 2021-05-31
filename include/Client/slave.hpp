@@ -8,7 +8,11 @@
 #include "../Connection/network.hpp"
 #include "../Utils/constant.hpp"
 #include <sys/socket.h>
+#include <iostream>
+#include <netdb.h>
+#include <cstring>
 #include <string>
+#include <thread>
 
 class Slave
 {

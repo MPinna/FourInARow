@@ -4,10 +4,6 @@
  */
 #include "../../include/Connection/network.hpp"
 #include "../../include/Utils/constant.hpp"
-#include <iostream>
-#include <unistd.h>
-#include <sys/un.h>
-#include <netdb.h>
 
 int InitSocket(int domain, int socktype, int protocol)
 {

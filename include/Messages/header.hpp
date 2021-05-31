@@ -1,7 +1,10 @@
 #ifndef _HEADER_H_
 #define _HEADER_H_
-
 #include "../Utils/constant.hpp"
+#include <netinet/in.h>
+#include <iostream>
+#include <stdlib.h>
+#include <cstring>
 
 struct Header 
 {   // 8 Bytes

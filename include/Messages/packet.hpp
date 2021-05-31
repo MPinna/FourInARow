@@ -36,12 +36,4 @@ public:
     void serialize(unsigned char *to_ser_buf);
     void deserializeHeader(unsigned char * ser_buf);
 };
-
-typedef struct __attribute__((packed))
-{
-    char                _name[USERNAME_LENGHT_16];
-    unsigned short int  _status{0};
-
-    void setName(char *name);
-} User; 
 #endif

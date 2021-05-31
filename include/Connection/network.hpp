@@ -7,9 +7,12 @@
  */
 #ifndef _CONNECTION_H_
 #define _CONNECTION_H_
-
 #include "../Utils/constant.hpp"
 #include <arpa/inet.h>
+#include <iostream>
+#include <unistd.h>
+#include <sys/un.h>
+#include <netdb.h>
 #include <string>
 
 int InitSocket(int domain, int socktype, int protocol);

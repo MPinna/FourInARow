@@ -1,7 +1,32 @@
 #include "../../include/Messages/crypto.hpp"
-#include <arpa/inet.h>
-#include <iostream>
-#include <cstring>
+
+void Signature::setSignature(unsigned char *signature)
+{
+    this->_signature = (unsigned char *)malloc(strlen((char *)signature) + 1);
+    memcpy(this->_signature, signature + '\0', strlen((char *)signature) + 1);
+    this->_sig_size = strlen((char *)signature) + 1;
+}
+
+void Signature::serialize(unsigned char *to_ser_buf)
+{
+    size_t pos{0};
+    uint16_t sig_size{htons(this->_sig_size)};
+
+    memcpy(to_ser_buf + pos, &sig_size, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    memcpy(to_ser_buf + pos, this->_signature, this->_sig_size);
+}
+
+void Signature::deserialize(unsigned char *ser_buf)
+{
+    size_t pos{0};
+    uint16_t sig_size{0};
+
+    memcpy(&sig_size, ser_buf + pos, sizeof(uint16_t));
+    this->_sig_size = ntohs(sig_size);
+    pos += sizeof(uint16_t);
+    this->setSignature(ser_buf + pos);
+}
 
 void Digest::setDigest(unsigned char *digest)
 {
@@ -31,34 +56,6 @@ void Digest::deserialize(unsigned char *ser_buf)
     pos += sizeof(uint16_t);
     this->setDigest(ser_buf + pos);
     pos += this->_dig_size;
-}
-
-void Signature::setSignature(unsigned char *signature)
-{
-    this->_signature = (unsigned char *)malloc(strlen((char *)signature) + 1);
-    memcpy(this->_signature, signature + '\0', strlen((char *)signature) + 1);
-    this->_sig_size = strlen((char *)signature) + 1;
-}
-
-void Signature::serialize(unsigned char *to_ser_buf)
-{
-    size_t pos{0};
-    uint16_t sig_size{htons(this->_sig_size)};
-
-    memcpy(to_ser_buf + pos, &sig_size, sizeof(uint16_t));
-    pos += sizeof(uint16_t);
-    memcpy(to_ser_buf + pos, this->_signature, this->_sig_size);
-}
-
-void Signature::deserialize(unsigned char *ser_buf)
-{
-    size_t pos{0};
-    uint16_t sig_size{0};
-
-    memcpy(&sig_size, ser_buf + pos, sizeof(uint16_t));
-    this->_sig_size = ntohs(sig_size);
-    pos += sizeof(uint16_t);
-    this->setSignature(ser_buf + pos);
 }
 
 void

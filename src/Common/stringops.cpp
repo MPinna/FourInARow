@@ -2,8 +2,6 @@
  * DESCRIPTION
  */
 #include "Utils/strinops.hpp"
-#include <iostream>
-#include <cstring>
 
 char *
 StringToLower(char *str)

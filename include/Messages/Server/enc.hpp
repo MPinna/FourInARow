@@ -7,6 +7,7 @@
  */
 #ifndef _SERVER_ENCRYPTED_MESSAGES_H_
 #define _SERVER_ENCRYPTED_MESSAGES_H_
+#include "../../Utils/structure.hpp"
 #include "../../Utils/constant.hpp"
 #include "../crypto.hpp"
 #include "../packet.hpp"

@@ -7,9 +7,11 @@
  */
 #ifndef _ENCRYPTION_FORMS_H_
 #define _ENCRYPTION_FORMS_H_
-
 #include "../Utils/constant.hpp"
+#include <arpa/inet.h>
+#include <iostream>
 #include <cstddef>
+#include <cstring>
 
 typedef struct __attribute__((packed))
 {   

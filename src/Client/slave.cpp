@@ -1,6 +1,4 @@
 #include "../../include/Client/slave.hpp"
-#include <iostream>
-#include <netdb.h>
 
 Slave::Slave()
     : _clientfd{0}, _peerfd{0}, _serveraddr{DEFAULT_SERVER_ADDR}, _serverport{DEFAULT_SERVER_PORT}, _serverinfo{NULL}, _peeraddr{DEFAULT_PEER_ADDR}, _peerport{0}, _peerinfo{NULL}

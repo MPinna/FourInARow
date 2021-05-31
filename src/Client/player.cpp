@@ -8,9 +8,6 @@
  *  - Init a board
  */
 #include "../../include/Client/slave.hpp"
-#include <iostream>
-#include <cstring>
-#include <thread>
 
 int main()
 {
@@ -23,11 +20,11 @@ int main()
     client->InitClient(AF_INET, SOCK_STREAM, 0, AF_INET);
     
     /* Exchange data */
-    _check = SockSend(client->getClientfd(), "Hello Server from player 1", strlen("Hello Server from player 1"));
+    _check = SockSend(client->GetPeerfd(), "Hello Server from player 1", strlen("Hello Server from player 1"));
     if(_check)
         std::cout << "Hello Sent" << std::endl;
 
-    _check = SockReceive(client->getClientfd(), buf, strlen("Hello client from server"));
+    _check = SockReceive(client->GetPeerfd(), buf, strlen("Hello client from server"));
     if(_check)
         std::cout << "Received: " << buf << std::endl;
 

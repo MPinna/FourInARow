@@ -9,7 +9,6 @@
  */
 #include "../../include/Connection/network.hpp"
 #include "../../include/Server/master.hpp"
-#include <iostream>
 
 Master::Master()
     : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{DEFAULT_SERVER_PORT}, _serverfd{0}, _exchangefd{0}
