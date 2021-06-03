@@ -2,7 +2,7 @@
 
 void Signature::setSignature(unsigned char *signature)
 {
-    this->_signature = (unsigned char *)malloc(strlen((char *)signature) + 1);
+    this->_signature = new unsigned char[(strlen((char *)signature) + 1)];
     memcpy(this->_signature, signature + '\0', strlen((char *)signature) + 1);
     this->_sig_size = strlen((char *)signature) + 1;
 }
@@ -30,7 +30,7 @@ void Signature::deserialize(unsigned char *ser_buf)
 
 void Digest::setDigest(unsigned char *digest)
 {
-    this->_digest = (unsigned char *)malloc(strlen((char *)digest) + 1);
+    this->_digest = new unsigned char[(strlen((char *)digest) + 1)];
     memcpy(this->_digest, digest + '\0', strlen((char *)digest) + 1);
     this->_dig_size = strlen((char *)digest) + 1;
 }
@@ -61,7 +61,7 @@ void Digest::deserialize(unsigned char *ser_buf)
 void
 Tag::setTag(unsigned char *tag)
 {
-    this->_tag = (unsigned char *)malloc(strlen((char *)tag + 1));
+    this->_tag = new unsigned char[(strlen((char *)tag + 1))];
     memcpy(this->_tag, tag + '\0', strlen((char *)tag+1));
     this->_tag_size = strlen((char *)tag) + 1;
 }
@@ -92,7 +92,7 @@ Tag::deserialize(unsigned char *ser_buf)
 void
 Certificate::setCert(unsigned char * cert)
 {   // TOCHECK check if in this case you can assign length this way
-    this->_cert = (unsigned char *)malloc(strlen((char *)cert+1));
+    this->_cert = new unsigned char[(strlen((char *)cert+1))];
     memcpy(this->_cert, cert, strlen((char *)cert+1));
     this->_lenght = strlen((char *)cert) + 1;
 }
@@ -123,7 +123,7 @@ Certificate::deserialize(unsigned char *ser_buf)
 void 
 DHKey::setDHKey(unsigned char *dhkey)
 {
-    this->_dh_key = (unsigned char *)malloc(strlen((char *)dhkey) + 1);
+    this->_dh_key = new unsigned char [(strlen((char *)dhkey) + 1)];
     memcpy(this->_dh_key, dhkey + '\0', strlen((char *)dhkey) + 1);
     this->_dh_lenght = strlen((char *)dhkey) + 1;
 }

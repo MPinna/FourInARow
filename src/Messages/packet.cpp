@@ -62,8 +62,8 @@ Packet::setPayloadSize(unsigned short int size)
 void
 Packet::setPayload(unsigned char *data, size_t size)
 {
-    this->_payload = (unsigned char *)malloc(size + 1);
-    memcpy(this->_payload + '\0', data, size + 1);
+    this->_payload = new unsigned char[(size + 1)];
+    memcpy(this->_payload, data + '\0', size + 1);
     this->header._payload_size = size + 1;
 }
 
