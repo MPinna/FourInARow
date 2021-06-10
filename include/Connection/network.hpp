@@ -42,7 +42,7 @@ void SockSelect(); // TODO
 
 bool SockReceive(int rec_sockfd, void *rec_buf, size_t len);
 
-bool SockSend(int send_sockfd, const char *send_buf, size_t len);
+bool SockSend(int send_sockfd, unsigned char *send_buf, size_t len);
 
 int SockClose(int sockfd);
 #endif

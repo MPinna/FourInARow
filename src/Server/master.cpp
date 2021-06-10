@@ -11,17 +11,17 @@
 #include "../../include/Server/master.hpp"
 
 Master::Master()
-    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{DEFAULT_SERVER_PORT}, _serverfd{0}, _exchangefd{0}
+    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{DEFAULT_SERVER_PORT}, _serverfd{0}, _receivefd{0}
 {
 }
 
 Master::Master(std::string port)
-    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{port}, _serverfd{0}, _exchangefd{0}
+    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{port}, _serverfd{0}, _receivefd{0}
 {
 }
 
 Master::Master(std::string ipaddr, std::string port)
-    : _ipserveraddr{ipaddr}, _portno{port}, _serverfd{0}, _exchangefd{0}
+    : _ipserveraddr{ipaddr}, _portno{port}, _serverfd{0}, _receivefd{0}
 {
 }
 

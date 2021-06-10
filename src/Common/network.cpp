@@ -130,7 +130,7 @@ bool SockReceive(int rec_sockfd, void *rec_buf, size_t len)
 	return true;
 }
 
-bool SockSend(int send_sockfd, const char *send_buf, size_t len)
+bool SockSend(int send_sockfd, unsigned char *send_buf, size_t len)
 {
 	size_t sent{0}, ret{0};
 	while (sent < len)

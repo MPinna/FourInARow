@@ -46,6 +46,7 @@ public:
     // DESCRIPTION: class members
     int InitClient(int domain, int socktype, int protocol, int family);
 
+    // In a peer-to-peer communication, a peerReceiver act as a server entity 
     void InitPeerReceiver(
         int domain,
         int socktype,
@@ -56,7 +57,8 @@ public:
         int optval,
         int backlog_queue,
         struct sockaddr_in _peersock);
-
+    
+    // In a peer-to-peer communication, a peerSender act as a client entity
     void InitPeerSender(
         int domain,
         int socktype,
