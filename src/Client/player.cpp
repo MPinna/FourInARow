@@ -44,10 +44,10 @@ int main()
         std::cerr << "Error during input\n";
         exit(1);
     }
-    if(assign == "r")
-        std::thread th1(&Slave::InitPeerReceiver, &client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE, _peersock);
-    if(assign == "s")
-        std::thread th1(&Slave::InitPeerSender, &client, AF_INET, SOCK_STREAM, 0, AF_INET, _peersock);
-    
+    // if(assign == "r")
+    std::thread th1(&Slave::InitPeerReceiver, &client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE, _peersock);
+    // if(assign == "s")
+    //     std::thread th1(&Slave::InitPeerSender, &client, AF_INET, SOCK_STREAM, 0, AF_INET, _peersock);
+
     return 1;
 }
