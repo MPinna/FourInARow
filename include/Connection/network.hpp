@@ -40,9 +40,9 @@ int SockConnect(int sockfd, struct addrinfo info);
 
 void SockSelect(); // TODO
 
-bool SockReceive(int rec_sockfd, void *rec_buf, size_t len);
+int SockReceive(int rec_sockfd, void *rec_buf, size_t len);
 
-bool SockSend(int send_sockfd, unsigned char *send_buf, size_t len);
+int SockSend(int send_sockfd, void *send_buf, size_t len);
 
 int SockClose(int sockfd);
 #endif

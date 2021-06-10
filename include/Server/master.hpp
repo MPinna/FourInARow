@@ -29,9 +29,9 @@ public:
     std::string getPort(){return this->_portno;}
     int getServerfd(){return this->_serverfd;}
     int getReceivefd(){return this->_receivefd;}
-    std::string setIPAddr(std::string ipaddr){this->_ipserveraddr = ipaddr;}
-    std::string setPortno(std::string port){this->_portno = port;}
-    int setReceivefd(int sockfd){this->_receivefd = sockfd;}
+    void setIPAddr(std::string ipaddr){this->_ipserveraddr = ipaddr;}
+    void setPortno(std::string port){this->_portno = port;}
+    void setReceivefd(int sockfd){this->_receivefd = sockfd;}
 
     // DESCRIPTION Class member
     int InitServer(int domain, int socktype, int protocol, int family, int level, int optname, int optval, int backlog_queue);

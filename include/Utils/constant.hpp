@@ -16,6 +16,7 @@
 #define DEFAULT_SERVER_PORT "8888"
 #define DEFAULT_RPEER_PORT  "11000" // R stands for receiver
 #define DEFAULT_SPEER_PORT  "11001" // S stands for sender
+#define DEFAULT_PEER_PORT   "11000" // Peer stands for receiver
 #define ADDRESS_LENGTH      16 + 1
 
 #define PEER_HELLO          0

@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     Master *server = new Master();
     unsigned char sbuf[] = "Hello Client!";
     unsigned char rbuf[14];
-    bool _check{false};
+    int _check{-1};
     
     // Create socket, configure parameters, bind it, make it ready for listen
     server->InitServer(AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE);
