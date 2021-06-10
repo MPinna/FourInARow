@@ -17,16 +17,16 @@
 
 int InitSocket(int domain, int socktype, int protocol);
 
-void SetSockOpt(int sockfd, int level, int optname, void *optval);
+int SetSockOpt(int sockfd, int level, int optname, void *optval);
 
-void SockBind(
+int SockBind(
     int sockfd,
     std::string ipaddr,
     std::string port,
     int family,
     struct sockaddr_in sockaddress);
 
-void SockListen(int sockfd, int max_queue);
+int SockListen(int sockfd, int max_queue);
 
 int SockAccept(int sockfd, struct sockaddr_in sockaddress);
 
@@ -36,7 +36,7 @@ struct addrinfo *GetAddrInfo(
     int family,
     int socktype);
 
-void SockConnect(int sockfd, struct addrinfo info);
+int SockConnect(int sockfd, struct addrinfo info);
 
 void SockSelect(); // TODO
 
@@ -44,5 +44,5 @@ bool SockReceive(int rec_sockfd, void *rec_buf, size_t len);
 
 bool SockSend(int send_sockfd, const char *send_buf, size_t len);
 
-void SockClose(int sockfd);
+int SockClose(int sockfd);
 #endif
