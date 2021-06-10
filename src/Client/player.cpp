@@ -28,11 +28,8 @@ int main()
     if(_check)
         std::cout << "Received: " << buf << std::endl;
 
-    // SECTION: peer2peer 
-    // std::thread peerReceiver ([=]{client->InitPeerReceiver(AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE, _peersock);});
-    // FIXME
-    std::thread th1(&Slave::InitPeerReceiver, &client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE, _peersock);
-
+    // // TOCHECK
+    // std::thread th1(&Slave::InitPeerReceiver, &client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE, _peersock);
 
     return 1;
 }
