@@ -125,7 +125,7 @@ Slave::InitPeerReceiver(
 		if (data == "exit")
 		{
 			//send to the client that server has closed the connection
-			send(_acceptfd, (char *)&msg, strlen(msg), 0);
+			SockSend(_acceptfd, (char *)&msg, strlen(msg));
 			break;
 		}
 		//send the message to client
@@ -156,7 +156,7 @@ Slave::InitPeerSender(
 	short int ret{-1};
 
 	this->_peerfd = InitSocket(domain, socktype, protocol);
-	if(ret < 0) // TODO
+	if(this->_peerfd < 0) 
 	{
 		std::cerr << "Slave::InitPeerSender(1)" << std::endl;
 		return ret;
@@ -171,7 +171,7 @@ Slave::InitPeerSender(
 	ret = SockConnect(this->_peerfd, *this->_peerinfo);
 	if(ret < 0)
 	{
-		std::cerr << "Slave::InitPeerSender(1)" << std::endl;
+		std::cerr << "Slave::InitPeerSender(3)" << std::endl;
 		return ret;
 	}
 	std::cout << "Connected to the peer!" << std::endl;
@@ -188,13 +188,13 @@ Slave::InitPeerSender(
         strcpy(msg, data.c_str());
         if (data == "exit")
         {
-            SockSend(this->_peerfd, (unsigned char *)&msg, strlen(msg));
+            send(this->_peerfd, (unsigned char *)&msg, strlen(msg), 0);
             break;
         }
-        bytesWritten += SockSend(this->_peerfd, (unsigned char *)&msg, strlen(msg));
+        bytesWritten += send(this->_peerfd, (char *)&msg, strlen(msg), 0);
         std::cout << "Awaiting receiver response..." << std::endl;
         memset(&msg, 0, sizeof(msg)); //clear the buffer
-        bytesRead += SockReceive(this->_peerfd, (char *)&msg, sizeof(msg));
+        bytesRead += recv(this->_peerfd, (char *)&msg, sizeof(msg), 0);
         if (!strcmp(msg, "exit"))
         {
             std::cout << "Server has quit the session" << std::endl;
@@ -204,7 +204,7 @@ Slave::InitPeerSender(
     }
     gettimeofday(&end1, NULL);
     close(this->_peerfd);
-    std::cout << "********Session********" << std::endl;
+    std::cout << "******** Session ********" << std::endl;
     std::cout << "Bytes written: " << bytesWritten << " Bytes read: " << bytesRead << std::endl;
     std::cout << "Elapsed time: " << (end1.tv_sec - start1.tv_sec)
          << " secs" << std::endl;

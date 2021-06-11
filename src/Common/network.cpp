@@ -8,10 +8,10 @@
 int 
 InitSocket(int domain, int socktype, int protocol)
 {
+	// 0 on success, -1 on failure
 	int _sockfd = socket(domain, socktype, protocol);
 	if (_sockfd < 0)
 		std::cerr << "InitSocket()::socket failed!" << std::endl;
-	// 0 on success, -1 on failure
 	return _sockfd;
 }
 
@@ -108,6 +108,44 @@ void SockSelect()
 
 int SockReceive(int rec_sockfd, void *rec_buf, size_t len)
 {
+	short int ret{0};
+
+	// NOTA: by default socket are set to block
+	ret = recv(rec_sockfd, (char *)rec_buf, len, 0);
+	if (ret == -1)
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			std::cerr << ETIMEDOUT << std::endl;
+		else
+			std::cerr << "SockReceive()::recvfrom failed!" << std::endl;
+
+		return ret;
+	}
+	if (ret == 0)
+	{
+		std::cerr << "SockReceive()::recvfrom connection closed!" << std::endl;
+		return ret;
+	}
+
+	return ret; // TOCHECK
+}
+
+int SockSend(int send_sockfd, void *send_buf, size_t len)
+{
+	short int ret{0};
+
+	ret = send(send_sockfd, (char *)send_buf, len, 0);
+	if (ret == -1)
+	{
+		std::cerr << "SockSend()::sendto - failed!" << std::endl;
+		return ret;
+	}
+
+	return ret; // TOCHECK
+}
+
+int SockReceiveFrom(int rec_sockfd, void *rec_buf, size_t len)
+{
 	size_t read{0};
 	ssize_t ret{0};
 	while (read < len)
@@ -130,10 +168,10 @@ int SockReceive(int rec_sockfd, void *rec_buf, size_t len)
 		}
 		read += ret;
 	}
-	return ret;
+	return read; 
 }
 
-int SockSend(int send_sockfd, void *send_buf, size_t len)
+int SockSendTo(int send_sockfd, void *send_buf, size_t len)
 {
 	size_t sent{0}, ret{0};
 	while (sent < len)
@@ -146,7 +184,7 @@ int SockSend(int send_sockfd, void *send_buf, size_t len)
 		}
 		sent += ret;
 	}
-	return ret;
+	return sent; 
 }
 
 int 

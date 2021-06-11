@@ -9,37 +9,10 @@
  */
 #include "../../include/Client/slave.hpp"
 
-void
-InitPeerReceiver(
-    int peerfd,
-    std::string peeraddr,
-    std::string peerport,
-	int domain, 
-    int socktype, 
-    int protocol, 
-    int family,
-	int level,
-	int optname,
-    int optval,
-    int backlog_queue, 
-    struct sockaddr_in _peersock
-)
-{
-	peerfd = InitSocket(domain, socktype, protocol);
-	SetSockOpt(peerfd, level, optname, &optval);
-	SockBind(peerfd, peeraddr, peerport, family, _peersock);
-	// TOCHECK: remove this print?
-	std::cout << "READY! Waiting for a client to connect..." << std::endl;
-	SockListen(peerfd, backlog_queue);
-	int _acceptfd = SockAccept(peerfd, _peersock);
-	// TOCHECK could be useful to have getnameinfo here to keep track of received messages ?
-	std::cout << "Connected with peer!" << std::endl;	
-}
-
 int main()
 {
     short int ret{-1};
-    bool _check{false};
+    short int _check{false};
     unsigned char sbuf[] = "Hello Server!";
     unsigned char rbuf[14];
     struct sockaddr_in _peersock;
@@ -54,11 +27,11 @@ int main()
     }
 
     _check = SockSend(client.GetClientfd(), sbuf, sizeof(sbuf));
-    if(_check)
+    if(_check >= 0)
         std::cout << "HELLO SENT!" << std::endl;
 
     _check = SockReceive(client.GetClientfd(), rbuf, sizeof(rbuf));
-    if(_check)
+    if(_check >= 0)
         std::cout << "RECEIVED: " << rbuf << std::endl;
 
     // Manage peer-to-peer connection
