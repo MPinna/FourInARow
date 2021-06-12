@@ -11,17 +11,17 @@
 #include "../../include/Server/master.hpp"
 
 Master::Master()
-    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{DEFAULT_SERVER_PORT}, _serverfd{0}, _receivefd{0}
+    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{DEFAULT_SERVER_PORT}, _masterfd{-1}, _receivefd{-1}
 {
 }
 
 Master::Master(std::string port)
-    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{port}, _serverfd{0}, _receivefd{0}
+    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{port}, _masterfd{-1}, _receivefd{-1}
 {
 }
 
 Master::Master(std::string ipaddr, std::string port)
-    : _ipserveraddr{ipaddr}, _portno{port}, _serverfd{0}, _receivefd{0}
+    : _ipserveraddr{ipaddr}, _portno{port}, _masterfd{-1}, _receivefd{-1}
 {
 }
 
@@ -30,12 +30,21 @@ Master::~Master()
 }
 
 int
-Master::InitServer(int domain, int socktype, int protocol, int family, int level, int optname, int optval, int backlog_queue)
+Master::InitMaster(int domain, int socktype, int protocol, int family, int level, int optname, int optval, int backlog_queue)
 {   
-    this->_serverfd = InitSocket(domain, socktype, protocol);
-    SetSockOpt(this->_serverfd, level, optname, &optval);
-    SockBind(this->_serverfd, this->_ipserveraddr, _portno, family, this->_serversock);
-    SockListen(this->_serverfd, backlog_queue);
-
-    return this->_serverfd;
+    short int ret{-1};
+    this->_masterfd = InitSocket(domain, socktype, protocol);
+    if(this->_masterfd < 0)
+        std::cerr << "Master::InitMaster failed(1)!" << std::endl;
+    ret = SetSockOpt(this->_masterfd, level, optname, &optval);
+    if(ret < 0)
+        std::cerr << "Master::InitMaster failed(1)!" << std::endl;
+    ret = SockBind(this->_masterfd, this->_ipserveraddr, _portno, family, this->_serversock);
+    if(ret < 0)
+        std::cerr << "Master::InitMaster failed(1)!" << std::endl;
+    ret = SockListen(this->_masterfd, backlog_queue);
+    if(ret < 0)
+        std::cerr << "Master::InitMaster failed(1)!" << std::endl;
+    
+    return this->_masterfd;
 }

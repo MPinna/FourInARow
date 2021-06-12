@@ -12,7 +12,6 @@
 int main()
 {
     short int ret{-1};
-    short int _check{false};
     unsigned char sbuf[] = "Hello Server!";
     unsigned char rbuf[14];
     struct sockaddr_in _peersock;
@@ -22,20 +21,30 @@ int main()
     ret = client.InitClient(AF_INET, SOCK_STREAM, 0, AF_INET);
     if(ret < 0)
     {
-        std::cerr << "client->InitClient() failed!\nReturn code: " << ret << std::endl;
+        std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
 
-    _check = SockSend(client.GetClientfd(), sbuf, sizeof(sbuf));
-    if(_check >= 0)
+    ret = SockSend(client.GetClientfd(), sbuf, sizeof(sbuf));
+    if(ret < 0)
+    {
+        std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
+        exit(1);
+    }
+    else
         std::cout << "HELLO SENT!" << std::endl;
 
-    _check = SockReceive(client.GetClientfd(), rbuf, sizeof(rbuf));
-    if(_check >= 0)
+    ret = SockReceive(client.GetClientfd(), rbuf, sizeof(rbuf));
+    if(ret < 0)
+    {
+        std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
+        exit(1);
+    }
+    else
         std::cout << "RECEIVED: " << rbuf << std::endl;
 
+    // SECTION_START
     // Manage peer-to-peer connection
-    // TOCHECK
     std::string assign;
     std::cout << "Please, type s (for sender) r (for receiver): ";
     getline(std::cin, assign);
@@ -44,7 +53,6 @@ int main()
         std::cerr << "Error during input\n";
         exit(1);
     }
-
     if(assign == "r")
     {   
         std::thread t1(&Slave::InitPeerReceiver, &client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE, _peersock);
@@ -58,5 +66,8 @@ int main()
     else
         std::cout << "Invalid value!" << std::endl;
 
+    // NOTE: all this block will be replaced by an automatic generation code which will be assigned when a player challenge another one
+    // SECTION_END
+    
     return 1;
 }

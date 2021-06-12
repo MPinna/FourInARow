@@ -14,18 +14,33 @@ int main(int argc, char *argv[])
     short int _check{-1};
     
     // Create socket, configure parameters, bind it, make it ready for listen
-    server->InitServer(AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE);
+    _check = server->InitMaster(AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE);
+    if(_check < 0)
+    {
+        std::cerr << "main::server->InitMaster failed!" << std::endl;
+        exit(1);
+    }
 
     // Manage Clients incoming connections
     for (;;)
     {
         server->setReceivefd(SockAccept(server->getServerfd(), server->_serversock));
         _check = SockReceive(server->getReceivefd(), rbuf, sizeof(rbuf));
-        if(_check > 0)
+        if(_check < 0)
+        {
+            std::cerr << "main::SockReceive failed!" << std::endl;
+            exit(1);
+        }
+        else
             std::cout << "RECEIVED: " << rbuf << std::endl;
         
         _check = SockSend(server->getReceivefd(), sbuf, sizeof(sbuf));
-        if(_check > 0)
+        if(_check < 0)
+        {
+            std::cerr << "main::SockSend failed!" << std::endl;
+            exit(1);
+        }
+        else
             std::cout << "RESPONSE SENT" << std::endl;
     }
 

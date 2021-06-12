@@ -22,7 +22,7 @@ SetSockOpt(int sockfd, int level, int optname, void *optval)
 	unsigned int len = sizeof(optval);
 	ret = setsockopt(sockfd, level, optname, &optval, len);
 	if (ret < 0)
-		perror("SetSockOpt()::setsockopt failed!");
+		std::cerr << "SetSockOpt()::setsockopt failed!" << std::endl;
 	return ret;
 }
 
@@ -99,11 +99,6 @@ int SockConnect(int sockfd, struct addrinfo info)
 		std::cerr << "SockConnect()::connect failed!" << std::endl;
 
 	return status;
-}
-
-void SockSelect()
-{
-	// TODO
 }
 
 int SockReceive(int rec_sockfd, void *rec_buf, size_t len)

@@ -12,7 +12,7 @@ class Master
 private:
     /* data */
     std::string _ipserveraddr, _portno;
-    int _serverfd, _receivefd;
+    int _masterfd, _receivefd;
     struct addrinfo *info;
 public:
     struct sockaddr_in _serversock;
@@ -27,13 +27,13 @@ public:
     // DESCRIPTION: Getter / Setter
     std::string getIPAddr(){return this->_ipserveraddr;}
     std::string getPort(){return this->_portno;}
-    int getServerfd(){return this->_serverfd;}
+    int getServerfd(){return this->_masterfd;}
     int getReceivefd(){return this->_receivefd;}
     void setIPAddr(std::string ipaddr){this->_ipserveraddr = ipaddr;}
     void setPortno(std::string port){this->_portno = port;}
     void setReceivefd(int sockfd){this->_receivefd = sockfd;}
 
     // DESCRIPTION Class member
-    int InitServer(int domain, int socktype, int protocol, int family, int level, int optname, int optval, int backlog_queue);
+    int InitMaster(int domain, int socktype, int protocol, int family, int level, int optname, int optval, int backlog_queue);
 };
 #endif
