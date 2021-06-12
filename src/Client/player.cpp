@@ -14,21 +14,21 @@ int main()
     unsigned char sbuf[] = "Hello Server!";
     struct sockaddr_in _peersock;
     Slave *client = new Slave();
-    unsigned char rbuf[14];
+    unsigned char rbuf[256];
     short int ret{-1};
     
     // Create socket, get server info and connect
     ret = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
     if(ret < 0)
     {
-        std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
+        std::cerr << "main::client->InitSlave() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
 
     ret = SockSend(client->GetClientfd(), sbuf, sizeof(sbuf));
     if(ret < 0)
     {
-        std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
+        std::cerr << "main::client->SockSend() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
     else
@@ -37,7 +37,7 @@ int main()
     ret = SockReceive(client->GetClientfd(), rbuf, sizeof(rbuf));
     if(ret < 0)
     {
-        std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
+        std::cerr << "main::client->SockReceive() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
     else

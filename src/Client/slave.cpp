@@ -2,7 +2,7 @@
 #include <sys/time.h>
 
 Slave::Slave()
-    : _serverinfo{NULL}, _peerinfo{NULL}, _serveraddr{DEFAULT_SERVER_ADDR}, _serverport{DEFAULT_SERVER_PORT},  _peeraddr{DEFAULT_PEER_ADDR}, _peerport{DEFAULT_PEER_PORT}, _peersock{NULL}, _clientfd{-1}, _peerfd{-1}
+    : _serverinfo{NULL}, _peerinfo{NULL}, _serveraddr{DEFAULT_SERVER_ADDR}, _serverport{DEFAULT_SERVER_PORT},  _peeraddr{DEFAULT_PEER_ADDR}, _peerport{DEFAULT_PEER_PORT}, _peersock{0}, _clientfd{-1}, _peerfd{-1}
 {
 }
 
