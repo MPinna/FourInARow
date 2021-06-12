@@ -11,9 +11,10 @@ class Master
 {
 private:
     /* data */
+    struct sockaddr_in _masteraddr, _peeraddr;
     std::string _ipserveraddr, _portno;
     int _masterfd, _receivefd;
-    struct addrinfo *info;
+    socklen_t _addrlen;
 public:
     struct sockaddr_in _serversock;
     /* public data */
@@ -27,7 +28,7 @@ public:
     // DESCRIPTION: Getter / Setter
     std::string getIPAddr(){return this->_ipserveraddr;}
     std::string getPort(){return this->_portno;}
-    int getServerfd(){return this->_masterfd;}
+    int getMasterfd(){return this->_masterfd;}
     int getReceivefd(){return this->_receivefd;}
     void setIPAddr(std::string ipaddr){this->_ipserveraddr = ipaddr;}
     void setPortno(std::string port){this->_portno = port;}

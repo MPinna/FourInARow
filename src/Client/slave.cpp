@@ -2,17 +2,7 @@
 #include <sys/time.h>
 
 Slave::Slave()
-    : _clientfd{0}, _peerfd{0}, _serveraddr{DEFAULT_SERVER_ADDR}, _serverport{DEFAULT_SERVER_PORT}, _serverinfo{NULL}, _peeraddr{DEFAULT_PEER_ADDR}, _peerport{DEFAULT_PEER_PORT}, _peerinfo{NULL}
-{
-}
-
-Slave::Slave(std::string peerport)
-    : _clientfd{0}, _peerfd{0}, _serveraddr{DEFAULT_SERVER_ADDR}, _serverport{DEFAULT_SERVER_PORT}, _serverinfo{NULL}, _peeraddr{DEFAULT_PEER_ADDR}, _peerport{peerport}, _peerinfo{NULL}
-{
-}
-
-Slave::Slave(std::string peerport, std::string peeraddr)
-	: _clientfd{0}, _peerfd{0}, _serveraddr{DEFAULT_SERVER_ADDR}, _serverport{DEFAULT_SERVER_PORT}, _serverinfo{NULL}, _peeraddr{peeraddr}, _peerport{peerport}, _peerinfo{NULL}
+    : _serverinfo{NULL}, _peerinfo{NULL}, _serveraddr{DEFAULT_SERVER_ADDR}, _serverport{DEFAULT_SERVER_PORT},  _peeraddr{DEFAULT_PEER_ADDR}, _peerport{DEFAULT_PEER_PORT}, _peersock{NULL}, _clientfd{-1}, _peerfd{-1}
 {
 }
 
@@ -21,7 +11,7 @@ Slave::~Slave()
 }
 
 int
-Slave::InitClient(int domain, int socktype, int protocol, int family)
+Slave::InitSlave(int domain, int socktype, int protocol, int family)
 {
 	short int ret{-1};
     this->_clientfd = InitSocket(domain, socktype, protocol);
@@ -59,8 +49,7 @@ Slave::InitPeerReceiver(
 	int level,
 	int optname,
     int optval,
-    int backlog_queue, 
-    struct sockaddr_in _peersock
+    int backlog_queue
 )
 {
 	short int ret{-1};
@@ -77,7 +66,7 @@ Slave::InitPeerReceiver(
 		std::cerr << "Slave::InitPeerReceiver(2)" << std::endl;
 		return 0;
 	}
-	ret = SockBind(this->_peerfd, this->_peeraddr, this->_peerport, family, _peersock);
+	ret = SockBind(this->_peerfd, this->_peeraddr, this->_peerport, family, this->_peersock);
 	if(ret < 0)
 	{
 		std::cerr << "Slave::InitPeerReceiver(3)" << std::endl;
@@ -91,7 +80,7 @@ Slave::InitPeerReceiver(
 		std::cerr << "Slave::InitPeerReceiver(4)" << std::endl;
 		return 0;
 	}
-	int _acceptfd = SockAccept(this->_peerfd, _peersock);
+	int _acceptfd = SockAccept(this->_peerfd, this->_peersock);
 	if(_acceptfd < 0)
 	{
 		std::cerr << "Slave::InitPeerReceiver(5)" << std::endl;
@@ -149,8 +138,7 @@ Slave::InitPeerSender(
 	int domain,
     int socktype, 
     int protocol, 
-    int family,
-    struct sockaddr_in _peersock
+    int family
 )
 {
 	short int ret{-1};

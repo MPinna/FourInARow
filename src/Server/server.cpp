@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     // Manage Clients incoming connections
     for (;;)
     {
-        server->setReceivefd(SockAccept(server->getServerfd(), server->_serversock));
+        server->setReceivefd(SockAccept(server->getMasterfd(), server->_serversock));
         _check = SockReceive(server->getReceivefd(), rbuf, sizeof(rbuf));
         if(_check < 0)
         {
@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
         else
             std::cout << "RESPONSE SENT" << std::endl;
     }
-
+    SockClose(server->getReceivefd());
+    SockClose(server->getMasterfd());
     return 1;
 }

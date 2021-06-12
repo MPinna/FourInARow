@@ -38,13 +38,13 @@ Master::InitMaster(int domain, int socktype, int protocol, int family, int level
         std::cerr << "Master::InitMaster failed(1)!" << std::endl;
     ret = SetSockOpt(this->_masterfd, level, optname, &optval);
     if(ret < 0)
-        std::cerr << "Master::InitMaster failed(1)!" << std::endl;
+        std::cerr << "Master::InitMaster failed(2)!" << std::endl;
     ret = SockBind(this->_masterfd, this->_ipserveraddr, _portno, family, this->_serversock);
     if(ret < 0)
-        std::cerr << "Master::InitMaster failed(1)!" << std::endl;
+        std::cerr << "Master::InitMaster failed(3)!" << std::endl;
     ret = SockListen(this->_masterfd, backlog_queue);
     if(ret < 0)
-        std::cerr << "Master::InitMaster failed(1)!" << std::endl;
-    
+        std::cerr << "Master::InitMaster failed(4)!" << std::endl;
+
     return this->_masterfd;
 }

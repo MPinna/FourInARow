@@ -18,17 +18,15 @@ class Slave
 {
 private:
     /* data */
+    struct addrinfo *_serverinfo, *_peerinfo;
     std::string _serveraddr, _serverport;
     std::string _peeraddr, _peerport;
-    struct addrinfo *_serverinfo;
-    struct addrinfo *_peerinfo;
+    struct sockaddr_in _peersock;
     int _clientfd, _peerfd;
 
 public:
     // DESCRIPTION: Constructor / Deconstructor 
     Slave();
-    Slave(std::string peerport);
-    Slave(std::string peerport, std::string peeraddr);
     ~Slave();
     
     // DESCRIPTION: Getter / Setter 
@@ -44,7 +42,7 @@ public:
     void SetPeerPort(std::string port) { this->_peerport = port; };
 
     // DESCRIPTION: class members
-    int InitClient(int domain, int socktype, int protocol, int family);
+    int InitSlave(int domain, int socktype, int protocol, int family);
 
     // In a peer-to-peer communication, a peerReceiver act as a server entity 
     int InitPeerReceiver(
@@ -55,15 +53,15 @@ public:
         int level,
         int optname,
         int optval,
-        int backlog_queue,
-        struct sockaddr_in _peersock);
+        int backlog_queue
+    );
     
     // In a peer-to-peer communication, a peerSender act as a client entity
     int InitPeerSender(
         int domain,
         int socktype,
         int protocol,
-        int family,
-        struct sockaddr_in _peersock);
+        int family
+    );
 };
 #endif

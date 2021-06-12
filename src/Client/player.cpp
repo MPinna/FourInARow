@@ -11,21 +11,21 @@
 
 int main()
 {
-    short int ret{-1};
     unsigned char sbuf[] = "Hello Server!";
-    unsigned char rbuf[14];
     struct sockaddr_in _peersock;
-    Slave client = Slave();
+    Slave *client = new Slave();
+    unsigned char rbuf[14];
+    short int ret{-1};
     
     // Create socket, get server info and connect
-    ret = client.InitClient(AF_INET, SOCK_STREAM, 0, AF_INET);
+    ret = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
     if(ret < 0)
     {
         std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
 
-    ret = SockSend(client.GetClientfd(), sbuf, sizeof(sbuf));
+    ret = SockSend(client->GetClientfd(), sbuf, sizeof(sbuf));
     if(ret < 0)
     {
         std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
@@ -34,7 +34,7 @@ int main()
     else
         std::cout << "HELLO SENT!" << std::endl;
 
-    ret = SockReceive(client.GetClientfd(), rbuf, sizeof(rbuf));
+    ret = SockReceive(client->GetClientfd(), rbuf, sizeof(rbuf));
     if(ret < 0)
     {
         std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
@@ -55,19 +55,30 @@ int main()
     }
     if(assign == "r")
     {   
-        std::thread t1(&Slave::InitPeerReceiver, &client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE, _peersock);
+        std::thread t1(&Slave::InitPeerReceiver, client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE);
         t1.join();
     }
     else if (assign == "s")
     {
-        std::thread t2(&Slave::InitPeerSender, &client, AF_INET, SOCK_STREAM, 0, AF_INET, _peersock);
+        std::thread t2(&Slave::InitPeerSender, client, AF_INET, SOCK_STREAM, 0, AF_INET);
         t2.join();
     }
     else
         std::cout << "Invalid value!" << std::endl;
-
     // NOTE: all this block will be replaced by an automatic generation code which will be assigned when a player challenge another one
     // SECTION_END
+    
+    char ssbuf[] = "Server Hello!";
+    ret = SockSend(client->GetClientfd(), ssbuf, sizeof(sbuf));
+    if(ret < 0)
+    {
+        std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
+        exit(1);
+    }
+    else
+        std::cout << "HELLO SENT!" << std::endl;
+
+    SockClose(client->GetClientfd());
     
     return 1;
 }
