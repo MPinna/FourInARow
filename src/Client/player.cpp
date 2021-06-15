@@ -31,8 +31,6 @@ int main()
         std::cerr << "main::client->SockSend() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
-    else
-        std::cout << "HELLO SENT!" << std::endl;
 
     ret = SockReceive(client->GetClientfd(), rbuf, sizeof(rbuf));
     if(ret < 0)
@@ -41,7 +39,10 @@ int main()
         exit(1);
     }
     else
-        std::cout << "RECEIVED: " << rbuf << std::endl;
+    {
+        memset(rbuf, 0, sizeof(rbuf));
+        std::cout << rbuf << std::endl;
+    }
 
     // SECTION_START
     // Manage peer-to-peer connection
@@ -68,16 +69,14 @@ int main()
     // NOTE: all this block will be replaced by an automatic generation code which will be assigned when a player challenge another one
     // SECTION_END
     
-    char ssbuf[] = "Server Hello!";
-    ret = SockSend(client->GetClientfd(), ssbuf, sizeof(sbuf));
+    char ssbuf[] = "Just another test";
+    ret = SockSend(client->GetClientfd(), ssbuf, sizeof(ssbuf));
     if(ret < 0)
     {
         std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
-    else
-        std::cout << "HELLO SENT!" << std::endl;
-
+   
     SockClose(client->GetClientfd());
     
     return 1;

@@ -75,6 +75,7 @@ Master::Run()
     // TODO hai bisogno di capire come fare a passare un buff calcolato ogni volta
     unsigned char buf[256];
     size_t buf_size{sizeof(buf)};
+    std::string wlc_msg{"Connected with =>" + this->_ipserveraddr + ":" + this->_portno};
     int nbytes{-1};
     for (;;)
     {
@@ -101,7 +102,7 @@ Master::Run()
                         if (this->_receivefd > this->_fdmax)
                             this->_fdmax = this->_receivefd;
                     }
-                    std::cout << "\nselectserver: new connection from " << inet_ntoa(this->_peeraddr.sin_addr) << " on socket " << this->_receivefd << std::endl;
+                    std::cout << "\nNew connection from " << inet_ntoa(this->_peeraddr.sin_addr) << " on socket: " << this->_receivefd << std::endl;
                 }
                 else
                 {
@@ -109,7 +110,7 @@ Master::Run()
                     if ((nbytes = recv(i, buf, buf_size, 0)) <= 0)
                     {
                         if (nbytes == 0)
-                            std::cout << "selectserver: socket " << i << " hung up\n" << std::endl;
+                            std::cout << "/!\\ Peer " << i << " hung up!" << std::endl;
                         else
                             std::cerr << "recv() failed!" << std::endl;
                         close(i); // bye!
@@ -118,11 +119,10 @@ Master::Run()
                     else
                     {
                         if(FD_ISSET(i, &this->_master_set))
-                            if (send(i, "Hi client!", strlen("Hi client!"), 0) == -1)
+                            if (send(i, (char *)wlc_msg.c_str()+'\0', wlc_msg.length()+1, 0) == -1)
                                 std::cerr << "send() failed!" << std::endl;
                             else
-                                std::cout << "\nReceived: " << buf << " from sock " << i <<std::endl;
-                                std::cout << "response sent!" << std::endl;
+                                std::cout << ">Peer " << i << ":" << buf <<std::endl;
                     }
                 }
             }
