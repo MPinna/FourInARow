@@ -123,7 +123,7 @@ SockReceive(int rec_sockfd, void *rec_buf, size_t len)
 	}
 	if (ret == 0)
 	{
-		std::cerr << "SockReceive()::recv connection closed! (Sock: " << rec_sockfd << ") =>";
+		std::cout << "SockReceive()::recv connection closed!";
 		return ret;
 	}
 

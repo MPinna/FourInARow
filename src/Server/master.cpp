@@ -8,6 +8,7 @@
  *  - Maintain the public key list associated to each registered user
  */
 #include "../../include/Connection/network.hpp"
+#include "../../include/Messages/packet.hpp"
 #include "../../include/Server/master.hpp"
 
 Master::Master()
@@ -63,11 +64,11 @@ int
 Master::Run()
 {
     // TODO hai bisogno di capire come fare a passare un buff calcolato ogni volta
+    std::string wlc_msg{"Connected with => " + this->_ipserveraddr + ":" + this->_portno};
+    int nbytes{-1}, _ret{-1};
     unsigned char buf[256];
     size_t buf_size{sizeof(buf)};
-    std::string wlc_msg{"Connected with =>" + this->_ipserveraddr + ":" + this->_portno};
-    int nbytes{-1};
-    int _ret{-1};
+
     for (;;)
     {
         this->_read_fds = this->_master_set; // copy it
@@ -83,7 +84,7 @@ Master::Run()
             if (FD_ISSET(i, &this->_read_fds))
             {
                 if (i == this->_masterfd)
-                {
+                {   // New client connected to the server
                     this->_addrlen = sizeof(this->_peeraddr); 
                     if ((this->_receivefd = SockAccept(this->_masterfd, (sockaddr *)&this->_peeraddr, &this->_addrlen)) == -1)
                         std::cerr << "Master::Run() failed(2)" << std::endl;
@@ -96,29 +97,28 @@ Master::Run()
                     std::cout << "\nNew connection from " << inet_ntoa(this->_peeraddr.sin_addr) << " on socket: " << this->_receivefd << std::endl;
                 }
                 else
-                {
-                    memset(&buf, 0, buf_size); //TOCHECK clear the buffer
+                {   // We are going to manage communication
+                    memset(&buf, 0, buf_size); 
                     if ((nbytes = SockReceive(i, buf, buf_size)) <= 0)
                     {
                         if(nbytes == 0)
                         {
-                            std::cout << " Master::Run()" << std::endl;
+                            std::cout << " Master::Run() -> Peer: " << i << " disconnected" << std::endl;
                         }
                         else
                         {
-                            std::cout << "Master::Run() failed(3)" << std::endl;
+                            std::cerr << "Master::Run() failed(3)" << std::endl;
                         }
                         SockClose(i); // bye!
                         FD_CLR(i, &this->_master_set);
                     }
                     else
-                    {
+                    {   
+                        std::cout << ">Peer " << i << ":" << buf <<std::endl;
                         if(FD_ISSET(i, &this->_master_set))
                             _ret = SockSend(i, (char *)wlc_msg.c_str()+'\0', wlc_msg.length()+1); 
                             if (_ret == -1)
                                 std::cerr << "Master::Run() failed(4)!" << std::endl;
-                            else
-                                std::cout << ">Peer " << i << ":" << buf <<std::endl;
                     }
                 }
             }

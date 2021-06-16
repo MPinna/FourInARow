@@ -32,6 +32,7 @@ int main()
         exit(1);
     }
 
+    memset(rbuf, 0, sizeof(rbuf));
     ret = SockReceive(client->GetClientfd(), rbuf, sizeof(rbuf));
     if(ret < 0)
     {
@@ -40,7 +41,6 @@ int main()
     }
     else
     {
-        memset(rbuf, 0, sizeof(rbuf));
         std::cout << rbuf << std::endl;
     }
 
@@ -69,7 +69,7 @@ int main()
     // NOTE: all this block will be replaced by an automatic generation code which will be assigned when a player challenge another one
     // SECTION_END
     
-    char ssbuf[] = "Just another test";
+    char ssbuf[] = "Bye!";
     ret = SockSend(client->GetClientfd(), ssbuf, sizeof(ssbuf));
     if(ret < 0)
     {
