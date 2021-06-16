@@ -190,30 +190,19 @@ SockSendTo(int send_sockfd, void *send_buf, size_t len)
 	return sent; 
 }
 
-int 
-SockClose(int sockfd)
-{
-	short int ret{-1};
-	ret = close(sockfd);
-	if(ret < 0)
-		std::cerr << "SockClose()::close - failed! =>";
-	
-	return ret;
-}
-
 bool 
-ReadNBytes(int socket, char *buf, std::size_t N)
+ReadNBytes(int socket, void *buf, std::size_t N)
 {
 	std::size_t offset = 0;
 	while (true)
 	{
-		ssize_t ret = recvfrom(socket, buf + offset, N - offset, MSG_WAITALL, NULL, 0);
+		ssize_t ret = recvfrom(socket, (char *)buf + offset, N - offset, MSG_WAITALL, NULL, 0);
 		if (ret < 0)
 		{
 			if (errno != EINTR)
 			{
 				// Error occurred
-				std::cerr << "IOException(strerror(errno) =>";
+				std::cerr << "ReadNBytes::IOException(strerror(errno) => "; 
 				return false;
 			}
 		}
@@ -222,12 +211,12 @@ ReadNBytes(int socket, char *buf, std::size_t N)
 			// No data available anymore
 			if (offset == 0)
 			{
-				std::cerr << "No Data! =>";
+				std::cerr << "ReadNBytes::No Data! => ";
 				return false;
 			}
 			else
 			{
-				std::cerr << "ProtocolException (Unexpected end of stream) =>";
+				std::cerr << "ReadNBytes::ProtocolException (Unexpected end of stream) => ";
 				return false;
 			}
 		}
@@ -241,4 +230,15 @@ ReadNBytes(int socket, char *buf, std::size_t N)
 			offset += ret;
 		}
 	}
+}
+
+int 
+SockClose(int sockfd)
+{
+	short int ret{-1};
+	ret = close(sockfd);
+	if(ret < 0)
+		std::cerr << "SockClose()::close - failed! =>";
+	
+	return ret;
 }

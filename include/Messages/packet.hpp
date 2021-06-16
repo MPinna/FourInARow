@@ -26,8 +26,8 @@ public:
     void setType(unsigned short int type);
     void initCounter();
     void incCounter();
-    void setPayloadSize(char * payload);
-    void setPayloadSize(unsigned short int size);
+    // void setPayloadSize(char * payload);
+    // void setPayloadSize(unsigned short int size);
     void setPayload(unsigned char * data, size_t size);
     unsigned short int  getType();
     unsigned int        getCounter();

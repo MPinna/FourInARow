@@ -18,6 +18,7 @@ Header::~Header()
 
 // DESCRIPTION: Constructor
 Packet::Packet()
+    : _payload{NULL}
 {
 }
 
@@ -47,17 +48,17 @@ Packet::incCounter()
     this->header._counter++;
 }
 
-void 
-Packet::setPayloadSize(char *payload)
-{
-    this->header._payload_size = strlen(payload);
-}
+// void 
+// Packet::setPayloadSize(char *payload)
+// {
+//     this->header._payload_size = strlen(payload);
+// }
 
-void
-Packet::setPayloadSize(unsigned short int size)
-{
-    this->header._payload_size = size;
-}
+// void
+// Packet::setPayloadSize(unsigned short int size)
+// {
+//     this->header._payload_size = size;
+// }
 
 void
 Packet::setPayload(unsigned char *data, size_t size)
@@ -88,9 +89,10 @@ Packet::getPayloadSize()
 void
 Packet::serialize(unsigned char *to_ser_buf)
 {
-    uint16_t psize{htons(this->header._payload_size)}, type{htons(this->header._type)};
+    uint16_t type{htons(this->header._type)};
     uint32_t count{htonl(this->header._counter)};
-    short int pos{0};
+    uint16_t psize{htons(this->header._payload_size)};
+    size_t pos{0};
 
     memcpy(to_ser_buf, &type, sizeof(uint16_t));
     pos += sizeof(uint16_t);
@@ -105,11 +107,12 @@ void
 Packet::deserializeHeader(unsigned char *ser_buf)
 {
     short int pos{0};
-    uint16_t dpsize, dtype;
-    uint32_t dcount;
+    uint16_t dtype{0};
+    uint32_t dcount{0};
+    uint16_t dpsize{0};
 
     memcpy(&dtype, ser_buf, sizeof(uint16_t));
-    this->header._type = (ntohl(dtype));
+    this->header._type = (ntohs(dtype));
     pos += sizeof(uint16_t);
     memcpy(&dcount, ser_buf + pos, sizeof(uint32_t));
     this->header._counter = (ntohl(dcount));

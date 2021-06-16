@@ -7,6 +7,7 @@
  *  - Play a four-in-a-row game
  *  - Init a board
  */
+#include "../../include/Messages/packet.hpp"
 #include "../../include/Client/slave.hpp"
 
 int main()
@@ -17,20 +18,44 @@ int main()
     unsigned char rbuf[256];
     short int ret{-1};
     
+    Packet *test = new Packet();
+    test->setType(3);
+    test->initCounter();
+    test->incCounter();
+    test->setPayload((unsigned char *)"this is a test", strlen("this is a test"));
+    size_t tbuf_size = sizeof(struct Header) + test->getPayloadSize();
+    unsigned char *tbuf = new unsigned char[tbuf_size];
+    test->serialize(tbuf);
+    
+    std::cout << 
+        "\nsizeof(struct Header): " << sizeof(struct Header) <<
+        "\ntest->getPayloadSize(): " << test->getPayloadSize() <<
+        "\ntest->getType(): " << test->getType() <<
+    std::endl;
+
     // Create socket, get server info and connect
     ret = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
     if(ret < 0)
     {
         std::cerr << "main::client->InitSlave() failed!\nReturn code: " << ret << std::endl;
+
         exit(1);
     }
 
-    ret = SockSend(client->GetClientfd(), sbuf, sizeof(sbuf));
+    ret = SockSendTo(client->GetClientfd(), tbuf, tbuf_size);
     if(ret < 0)
     {
         std::cerr << "main::client->SockSend() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
+    std::cout << "*** PLAYER IS HERE *** " << ret << std::endl;
+
+    // ret = SockSend(client->GetClientfd(), sbuf, sizeof(sbuf));
+    // if(ret < 0)
+    // {
+    //     std::cerr << "main::client->SockSend() failed!\nReturn code: " << ret << std::endl;
+    //     exit(1);
+    // }
 
     memset(rbuf, 0, sizeof(rbuf));
     ret = SockReceive(client->GetClientfd(), rbuf, sizeof(rbuf));
