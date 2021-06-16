@@ -28,17 +28,18 @@ int SockBind(
 
 int SockListen(int sockfd, int max_queue);
 
-int SockAccept(int sockfd, struct sockaddr_in sockaddress);
+int SockAccept(int sockfd, sockaddr *sockaddress, socklen_t *addrlen);
 
 struct addrinfo *GetAddrInfo(
     const char *node,
     const char *port,
     int family,
-    int socktype);
+    int socktype
+);
 
 int SockConnect(int sockfd, struct addrinfo info);
 
-void SockSelect(); // TODO
+int SockSelect(int sockfd, fd_set read_fds);
 
 int SockReceive(int rec_sockfd, void *rec_buf, size_t len);
 

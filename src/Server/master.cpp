@@ -11,17 +11,7 @@
 #include "../../include/Server/master.hpp"
 
 Master::Master()
-    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{DEFAULT_SERVER_PORT}, _masterfd{-1}, _receivefd{-1}, _fdmax{-1}, _read_fds{0}, _master_set{0}, _addrlen{NULL}
-{
-}
-
-Master::Master(std::string port)
-    : _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{port}, _masterfd{-1}, _receivefd{-1}
-{
-}
-
-Master::Master(std::string ipaddr, std::string port)
-    : _ipserveraddr{ipaddr}, _portno{port}, _masterfd{-1}, _receivefd{-1}
+    : _masteraddr{}, _peeraddr{}, _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{DEFAULT_SERVER_PORT}, _masterfd{-1}, _receivefd{-1}, _fdmax{-1}, _read_fds{0}, _master_set{0}, _addrlen{sizeof(_peeraddr)}
 {
 }
 
@@ -77,12 +67,13 @@ Master::Run()
     size_t buf_size{sizeof(buf)};
     std::string wlc_msg{"Connected with =>" + this->_ipserveraddr + ":" + this->_portno};
     int nbytes{-1};
+    int _ret{-1};
     for (;;)
     {
         this->_read_fds = this->_master_set; // copy it
         if (select(this->_fdmax + 1, &this->_read_fds, NULL, NULL, NULL) == -1)
         {
-            std::cerr << "select() failed" << std::endl;
+            std::cerr << "Master::Run() failed(1)" << std::endl;
             return -1;
         }
 
@@ -93,9 +84,9 @@ Master::Run()
             {
                 if (i == this->_masterfd)
                 {
-                    this->_addrlen = sizeof(this->_peeraddr);
-                    if ((this->_receivefd = accept(this->_masterfd, (sockaddr *)&this->_peeraddr, &this->_addrlen)) == -1)
-                        std::cerr << "accept() failed!" << std::endl;
+                    this->_addrlen = sizeof(this->_peeraddr); 
+                    if ((this->_receivefd = SockAccept(this->_masterfd, (sockaddr *)&this->_peeraddr, &this->_addrlen)) == -1)
+                        std::cerr << "Master::Run() failed(2)" << std::endl;
                     else
                     {
                         FD_SET(this->_receivefd, &this->_master_set);
@@ -107,20 +98,25 @@ Master::Run()
                 else
                 {
                     memset(&buf, 0, buf_size); //TOCHECK clear the buffer
-                    if ((nbytes = recv(i, buf, buf_size, 0)) <= 0)
+                    if ((nbytes = SockReceive(i, buf, buf_size)) <= 0)
                     {
-                        if (nbytes == 0)
-                            std::cout << "/!\\ Peer " << i << " hung up!" << std::endl;
+                        if(nbytes == 0)
+                        {
+                            std::cout << " Master::Run()" << std::endl;
+                        }
                         else
-                            std::cerr << "recv() failed!" << std::endl;
-                        close(i); // bye!
+                        {
+                            std::cout << "Master::Run() failed(3)" << std::endl;
+                        }
+                        SockClose(i); // bye!
                         FD_CLR(i, &this->_master_set);
                     }
                     else
                     {
                         if(FD_ISSET(i, &this->_master_set))
-                            if (send(i, (char *)wlc_msg.c_str()+'\0', wlc_msg.length()+1, 0) == -1)
-                                std::cerr << "send() failed!" << std::endl;
+                            _ret = SockSend(i, (char *)wlc_msg.c_str()+'\0', wlc_msg.length()+1); 
+                            if (_ret == -1)
+                                std::cerr << "Master::Run() failed(4)!" << std::endl;
                             else
                                 std::cout << ">Peer " << i << ":" << buf <<std::endl;
                     }

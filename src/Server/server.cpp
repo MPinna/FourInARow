@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     _check = server->InitMaster(AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE);
     if(_check < 0)
     {
-        std::cerr << "main::server->InitMaster failed!" << std::endl;
+        std::cerr << "main::server->InitMaster() failed!" << std::endl;
         exit(1);
     }
 
@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     _check = server->Run(); 
     if(_check < 0)
     {
-        std::cerr << "main::Run() failed!" << std::endl;
+        std::cerr << "main::server->Run() failed!" << std::endl;
         exit(1);
     }
     SockClose(server->getReceivefd());

@@ -20,7 +20,8 @@ Slave::InitSlave(int domain, int socktype, int protocol, int family)
 		std::cerr << "Slave::InitClient(1)" << std::endl;
 		return _clientfd;
 	}
-    this->_serverinfo = GetAddrInfo(
+    
+	this->_serverinfo = GetAddrInfo(
 		this->_serveraddr.c_str(),
         this->_serverport.c_str(), 
         family, 
@@ -30,6 +31,7 @@ Slave::InitSlave(int domain, int socktype, int protocol, int family)
 		std::cerr << "Slave::InitClient(2)" << std::endl;
 		return -1;
 	}
+	
 	ret = SockConnect(this->_clientfd, *this->_serverinfo);
 	if(ret < 0)
 	{
@@ -80,7 +82,8 @@ Slave::InitPeerReceiver(
 		std::cerr << "Slave::InitPeerReceiver(4)" << std::endl;
 		return 0;
 	}
-	int _acceptfd = SockAccept(this->_peerfd, this->_peersock);
+	socklen_t _addrlen = sizeof(this->_peersock);
+	int _acceptfd = SockAccept(this->_peerfd, (sockaddr *)&this->_peersock, &_addrlen);
 	if(_acceptfd < 0)
 	{
 		std::cerr << "Slave::InitPeerReceiver(5)" << std::endl;
@@ -124,7 +127,7 @@ Slave::InitPeerReceiver(
 	gettimeofday(&end1, NULL);
 	close(this->_peerfd);
 	close(_acceptfd);
-	std::cout << "********Session********" << std::endl;
+	std::cout << "\n********Session********" << std::endl;
 	std::cout << "Bytes written: " << bytesWritten << " Bytes read: " << bytesRead << std::endl;
 	std::cout << "Elapsed time: " << (end1.tv_sec - start1.tv_sec)
 		 << " secs" << std::endl;
@@ -179,10 +182,10 @@ Slave::InitPeerSender(
             send(this->_peerfd, (unsigned char *)&msg, strlen(msg), 0);
             break;
         }
-        bytesWritten += send(this->_peerfd, (char *)&msg, strlen(msg), 0);
+        bytesWritten += SockSend(this->_peerfd, (char *)&msg, strlen(msg));
         std::cout << "Awaiting receiver response..." << std::endl;
         memset(&msg, 0, sizeof(msg)); //clear the buffer
-        bytesRead += recv(this->_peerfd, (char *)&msg, sizeof(msg), 0);
+        bytesRead += SockReceive(this->_peerfd, (char *)&msg, sizeof(msg));
         if (!strcmp(msg, "exit"))
         {
             std::cout << "Server has quit the session" << std::endl;
@@ -192,7 +195,7 @@ Slave::InitPeerSender(
     }
     gettimeofday(&end1, NULL);
     close(this->_peerfd);
-    std::cout << "******** Session ********" << std::endl;
+    std::cout << "\n******** Session ********" << std::endl;
     std::cout << "Bytes written: " << bytesWritten << " Bytes read: " << bytesRead << std::endl;
     std::cout << "Elapsed time: " << (end1.tv_sec - start1.tv_sec)
          << " secs" << std::endl;

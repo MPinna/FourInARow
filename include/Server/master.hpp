@@ -22,8 +22,6 @@ public:
     
     // DESCRIPTION: default constructor
     Master();
-    Master(std::string port);
-    Master(std::string ipaddr, std::string port);
     ~Master();
     
     // DESCRIPTION: Getter / Setter

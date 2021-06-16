@@ -11,7 +11,7 @@ InitSocket(int domain, int socktype, int protocol)
 	// 0 on success, -1 on failure
 	int _sockfd = socket(domain, socktype, protocol);
 	if (_sockfd < 0)
-		std::cerr << "InitSocket()::socket failed!" << std::endl;
+		std::cerr << "InitSocket()::socket failed! =>";
 	return _sockfd;
 }
 
@@ -22,16 +22,12 @@ SetSockOpt(int sockfd, int level, int optname, void *optval)
 	unsigned int len = sizeof(optval);
 	ret = setsockopt(sockfd, level, optname, &optval, len);
 	if (ret < 0)
-		std::cerr << "SetSockOpt()::setsockopt failed!" << std::endl;
+		std::cerr << "SetSockOpt()::setsockopt failed! =>";
 	return ret;
 }
 
-int SockBind(
-	int sockfd,
-	std::string ipaddr,
-	std::string port,
-	int family,
-	struct sockaddr_in sockaddress)
+int 
+SockBind(int sockfd, std::string ipaddr, std::string port, int family, struct sockaddr_in sockaddress)
 {
 	short int ret{-1};
 	uint32_t _port = atoi(port.c_str());
@@ -42,7 +38,7 @@ int SockBind(
 	sockaddress.sin_port = htons(_port);
 	ret = bind(sockfd, (const struct sockaddr *)&sockaddress, sizeof(sockaddr));
 	if (ret < 0)
-		std::cerr << "SockBind()::bind failed!" << std::endl;
+		std::cerr << "SockBind()::bind failed! =>";
 	return ret;
 }
 
@@ -57,20 +53,17 @@ SockListen(int sockfd, int max_queue)
 }
 
 int
-SockAccept(int sockfd, struct sockaddr_in sockaddress)
+SockAccept(int sockfd, sockaddr *sockaddress, socklen_t *addrlen)
 {
-	int addrlen = sizeof(sockaddress), _newsockfd{0};
-	if ((_newsockfd = accept(sockfd, (struct sockaddr *)&sockaddress, (socklen_t *)&addrlen)) < 0)
-		std::cerr << "SockAccept()::accept failed!" << std::endl;
+	int _newsockfd{0};
+	if ((_newsockfd = accept(sockfd, sockaddress, addrlen)) < 0)
+		std::cerr << "SockAccept()::accept failed! =>";
 
 	return _newsockfd;
 }
 
-struct addrinfo *GetAddrInfo(
-	const char *node,
-	const char *port,
-	int family,
-	int socktype)
+struct addrinfo *
+GetAddrInfo(const char *node, const char *port, int family, int socktype)
 {
 	struct addrinfo hints;
 	struct addrinfo *result;
@@ -96,12 +89,24 @@ int SockConnect(int sockfd, struct addrinfo info)
 {
 	int status = connect(sockfd, info.ai_addr, info.ai_addrlen);
 	if (status < 0)
-		std::cerr << "SockConnect()::connect failed!" << std::endl;
+		std::cerr << "SockConnect()::connect failed! =>";
 
 	return status;
 }
 
-int SockReceive(int rec_sockfd, void *rec_buf, size_t len)
+int 
+SockSelect(int sockfd, fd_set read_fds)
+{	
+	int ret{-1};
+	ret = select(sockfd + 1, &read_fds, NULL, NULL, NULL);
+	if (ret == -1)
+		std::cerr << "select() failed! =>";
+	
+	return ret;
+}
+
+int 
+SockReceive(int rec_sockfd, void *rec_buf, size_t len)
 {
 	short int ret{0};
 
@@ -112,34 +117,36 @@ int SockReceive(int rec_sockfd, void *rec_buf, size_t len)
 		if (errno == EAGAIN || errno == EWOULDBLOCK)
 			std::cerr << ETIMEDOUT << std::endl;
 		else
-			std::cerr << "SockReceive()::recvfrom failed!" << std::endl;
+			std::cerr << "SockReceive()::recv failed! =>";
 
 		return ret;
 	}
 	if (ret == 0)
 	{
-		std::cerr << "SockReceive()::recvfrom connection closed!" << std::endl;
+		std::cerr << "SockReceive()::recv connection closed! (Sock: " << rec_sockfd << ") =>";
 		return ret;
 	}
 
 	return ret; // TOCHECK
 }
 
-int SockSend(int send_sockfd, void *send_buf, size_t len)
+int 
+SockSend(int send_sockfd, void *send_buf, size_t len)
 {
 	short int ret{0};
 
 	ret = send(send_sockfd, (char *)send_buf, len, 0);
 	if (ret == -1)
 	{
-		std::cerr << "SockSend()::sendto - failed!" << std::endl;
+		std::cerr << "SockSend()::sendto - failed! =>";
 		return ret;
 	}
 
 	return ret; // TOCHECK
 }
 
-int SockReceiveFrom(int rec_sockfd, void *rec_buf, size_t len)
+int 
+SockReceiveFrom(int rec_sockfd, void *rec_buf, size_t len)
 {
 	size_t read{0};
 	ssize_t ret{0};
@@ -152,13 +159,13 @@ int SockReceiveFrom(int rec_sockfd, void *rec_buf, size_t len)
 			if (errno == EAGAIN || errno == EWOULDBLOCK)
 				std::cerr << ETIMEDOUT << std::endl;
 			else
-				std::cerr << "SockReceive()::recvfrom failed!" << std::endl;
+				std::cerr << "SockReceive()::recvfrom failed! =>";
 
 			return ret;
 		}
 		if (ret == 0)
 		{
-			std::cerr << "SockReceive()::recvfrom connection closed!" << std::endl;
+			std::cerr << "SockReceive()::recvfrom connection closed! =>";
 			return ret;
 		}
 		read += ret;
@@ -166,7 +173,8 @@ int SockReceiveFrom(int rec_sockfd, void *rec_buf, size_t len)
 	return read; 
 }
 
-int SockSendTo(int send_sockfd, void *send_buf, size_t len)
+int 
+SockSendTo(int send_sockfd, void *send_buf, size_t len)
 {
 	size_t sent{0}, ret{0};
 	while (sent < len)
@@ -174,7 +182,7 @@ int SockSendTo(int send_sockfd, void *send_buf, size_t len)
 		ret = sendto(send_sockfd, (char *)send_buf, len, 0, NULL, 0);
 		if (ret == -1)
 		{
-			std::cerr << "SockSend()::sendto - failed!" << std::endl;
+			std::cerr << "SockSend()::sendto - failed! =>";
 			return ret;
 		}
 		sent += ret;
@@ -188,12 +196,13 @@ SockClose(int sockfd)
 	short int ret{-1};
 	ret = close(sockfd);
 	if(ret < 0)
-		std::cerr << "SockClose()::close - failed!" << std::endl;
+		std::cerr << "SockClose()::close - failed! =>";
 	
 	return ret;
 }
 
-bool ReadNBytes(int socket, char *buf, std::size_t N)
+bool 
+ReadNBytes(int socket, char *buf, std::size_t N)
 {
 	std::size_t offset = 0;
 	while (true)
@@ -204,7 +213,7 @@ bool ReadNBytes(int socket, char *buf, std::size_t N)
 			if (errno != EINTR)
 			{
 				// Error occurred
-				std::cerr << "IOException(strerror(errno)" << std::endl;
+				std::cerr << "IOException(strerror(errno) =>";
 				return false;
 			}
 		}
@@ -213,12 +222,12 @@ bool ReadNBytes(int socket, char *buf, std::size_t N)
 			// No data available anymore
 			if (offset == 0)
 			{
-				std::cerr << "No Data!" << std::endl;
+				std::cerr << "No Data! =>";
 				return false;
 			}
 			else
 			{
-				std::cerr << "ProtocolException (Unexpected end of stream)" << std::endl;
+				std::cerr << "ProtocolException (Unexpected end of stream) =>";
 				return false;
 			}
 		}
