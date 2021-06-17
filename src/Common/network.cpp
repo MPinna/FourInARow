@@ -190,7 +190,7 @@ SockSendTo(int send_sockfd, void *send_buf, size_t len)
 	return sent; 
 }
 
-bool 
+int 
 ReadNBytes(int socket, void *buf, std::size_t N)
 {
 	std::size_t offset = 0;
@@ -202,8 +202,8 @@ ReadNBytes(int socket, void *buf, std::size_t N)
 			if (errno != EINTR)
 			{
 				// Error occurred
-				std::cerr << "ReadNBytes::IOException(strerror(errno) => "; 
-				return false;
+				std::cerr << "ReadNBytes::IOException(strerror(errno)) " << ret << " => "; 
+				return -1;
 			}
 		}
 		else if (ret == 0)
@@ -212,18 +212,18 @@ ReadNBytes(int socket, void *buf, std::size_t N)
 			if (offset == 0)
 			{
 				std::cerr << "ReadNBytes::No Data! => ";
-				return false;
+				return 0;
 			}
 			else
 			{
 				std::cerr << "ReadNBytes::ProtocolException (Unexpected end of stream) => ";
-				return false;
+				return -1;
 			}
 		}
 		else if (offset + ret == N)
 		{
 			// All n bytes read
-			return true;
+			return N;
 		}
 		else
 		{

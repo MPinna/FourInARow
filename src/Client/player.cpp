@@ -9,7 +9,8 @@
  */
 #include "../../include/Messages/packet.hpp"
 #include "../../include/Client/slave.hpp"
-
+#include <chrono>
+int rval{0};
 int main()
 {
     unsigned char sbuf[] = "Hello Server!";
@@ -28,9 +29,9 @@ int main()
     test->serialize(tbuf);
     
     std::cout << 
-        "\nsizeof(struct Header): " << sizeof(struct Header) <<
-        "\ntest->getPayloadSize(): " << test->getPayloadSize() <<
         "\ntest->getType(): " << test->getType() <<
+        "\ntest->getCounter(): " << test->getCounter() <<
+        "\ntest->getPayloadSize(): " << test->getPayloadSize() <<
     std::endl;
 
     // Create socket, get server info and connect
@@ -48,14 +49,6 @@ int main()
         std::cerr << "main::client->SockSend() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
-    std::cout << "*** PLAYER IS HERE *** " << ret << std::endl;
-
-    // ret = SockSend(client->GetClientfd(), sbuf, sizeof(sbuf));
-    // if(ret < 0)
-    // {
-    //     std::cerr << "main::client->SockSend() failed!\nReturn code: " << ret << std::endl;
-    //     exit(1);
-    // }
 
     memset(rbuf, 0, sizeof(rbuf));
     ret = SockReceive(client->GetClientfd(), rbuf, sizeof(rbuf));
@@ -83,19 +76,27 @@ int main()
     {   
         std::thread t1(&Slave::InitPeerReceiver, client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE);
         t1.join();
+        rval = rand() % 10 + 1;
+        std::cout << "rval "<< rval << std::endl; 
     }
     else if (assign == "s")
     {
         std::thread t2(&Slave::InitPeerSender, client, AF_INET, SOCK_STREAM, 0, AF_INET);
         t2.join();
+        rval = rand() % 5 + 1;
+        std::cout << "rval "<< rval << std::endl; 
     }
     else
         std::cout << "Invalid value!" << std::endl;
     // NOTE: all this block will be replaced by an automatic generation code which will be assigned when a player challenge another one
     // SECTION_END
     
-    char ssbuf[] = "Bye!";
-    ret = SockSend(client->GetClientfd(), ssbuf, sizeof(ssbuf));
+    test->setPayload((unsigned char *)"Bye!", strlen("Bye!"));
+    size_t ubuf_size = sizeof(struct Header) + test->getPayloadSize();
+    unsigned char *ubuf = new unsigned char[ubuf_size];
+    test->serialize(ubuf);
+    sleep(rval);
+    ret = SockSend(client->GetClientfd(), ubuf, ubuf_size);
     if(ret < 0)
     {
         std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
@@ -103,6 +104,8 @@ int main()
     }
    
     SockClose(client->GetClientfd());
+    delete[] ubuf;
+    delete[] tbuf;
     
     return 1;
 }

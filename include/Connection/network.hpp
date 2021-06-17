@@ -43,6 +43,6 @@ int SockReceive(int rec_sockfd, void *rec_buf, size_t len);
 int SockSend(int send_sockfd, void *send_buf, size_t len);
 int SockReceiveFrom(int rec_sockfd, void *rec_buf, size_t len);
 int SockSendTo(int send_sockfd, void *send_buf, size_t len);
-bool ReadNBytes(int socket, void *buf, std::size_t N);
+int ReadNBytes(int socket, void *buf, std::size_t N);
 int SockClose(int sockfd);
 #endif

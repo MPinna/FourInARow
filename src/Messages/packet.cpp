@@ -63,7 +63,8 @@ Packet::incCounter()
 void
 Packet::setPayload(unsigned char *data, size_t size)
 {
-    this->_payload = new unsigned char[(size + 1)];
+    // this->_payload = new unsigned char[(size + 1)];
+    this->_payload = (unsigned char *)realloc(this->_payload, size);
     memcpy(this->_payload, data + '\0', size + 1);
     this->header._payload_size = size + 1;
 }

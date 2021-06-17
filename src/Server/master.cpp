@@ -66,7 +66,6 @@ Master::Run()
     // TODO hai bisogno di capire come fare a passare un buff calcolato ogni volta
     std::string wlc_msg{"Connected with => " + this->_ipserveraddr + ":" + this->_portno};
     int nbytes{-1}, _ret{-1};
-    bool _check{false};
     unsigned char buf[256];
     size_t buf_size{sizeof(buf)};
 
@@ -97,52 +96,63 @@ Master::Run()
                     }
                     std::cout << "\nNew connection from " << inet_ntoa(this->_peeraddr.sin_addr) << " on socket: " << this->_receivefd << std::endl;
                 }
-                else
-                {   // We are going to manage communication
-                    unsigned char header[sizeof(struct Header)+1];
+                else // We are going to manage communication
+                {   // SECTION Receive packet's header
+                    unsigned char *header = new unsigned char[sizeof(struct Header) + 1];
                     Packet *packet = new Packet();
+                    memset(header, 0, sizeof(header));
                     header[9] = '\0';
-                    bool check{false};
-                    check = ReadNBytes(i, header, sizeof(struct Header));
-                    if(check == false)
-                        std::cout << "Master::Run()::ReadNBytes failed(1)" << std::endl;
-                    packet->deserializeHeader(header);
+                    nbytes = ReadNBytes(i, header, sizeof(struct Header));
+                    if (nbytes <= 0)
+                    {
+                        if (nbytes == 0)
+                            std::cout << " Master::Run() -> Peer: " << i << " disconnected" << std::endl;
+                        else
+                            std::cout << "Master::Run() failed(3)" << std::endl;
+                        
+                        _ret = SockClose(i); // bye!
+                        if(_ret < 0)
+                            std::cout << "Master::Run() failed(4)" << std::endl;
+                        FD_CLR(i, &this->_master_set);
+                        
+                        continue;
+                    }
+                    else
+                        packet->deserializeHeader(header);
 
-                    // std::cout << 
-                    //     "\npacket->getType(): " << packet->getType() <<
-                    //     "\npacket->getCounter(): " << packet->getCounter() <<
-                    //     "\npacket->getPayloadSize(): " << packet->getPayloadSize() <<
-                    // std::endl;
+                    std::cout << 
+                        "\npacket->getType() "<< packet->getType() <<
+                        "\npacket->getCounter() "<< packet->getCounter() <<
+                        "\npacket->getPayloadSize() "<< packet->getPayloadSize() <<
+                    std::endl;
 
-                    unsigned char payload[packet->getPayloadSize()+1];
-                    payload[packet->getPayloadSize()+1] = '\0';
-                    check = ReadNBytes(i, payload, packet->getPayloadSize());
-                    if(check == false)
-                        std::cout << "Master::Run()::ReadNBytes failed(2)" << std::endl;
-                    // std::cout << "Payload: " << payload << std::endl;
-                    exit(1); // TODO continue from this point
-                    // memset(&buf, 0, buf_size); 
-                    // if ((nbytes = SockReceive(i, buf, buf_size)) <= 0)
-                    // {
-                    //     if(nbytes == 0)
-                    //     {
-                    //         std::cout << " Master::Run() -> Peer: " << i << " disconnected" << std::endl;
-                    //     }
-                    //     else
-                    //     {
-                    //         std::cerr << "Master::Run() failed(3)" << std::endl;
-                    //     }
-                    //     SockClose(i); // bye!
-                    //     FD_CLR(i, &this->_master_set);
-                    // }
-                    // else
-                    // {   
-                    //     std::cout << ">Peer " << i << ":" << buf <<std::endl;
-                    //     if(FD_ISSET(i, &this->_master_set))
-                    //         _ret = SockSend(i, (char *)wlc_msg.c_str()+'\0', wlc_msg.length()+1); 
-                    //         if (_ret == -1)
-                    //             std::cerr << "Master::Run() failed(4)!" << std::endl;
-                    // }
+                    // SECTION Ready to receive Payload
+                    unsigned char *payload = new unsigned char[packet->getPayloadSize() + 1];
+                    memset(payload, 0, sizeof(payload));
+                    payload[packet->getPayloadSize() + 1] = '\0';
+                    nbytes = ReadNBytes(i, payload, packet->getPayloadSize());
+                    if (nbytes <= 0)
+                    {
+                        if (nbytes == 0)
+                            std::cout << " Master::Run() -> Peer: " << i << " disconnected" << std::endl;
+                        else
+                            std::cout << "Master::Run() failed(5)" << std::endl;
+                        
+                        _ret = SockClose(i); // bye!
+                        if(_ret < 0)
+                            std::cout << "Master::Run() failed(6)" << std::endl;
+                        FD_CLR(i, &this->_master_set);
+                    }
+                    else // TOCHECK here open the switch case
+                    {
+                        std::cout << "Payload: " << payload << std::endl;
+                        if (FD_ISSET(i, &this->_master_set))
+                            _ret = SockSend(i, (char *)wlc_msg.c_str() + '\0', wlc_msg.length() + 1);
+                        if (_ret == -1)
+                            std::cerr << "Master::Run() failed(7)" << std::endl;
+                    }
+                    delete[] header;
+                    delete[] payload;
                 }
             }
         }
