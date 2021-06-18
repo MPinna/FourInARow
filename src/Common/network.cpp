@@ -3,6 +3,7 @@
  * Functions implementation of the network.hpp header
  */
 #include "../../include/Connection/network.hpp"
+#include "../../include/Messages/packet.hpp"
 #include "../../include/Utils/constant.hpp"
 
 int 
@@ -211,7 +212,7 @@ ReadNBytes(int socket, void *buf, std::size_t N)
 			// No data available anymore
 			if (offset == 0)
 			{
-				std::cerr << "ReadNBytes::No Data! => ";
+				std::cout << "ReadNBytes::No Data! => ";
 				return 0;
 			}
 			else

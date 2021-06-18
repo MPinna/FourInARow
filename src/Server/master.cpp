@@ -100,21 +100,21 @@ Master::Run()
                 {   // SECTION Receive packet's header
                     unsigned char *header = new unsigned char[sizeof(struct Header) + 1];
                     Packet *packet = new Packet();
-                    memset(header, 0, sizeof(header));
-                    header[9] = '\0';
+                    memset(header, 0, sizeof(struct Header)+1);
+                    header[sizeof(struct Header)+1] = '\0';
                     nbytes = ReadNBytes(i, header, sizeof(struct Header));
                     if (nbytes <= 0)
                     {
                         if (nbytes == 0)
-                            std::cout << " Master::Run() -> Peer: " << i << " disconnected" << std::endl;
+                            std::cerr << "Master::Run() -> Empty header!: " << "Peer " << i << " has been disconnected" << std::endl;
                         else
-                            std::cout << "Master::Run() failed(3)" << std::endl;
+                            std::cerr << "Master::Run() failed(3)" << std::endl;
                         
                         _ret = SockClose(i); // bye!
                         if(_ret < 0)
                             std::cout << "Master::Run() failed(4)" << std::endl;
                         FD_CLR(i, &this->_master_set);
-                        
+                        delete[] header;
                         continue;
                     }
                     else
@@ -127,14 +127,13 @@ Master::Run()
                     std::endl;
 
                     // SECTION Ready to receive Payload
-                    unsigned char *payload = new unsigned char[packet->getPayloadSize() + 1];
-                    memset(payload, 0, sizeof(payload));
-                    payload[packet->getPayloadSize() + 1] = '\0';
+                    unsigned char *payload = new unsigned char[packet->getPayloadSize()+1];
+                    payload[packet->getPayloadSize()+1] = '\0';
                     nbytes = ReadNBytes(i, payload, packet->getPayloadSize());
                     if (nbytes <= 0)
                     {
                         if (nbytes == 0)
-                            std::cout << " Master::Run() -> Peer: " << i << " disconnected" << std::endl;
+                            std::cout << "Master::Run() -> Peer: " << i << " properly disconnected" << std::endl;
                         else
                             std::cout << "Master::Run() failed(5)" << std::endl;
                         
@@ -142,15 +141,17 @@ Master::Run()
                         if(_ret < 0)
                             std::cout << "Master::Run() failed(6)" << std::endl;
                         FD_CLR(i, &this->_master_set);
+                        delete[] payload;
+                        continue;
                     }
                     else // TOCHECK here open the switch case
                     {
-                        std::cout << "Payload: " << payload << std::endl;
                         if (FD_ISSET(i, &this->_master_set))
-                            _ret = SockSend(i, (char *)wlc_msg.c_str() + '\0', wlc_msg.length() + 1);
-                        if (_ret == -1)
-                            std::cerr << "Master::Run() failed(7)" << std::endl;
+                        _ret = SockSend(i, (char *)wlc_msg.c_str() + '\0', wlc_msg.length() + 1);
+                    if (_ret == -1)
+                        std::cerr << "Master::Run() failed(7)" << std::endl;
                     }
+                    std::cout << "Payload: " << payload << std::endl;
                     delete[] header;
                     delete[] payload;
                 }

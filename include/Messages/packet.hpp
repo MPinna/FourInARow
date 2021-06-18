@@ -25,15 +25,16 @@ public:
     // DESCRIPTION: Setter / Getter
     void setType(unsigned short int type);
     void initCounter();
-    void incCounter();
-    // void setPayloadSize(char * payload);
-    // void setPayloadSize(unsigned short int size);
+    void incrCounter();
     void setPayload(unsigned char * data, size_t size);
+    void reallocPayload(unsigned char *data);
     unsigned short int  getType();
     unsigned int        getCounter();
     unsigned short int  getPayloadSize();
+    unsigned char *     getPayload();
     // DESCRIPTION: member methods
     void serialize(unsigned char *to_ser_buf);
+    size_t serialize2(unsigned char **buf);
     void deserializeHeader(unsigned char * ser_buf);
 };
 #endif

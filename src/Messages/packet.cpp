@@ -43,30 +43,35 @@ Packet::initCounter()
 }
 
 void
-Packet::incCounter()
+Packet::incrCounter()
 {
     this->header._counter++;
 }
 
-// void 
-// Packet::setPayloadSize(char *payload)
-// {
-//     this->header._payload_size = strlen(payload);
-// }
-
-// void
-// Packet::setPayloadSize(unsigned short int size)
-// {
-//     this->header._payload_size = size;
-// }
-
 void
 Packet::setPayload(unsigned char *data, size_t size)
 {
-    // this->_payload = new unsigned char[(size + 1)];
-    this->_payload = (unsigned char *)realloc(this->_payload, size);
+    this->_payload = new unsigned char[(size + 1)];
     memcpy(this->_payload, data + '\0', size + 1);
     this->header._payload_size = size + 1;
+}
+
+void
+Packet::reallocPayload(unsigned char *data)
+{
+    size_t size{strlen((char *)data)};
+    if(size == 0)
+    {
+        this->_payload = (unsigned char *)realloc(this->_payload, 1 * sizeof(char));
+        memset(this->_payload, 0, 1);
+        this->header._payload_size = 0;
+    }
+    else
+    {
+        this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char));
+        memcpy(this->_payload, data + '\0', size + 1);
+        this->header._payload_size = size + 1;
+    }
 }
 
 unsigned short int
@@ -87,6 +92,12 @@ Packet::getPayloadSize()
     return this->header._payload_size;
 }
 
+unsigned char *
+Packet::getPayload()
+{
+    return this->_payload;
+}
+
 void
 Packet::serialize(unsigned char *to_ser_buf)
 {
@@ -94,7 +105,7 @@ Packet::serialize(unsigned char *to_ser_buf)
     uint32_t count{htonl(this->header._counter)};
     uint16_t psize{htons(this->header._payload_size)};
     size_t pos{0};
-
+    
     memcpy(to_ser_buf, &type, sizeof(uint16_t));
     pos += sizeof(uint16_t);
     memcpy(to_ser_buf + pos, &count, sizeof(uint32_t));
@@ -102,6 +113,27 @@ Packet::serialize(unsigned char *to_ser_buf)
     memcpy(to_ser_buf + pos, &psize, sizeof(uint16_t));
     pos += sizeof(uint16_t);
     memcpy(to_ser_buf + pos, this->_payload, this->header._payload_size);
+}
+
+size_t
+Packet::serialize2(unsigned char **buf)
+{
+    uint16_t type{htons(this->header._type)};
+    uint32_t count{htonl(this->header._counter)};
+    uint16_t psize{htons(this->header._payload_size)};
+    size_t pos{0};
+    size_t buf_size{sizeof(struct Header) + this->getPayloadSize()};
+    *buf = new unsigned char[buf_size];
+
+    memcpy(*buf, &type, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    memcpy(*buf + pos, &count, sizeof(uint32_t));
+    pos += sizeof(uint32_t);
+    memcpy(*buf + pos, &psize, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    memcpy(*buf + pos, this->_payload, this->header._payload_size);
+
+    return buf_size;
 }
 
 void 

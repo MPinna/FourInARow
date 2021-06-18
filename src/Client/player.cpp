@@ -22,7 +22,7 @@ int main()
     Packet *test = new Packet();
     test->setType(3);
     test->initCounter();
-    test->incCounter();
+    test->incrCounter();
     test->setPayload((unsigned char *)"this is a test", strlen("this is a test"));
     size_t tbuf_size = sizeof(struct Header) + test->getPayloadSize();
     unsigned char *tbuf = new unsigned char[tbuf_size];
@@ -32,6 +32,7 @@ int main()
         "\ntest->getType(): " << test->getType() <<
         "\ntest->getCounter(): " << test->getCounter() <<
         "\ntest->getPayloadSize(): " << test->getPayloadSize() <<
+        "\nPayload: " << test->getPayload() <<
     std::endl;
 
     // Create socket, get server info and connect
@@ -76,35 +77,34 @@ int main()
     {   
         std::thread t1(&Slave::InitPeerReceiver, client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE);
         t1.join();
-        rval = rand() % 10 + 1;
-        std::cout << "rval "<< rval << std::endl; 
     }
     else if (assign == "s")
     {
         std::thread t2(&Slave::InitPeerSender, client, AF_INET, SOCK_STREAM, 0, AF_INET);
         t2.join();
-        rval = rand() % 5 + 1;
-        std::cout << "rval "<< rval << std::endl; 
     }
     else
         std::cout << "Invalid value!" << std::endl;
     // NOTE: all this block will be replaced by an automatic generation code which will be assigned when a player challenge another one
     // SECTION_END
     
-    test->setPayload((unsigned char *)"Bye!", strlen("Bye!"));
-    size_t ubuf_size = sizeof(struct Header) + test->getPayloadSize();
-    unsigned char *ubuf = new unsigned char[ubuf_size];
-    test->serialize(ubuf);
-    sleep(rval);
-    ret = SockSend(client->GetClientfd(), ubuf, ubuf_size);
+    test->reallocPayload((unsigned char *)""); 
+    unsigned char *buf;
+    size_t bsize = test->serialize2(&buf);
+    std::cout << 
+        "\ntest->getType(): " << test->getType() <<
+        "\ntest->getCounter(): " << test->getCounter() <<
+        "\ntest->getPayloadSize(): " << test->getPayloadSize() <<
+        "\nPayload: " << test->getPayload() <<
+    std::endl;
+    ret = SockSend(client->GetClientfd(), buf, bsize);
     if(ret < 0)
     {
         std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
         exit(1);
     }
-   
-    SockClose(client->GetClientfd());
-    delete[] ubuf;
+
+    SockClose(client->GetClientfd()); 
     delete[] tbuf;
     
     return 1;
