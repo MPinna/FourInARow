@@ -12,7 +12,7 @@ InitSocket(int domain, int socktype, int protocol)
 	// 0 on success, -1 on failure
 	int _sockfd = socket(domain, socktype, protocol);
 	if (_sockfd < 0)
-		std::cerr << "InitSocket()::socket failed! =>";
+		std::cerr << "InitSocket()::socket() failed";
 	return _sockfd;
 }
 
@@ -23,7 +23,7 @@ SetSockOpt(int sockfd, int level, int optname, void *optval)
 	unsigned int len = sizeof(optval);
 	ret = setsockopt(sockfd, level, optname, &optval, len);
 	if (ret < 0)
-		std::cerr << "SetSockOpt()::setsockopt failed! =>";
+		std::cerr << "SetSockOpt()::setsockopt() failed";
 	return ret;
 }
 
@@ -39,7 +39,7 @@ SockBind(int sockfd, std::string ipaddr, std::string port, int family, struct so
 	sockaddress.sin_port = htons(_port);
 	ret = bind(sockfd, (const struct sockaddr *)&sockaddress, sizeof(sockaddr));
 	if (ret < 0)
-		std::cerr << "SockBind()::bind failed! =>";
+		std::cerr << "SockBind()::bind() failed";
 	return ret;
 }
 
@@ -49,7 +49,7 @@ SockListen(int sockfd, int max_queue)
 	short int ret{-1};
 	ret = listen(sockfd, max_queue);
 	if (ret < 0)
-		std::cerr << "SockListen()::listen failed!" << gai_strerror(errno) << std::endl;
+		std::cerr << "SockListen()::listen failed (code: " << gai_strerror(errno) << ")";
 	return ret;
 }
 
@@ -58,7 +58,7 @@ SockAccept(int sockfd, sockaddr *sockaddress, socklen_t *addrlen)
 {
 	int _newsockfd{0};
 	if ((_newsockfd = accept(sockfd, sockaddress, addrlen)) < 0)
-		std::cerr << "SockAccept()::accept failed! =>";
+		std::cerr << "SockAccept()::accept() failed";
 
 	return _newsockfd;
 }
@@ -79,7 +79,7 @@ GetAddrInfo(const char *node, const char *port, int family, int socktype)
 	int ret = getaddrinfo(node, port, &hints, &result);
 	if (ret != 0)
 	{
-		std::cerr << gai_strerror(ret) << std::endl;
+		std::cerr << "GetAddrInfo()::getaddrinfo() failed (code: " << gai_strerror(ret) << ")";
 		return NULL;
 	}
 
@@ -90,8 +90,7 @@ int SockConnect(int sockfd, struct addrinfo info)
 {
 	int status = connect(sockfd, info.ai_addr, info.ai_addrlen);
 	if (status < 0)
-		std::cerr << "SockConnect()::connect failed! =>";
-
+		std::cerr << "SockConnect()::connect() failed";
 	return status;
 }
 
@@ -101,7 +100,7 @@ SockSelect(int sockfd, fd_set read_fds)
 	int ret{-1};
 	ret = select(sockfd + 1, &read_fds, NULL, NULL, NULL);
 	if (ret == -1)
-		std::cerr << "select() failed! =>";
+		std::cerr << "SockSelect::select() failed";
 	
 	return ret;
 }
@@ -118,13 +117,13 @@ SockReceive(int rec_sockfd, void *rec_buf, size_t len)
 		if (errno == EAGAIN || errno == EWOULDBLOCK)
 			std::cerr << ETIMEDOUT << std::endl;
 		else
-			std::cerr << "SockReceive()::recv failed! =>";
+			std::cerr << "SockReceive()::recv() failed";
 
 		return ret;
 	}
 	if (ret == 0)
 	{
-		std::cout << "SockReceive()::recv connection closed!";
+		std::cout << "SockReceive()::recv() connection closed!";
 		return ret;
 	}
 
@@ -139,7 +138,7 @@ SockSend(int send_sockfd, void *send_buf, size_t len)
 	ret = send(send_sockfd, (char *)send_buf, len, 0);
 	if (ret == -1)
 	{
-		std::cerr << "SockSend()::sendto - failed! =>";
+		std::cerr << "SockSend()::sendto() failed";
 		return ret;
 	}
 
@@ -160,13 +159,13 @@ SockReceiveFrom(int rec_sockfd, void *rec_buf, size_t len)
 			if (errno == EAGAIN || errno == EWOULDBLOCK)
 				std::cerr << ETIMEDOUT << std::endl;
 			else
-				std::cerr << "SockReceive()::recvfrom failed! =>";
+				std::cerr << "SockReceiveFrom()::recvfrom() failed";
 
 			return ret;
 		}
 		if (ret == 0)
 		{
-			std::cerr << "SockReceive()::recvfrom connection closed! =>";
+			std::cerr << "SockReceiveFrom()::recvfrom() connection closed";
 			return ret;
 		}
 		read += ret;
@@ -183,7 +182,7 @@ SockSendTo(int send_sockfd, void *send_buf, size_t len)
 		ret = sendto(send_sockfd, (char *)send_buf, len, 0, NULL, 0);
 		if (ret == -1)
 		{
-			std::cerr << "SockSend()::sendto - failed! =>";
+			std::cerr << "SockSendTo()::sendto() failed";
 			return ret;
 		}
 		sent += ret;
@@ -203,8 +202,8 @@ ReadNBytes(int socket, void *buf, std::size_t N)
 			if (errno != EINTR)
 			{
 				// Error occurred
-				std::cerr << "ReadNBytes::IOException(strerror(errno)) " << ret << " => "; 
-				return -1;
+				std::cerr << "ReadNBytes()::recvfrom() IOException(strerror(errno: " << ret << "))"; 
+				return ret;
 			}
 		}
 		else if (ret == 0)
@@ -212,25 +211,102 @@ ReadNBytes(int socket, void *buf, std::size_t N)
 			// No data available anymore
 			if (offset == 0)
 			{
-				std::cout << "ReadNBytes::No Data! => ";
+				std::cout << "ReadNBytes()::recvfrom() No Data";
 				return 0;
 			}
 			else
 			{
-				std::cerr << "ReadNBytes::ProtocolException (Unexpected end of stream) => ";
+				std::cerr << "ReadNBytes()::recvfrom() ProtocolException (Unexpected end of stream)";
 				return -1;
 			}
 		}
 		else if (offset + ret == N)
-		{
-			// All n bytes read
-			return N;
-		}
+			return N; // All n bytes read
 		else
-		{
 			offset += ret;
-		}
 	}
+}
+
+int 
+PacketSend(int send_sockfd, Packet *packet)
+{
+	// TODO how to manage the type (pass here by value?)
+	packet->incrCounter();
+	int _ret_code{-1};
+	size_t _buf_size = sizeof(struct Header) + packet->getPayloadSize();
+	unsigned char *_buf = new unsigned char[_buf_size];
+	packet->serialize(&_buf);
+	_ret_code = SockSendTo(send_sockfd, _buf, _buf_size);
+	if (_ret_code < 0)
+	{
+		std::cerr << " <== PacketSend()";
+		return -1;
+	}
+	else
+	{
+		delete[] _buf;
+		return 1;
+	}
+}
+
+int
+PacketReceive(int sockfd, Packet *packet, int type)
+{
+	int _ret_code{-1};
+	unsigned char *header = new unsigned char[sizeof(struct Header) + 1];
+    memset(header, 0, sizeof(struct Header) + 1);
+    header[sizeof(struct Header) + 1] = '\0';
+    int nbytes = ReadNBytes(sockfd, header, sizeof(struct Header));
+	// SECTION receive header
+    if (nbytes <= 0)
+    {
+        if (nbytes == 0)
+            std::cerr << " <== PacketReceive(): Empty Header!";
+        else
+            std::cerr << " <== PacketReceive(rec_header)";
+
+        _ret_code = SockClose(sockfd); // bye!
+        if (_ret_code < 0)
+            std::cout << " <== PacketReceive()";
+	
+        delete[] header;
+		return -1;
+    }
+    else
+        packet->deserializeHeader(header); 
+    
+	// SECTION receive payload
+	assert(packet->getPayloadSize() >= 0);
+	if(packet->getPayloadSize() == 0)
+	{
+		std::cout << "\nClose Signal received" << std::endl;
+		std::cout << "Peer: " << sockfd << " disconnected" << std::endl;
+		delete[] header;
+		return 0;
+	}
+	else if(packet->getPayloadSize() > 0)
+	{
+		unsigned char *payload = new unsigned char[packet->getPayloadSize()+1];
+		payload[packet->getPayloadSize()+1] = '\0';
+		nbytes = ReadNBytes(sockfd, payload, packet->getPayloadSize());
+		if (nbytes <= 0)
+		{
+			if (nbytes == 0)
+				std::cerr << " <== PacketReceive(): Empty payload";
+			else
+				std::cout << " <== PacketReceive(rec_payload) failed" << std::endl;
+			delete[] payload;
+			delete[] header;
+			return -1;
+		}
+		else // TODO at this stage you need to open the switch case and call the right deserialize method
+			packet->reallocPayload(payload);
+
+		delete[] header;
+		delete[] payload;
+	}
+    
+	return 1;
 }
 
 int 
@@ -239,7 +315,7 @@ SockClose(int sockfd)
 	short int ret{-1};
 	ret = close(sockfd);
 	if(ret < 0)
-		std::cerr << "SockClose()::close - failed! =>";
+		std::cerr << "SockClose()::close() failed";
 	
 	return ret;
 }

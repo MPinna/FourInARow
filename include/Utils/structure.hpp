@@ -14,5 +14,11 @@ typedef struct __attribute__((packed))
 
     void setName(char *name);
 } User;
+
+typedef struct __attribute__((packed)) // TOCHECK is it needed ? 
+{
+    size_t counter;
+    size_t next;
+} SecurityCheck;
 #endif // _STRUCTURE_H
 

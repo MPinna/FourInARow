@@ -17,7 +17,7 @@ Slave::InitSlave(int domain, int socktype, int protocol, int family)
     this->_clientfd = InitSocket(domain, socktype, protocol);
 	if(this->_clientfd < 0)
 	{
-		std::cerr << "Slave::InitClient(1)" << std::endl;
+		std::cerr << " <== Slave::InitSlave(initSocket)"; 
 		return _clientfd;
 	}
     
@@ -28,14 +28,14 @@ Slave::InitSlave(int domain, int socktype, int protocol, int family)
         socktype);
 	if(this->_serverinfo == NULL)
 	{
-		std::cerr << "Slave::InitClient(2)" << std::endl;
+		std::cerr << " <== Slave::InitSlave(getAddrInfo)";
 		return -1;
 	}
 	
 	ret = SockConnect(this->_clientfd, *this->_serverinfo);
 	if(ret < 0)
 	{
-		std::cerr << "Slave::InitClient(3)" << std::endl;
+		std::cerr << " <== Slave::InitSlave(sockConnect)";
 		return ret;
 	}
 	
@@ -59,34 +59,34 @@ Slave::InitPeerReceiver(
 	this->_peerfd = InitSocket(domain, socktype, protocol);
 	if(this->_peerfd < 0)
 	{	
-		std::cerr << "Slave::InitPeerReceiver(1)" << std::endl;
+		std::cerr << " <== Slave::InitPeerReceiver(initSocket)";
 		return 0;
 	}
 	ret = SetSockOpt(this->_peerfd, level, optname, &optval);
 	if(ret < 0)
 	{
-		std::cerr << "Slave::InitPeerReceiver(2)" << std::endl;
+		std::cerr << " <== Slave::InitPeerReceiver(SetSockOpt)";
 		return 0;
 	}
 	ret = SockBind(this->_peerfd, this->_peeraddr, this->_peerport, family, this->_peersock);
 	if(ret < 0)
 	{
-		std::cerr << "Slave::InitPeerReceiver(3)" << std::endl;
+		std::cerr << " <== Slave::InitPeerReceiver(SockBind)";
 		return 0;
 	}
 	// TOCHECK: remove this print?
-	std::cout << "READY! Waiting for a client to connect..." << std::endl;
+	std::cout << "READY!\nWaiting for a client to connect..." << std::endl;
 	ret = SockListen(this->_peerfd, backlog_queue);
 	if(ret < 0)
 	{
-		std::cerr << "Slave::InitPeerReceiver(4)" << std::endl;
+		std::cerr << " <== Slave::InitPeerReceiver(sockListen)";
 		return 0;
 	}
 	socklen_t _addrlen = sizeof(this->_peersock);
 	int _acceptfd = SockAccept(this->_peerfd, (sockaddr *)&this->_peersock, &_addrlen);
 	if(_acceptfd < 0)
 	{
-		std::cerr << "Slave::InitPeerReceiver(5)" << std::endl;
+		std::cerr << " <== Slave::InitPeerReceiver(SockAccept)";
 		return 0;
 	}
 	// TOCHECK could be useful to have getnameinfo here to keep track of received messages ?
@@ -95,17 +95,24 @@ Slave::InitPeerReceiver(
 	struct timeval start1, end1;
 	gettimeofday(&start1, NULL);
 	//also keep track of the amount of data sent as well
-	int bytesRead, bytesWritten = 0;
+	size_t bytesRead{0}, bytesWritten{0};
+	int ret_code{-1};
 	char msg[1500];
 	while (1)
 	{
 		//receive a message from the client (listen)
 		std::cout << "Awaiting sender response..." << std::endl;
 		memset(&msg, 0, sizeof(msg)); //clear the buffer
-		bytesRead += SockReceive(_acceptfd, (char *)&msg, sizeof(msg));
-		if (!strcmp(msg, "exit"))
+		ret_code = SockReceive(_acceptfd, (char *)&msg, sizeof(msg));
+		bytesRead += ret_code;
+		if (ret_code == 0)
 		{
-			std::cout << "Client has quit the session" << std::endl;
+			std::cerr << "Sender has quit inadvertently!" << std::endl;
+			break;
+		}
+		else if (!strcmp(msg, "exit"))
+		{
+			std::cout << "Sender has quit the session" << std::endl;
 			break;
 		}
 		std::cout << "Sender: " << msg << std::endl;
@@ -149,24 +156,25 @@ Slave::InitPeerSender(
 	this->_peerfd = InitSocket(domain, socktype, protocol);
 	if(this->_peerfd < 0) 
 	{
-		std::cerr << "Slave::InitPeerSender(1)" << std::endl;
+		std::cerr << " <== Slave::InitPeerSender(initSocket)";
 		return ret;
 	}
 	this->_peerinfo = GetAddrInfo(this->_peeraddr.c_str(), 
 		this->_peerport.c_str(), family, socktype);
 	if(this->_peerinfo == NULL)
 	{
-		std::cerr << "Slave::InitPeerSender(2)" << std::endl;
+		std::cerr << " <== Slave::InitPeerSender(getAddrInfo)";
 		return ret;
 	}
 	ret = SockConnect(this->_peerfd, *this->_peerinfo);
 	if(ret < 0)
 	{
-		std::cerr << "Slave::InitPeerSender(3)" << std::endl;
+		std::cerr << " <== Slave::InitPeerSender(SockConnect)";
 		return ret;
 	}
 	std::cout << "Connected to the peer!" << std::endl;
-    int bytesRead, bytesWritten = 0;
+    size_t bytesRead{0}, bytesWritten{0};
+	int ret_code{-1};
     struct timeval start1, end1;
     gettimeofday(&start1, NULL);
 	char msg[1500];
@@ -185,10 +193,16 @@ Slave::InitPeerSender(
         bytesWritten += SockSend(this->_peerfd, (char *)&msg, strlen(msg));
         std::cout << "Awaiting receiver response..." << std::endl;
         memset(&msg, 0, sizeof(msg)); //clear the buffer
-        bytesRead += SockReceive(this->_peerfd, (char *)&msg, sizeof(msg));
-        if (!strcmp(msg, "exit"))
+        ret_code = SockReceive(this->_peerfd, (char *)&msg, sizeof(msg));
+		bytesRead += ret_code;
+		if (ret_code == 0)
+		{
+			std::cerr << " <- Receiver has quit inadvertently!";
+			break;
+		}
+        else if(!strcmp(msg, "exit"))
         {
-            std::cout << "Server has quit the session" << std::endl;
+            std::cout << " <- Server has quit the session";
             break;
         }
         std::cout << "Receiver: " << msg << std::endl;

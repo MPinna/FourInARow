@@ -13,58 +13,60 @@
 int rval{0};
 int main()
 {
-    unsigned char sbuf[] = "Hello Server!";
-    struct sockaddr_in _peersock;
     Slave *client = new Slave();
-    unsigned char rbuf[256];
-    short int ret{-1};
+    Packet *packet = new Packet();
+    short int _ret_code{-1};
     
-    Packet *test = new Packet();
-    test->setType(3);
-    test->initCounter();
-    test->incrCounter();
-    test->setPayload((unsigned char *)"this is a test", strlen("this is a test"));
-    size_t tbuf_size = sizeof(struct Header) + test->getPayloadSize();
-    unsigned char *tbuf = new unsigned char[tbuf_size];
-    test->serialize(tbuf);
-    
-    std::cout << 
-        "\ntest->getType(): " << test->getType() <<
-        "\ntest->getCounter(): " << test->getCounter() <<
-        "\ntest->getPayloadSize(): " << test->getPayloadSize() <<
-        "\nPayload: " << test->getPayload() <<
-    std::endl;
 
-    // Create socket, get server info and connect
-    ret = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
-    if(ret < 0)
+    /** 
+     * SECTION_START: Create socket, get server info and connect
+     */
+    _ret_code = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
+    if(_ret_code < 0)
     {
-        std::cerr << "main::client->InitSlave() failed!\nReturn code: " << ret << std::endl;
-
-        exit(1);
-    }
-
-    ret = SockSendTo(client->GetClientfd(), tbuf, tbuf_size);
-    if(ret < 0)
-    {
-        std::cerr << "main::client->SockSend() failed!\nReturn code: " << ret << std::endl;
-        exit(1);
-    }
-
-    memset(rbuf, 0, sizeof(rbuf));
-    ret = SockReceive(client->GetClientfd(), rbuf, sizeof(rbuf));
-    if(ret < 0)
-    {
-        std::cerr << "main::client->SockReceive() failed!\nReturn code: " << ret << std::endl;
+        std::cerr << " <== main(initSlave)";
         exit(1);
     }
     else
     {
-        std::cout << rbuf << std::endl;
+        _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
+        if(_ret_code < 0)
+        {
+            std::cerr << "ERROR"; // TODO check how to manage error chain
+            exit(1);
+        }
+        else
+            packet->print();
     }
+    /**
+     * SECTION_END
+     */
 
-    // SECTION_START
-    // Manage peer-to-peer connection
+    /**
+     * SECTION_START
+     * send packet / wait for response
+     */
+    packet->reallocPayload((unsigned char *)"Just a message");
+    _ret_code = PacketSend(client->GetClientfd(), packet);
+    if(_ret_code < 0)
+    {
+        std::cerr << "ERROR"; // TODO check how to manage error chain
+        exit(1);
+    }
+    _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
+    if(_ret_code < 0)
+    {
+        std::cerr << "ERROR"; // TODO check how to manage error chain
+        exit(1);
+    }
+    else
+        packet->print();
+    // SECTION_END    
+
+    /**
+     * SECTION_START
+     * Manage peer-to-peer connection
+     */
     std::string assign;
     std::cout << "Please, type s (for sender) r (for receiver): ";
     getline(std::cin, assign);
@@ -77,7 +79,8 @@ int main()
     {   
         std::thread t1(&Slave::InitPeerReceiver, client, AF_INET, SOCK_STREAM, 0, AF_INET, SOL_SOCKET, SO_REUSEADDR, 1, BACKLOG_QUEUE);
         t1.join();
-    }
+        
+    }   
     else if (assign == "s")
     {
         std::thread t2(&Slave::InitPeerSender, client, AF_INET, SOCK_STREAM, 0, AF_INET);
@@ -86,26 +89,39 @@ int main()
     else
         std::cout << "Invalid value!" << std::endl;
     // NOTE: all this block will be replaced by an automatic generation code which will be assigned when a player challenge another one
-    // SECTION_END
-    
-    test->reallocPayload((unsigned char *)""); 
-    unsigned char *buf;
-    size_t bsize = test->serialize2(&buf);
-    std::cout << 
-        "\ntest->getType(): " << test->getType() <<
-        "\ntest->getCounter(): " << test->getCounter() <<
-        "\ntest->getPayloadSize(): " << test->getPayloadSize() <<
-        "\nPayload: " << test->getPayload() <<
-    std::endl;
-    ret = SockSend(client->GetClientfd(), buf, bsize);
-    if(ret < 0)
+    /** 
+     * SECTION_END
+     */
+
+    srand(time(0));
+    int tmp = rand() % 10;
+    sleep(tmp);
+    std::cout << "RAND: " << tmp << std::endl;
+
+    /**
+     * SECTION_START
+     * Close connection
+     */
+    packet->reallocPayload((unsigned char *)"");
+    _ret_code = PacketSend(client->GetClientfd(), packet);
+    if(_ret_code < 0)
     {
-        std::cerr << "main::client->InitClient() failed!\nReturn code: " << ret << std::endl;
+        std::cerr << "/!\\ ERROR";
         exit(1);
     }
 
-    SockClose(client->GetClientfd()); 
-    delete[] tbuf;
+    _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
+    if(_ret_code < 0)
+    {
+        std::cerr << "/!\\ ERROR"; 
+        exit(1);
+    }
+    else
+        packet->print();
+    SockClose(client->GetClientfd());
+
+    packet->~Packet();
+    client->~Slave();
     
     return 1;
 }

@@ -7,6 +7,7 @@
  */
 #ifndef _CONNECTION_H_
 #define _CONNECTION_H_
+#include "../Messages/packet.hpp"
 #include "../Utils/constant.hpp"
 #include <arpa/inet.h>
 #include <iostream>
@@ -44,5 +45,7 @@ int SockSend(int send_sockfd, void *send_buf, size_t len);
 int SockReceiveFrom(int rec_sockfd, void *rec_buf, size_t len);
 int SockSendTo(int send_sockfd, void *send_buf, size_t len);
 int ReadNBytes(int socket, void *buf, std::size_t N);
+int PacketSend(int send_sockfd, Packet *packet);
+int PacketReceive(int rec_sockfd, Packet *packet, int type);
 int SockClose(int sockfd);
 #endif

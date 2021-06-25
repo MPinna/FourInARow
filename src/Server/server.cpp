@@ -20,11 +20,15 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    // Manage Clients incoming connections
+    /**
+     * TODO method to initialize all openssl variable, keys, etc...
+     */
+
+    // Manage Clients - Server connection and response
     _check = server->Run(); 
     if(_check < 0)
     {
-        std::cerr << "main::server->Run() failed!" << std::endl;
+        std::cerr << " <== main::server->Run() failed!" << std::endl;
         exit(1);
     }
     SockClose(server->getReceivefd());
