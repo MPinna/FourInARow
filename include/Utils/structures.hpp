@@ -4,6 +4,7 @@
  */
 #if !defined(_STRUCTURE_H)
 #define _STRUCTURE_H
+#include "../Messages/packet.hpp"
 #include "constant.hpp"
 #include <cstring>
 
@@ -15,10 +16,11 @@ typedef struct __attribute__((packed))
     void setName(char *name);
 } User;
 
-typedef struct __attribute__((packed)) // TOCHECK is it needed ? 
+typedef struct __attribute__((packed))  
 {
-    size_t counter;
+    size_t received;
     size_t next;
+    size_t expected;
 } SecurityCheck;
 #endif // _STRUCTURE_H
 
