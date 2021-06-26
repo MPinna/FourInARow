@@ -32,7 +32,7 @@ int main()
         _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
         if(_ret_code < 0)
         {
-            std::cerr << "ERROR"; // TODO check how to manage error chain
+            std::cerr << " <== main::player(PacketReceive)";
             exit(1);
         }
         else
@@ -50,13 +50,13 @@ int main()
     _ret_code = PacketSend(client->GetClientfd(), packet);
     if(_ret_code < 0)
     {
-        std::cerr << "ERROR"; // TODO check how to manage error chain
+        std::cerr << " <== main::player(PacketSend)"; 
         exit(1);
     }
     _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
     if(_ret_code < 0)
     {
-        std::cerr << "ERROR"; // TODO check how to manage error chain
+        std::cerr << " <== main::player(PacketReceive)";
         exit(1);
     }
     else
@@ -106,14 +106,14 @@ int main()
     _ret_code = PacketSend(client->GetClientfd(), packet);
     if(_ret_code < 0)
     {
-        std::cerr << "/!\\ ERROR";
+        std::cerr << " <== main::player(PacketSend)";
         exit(1);
     }
 
     _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
     if(_ret_code < 0)
     {
-        std::cerr << "/!\\ ERROR"; 
+        std::cerr << " <== main::player(PacketReceive)"; 
         exit(1);
     }
     else

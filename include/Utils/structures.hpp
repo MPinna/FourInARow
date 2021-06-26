@@ -8,19 +8,27 @@
 #include "constant.hpp"
 #include <cstring>
 
-typedef struct __attribute__((packed))
+struct User
 {
     char                _name[USERNAME_LENGHT_16];
-    unsigned short int  _status{0};
+    unsigned short int  _status;
+
+    User()
+        : _name{NULL}, _status{0} {}
 
     void setName(char *name);
-} User;
+}__attribute__((packed));
 
-typedef struct __attribute__((packed))  
+struct SecurityCheck
 {
-    size_t received;
-    size_t next;
-    size_t expected;
-} SecurityCheck;
+    size_t _received;
+    size_t _next;
+    size_t _expected;
+
+    SecurityCheck()
+        : _received{0}, _next{0}, _expected{0} {}
+
+    int update();
+} __attribute__((packed));
 #endif // _STRUCTURE_H
 
