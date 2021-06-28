@@ -80,9 +80,10 @@ Master::Run()
     unsigned char rcv_msg[] = "Message Received!";
     unsigned char cls_msg[] = "Close signal received!";
     int nbytes{-1}, _ret_code{-1};
-    std::vector<ClientInfo> clients(this->_fdmax);
+    std::vector<ClientInfo> clients(this->_fdmax+1);
     for (;;)
-    {
+    {   
+        // TODO play with the vector
         this->_read_fds = this->_master_set; // copy it
         if (select(this->_fdmax + 1, &this->_read_fds, NULL, NULL, NULL) == -1)
         {
@@ -107,7 +108,7 @@ Master::Run()
                         FD_SET(this->_receivefd, &this->_master_set);
                         if (this->_receivefd > this->_fdmax)
                             this->_fdmax = this->_receivefd;
-                        clients.resize(this->_receivefd+1);
+                        clients.resize(this->_fdmax+1);
                     }
                     std::cout << 
                         "\n==> New connection from " << inet_ntoa(this->_peeraddr.sin_addr) << 
@@ -124,7 +125,6 @@ Master::Run()
                 // SECTION We are going to manage communication
                 else 
                 {   
-                    // nbytes = PacketReceive(i, packet, 0);
                     nbytes = PacketReceive(i, &clients.at(i).packet, 0);
                     if(nbytes > 0)
                     {   
@@ -145,7 +145,7 @@ Master::Run()
                         if(_ret_code < 0)
 		                    std::cerr << " <== Master::Run(sockClose)";
                         FD_CLR(i, &this->_master_set);
-                        clients.erase(clients.begin() + i);
+                        // clients.erase(clients.begin() + i);
                         continue;
                     }
                     else

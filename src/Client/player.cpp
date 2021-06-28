@@ -1,6 +1,7 @@
 /**
  * SECTION
  * The Client class, it is responsible for:
+ * TODO
  *  - Launch a new client
  *  - Interact with server
  *  - Challenge another client
