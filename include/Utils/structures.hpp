@@ -8,27 +8,28 @@
 #include "constant.hpp"
 #include <cstring>
 
-struct User
+typedef struct __attribute__((packed)) User
 {
     char                _name[USERNAME_LENGHT_16];
     unsigned short int  _status;
-
-    User()
+    // Default Constructor
+    User() 
         : _name{NULL}, _status{0} {}
-
+    // Class methods
     void setName(char *name);
-}__attribute__((packed));
+};
 
-struct SecurityCheck
+
+typedef struct __attribute__((packed)) SecurityCheck
 {
     size_t _received;
     size_t _next;
     size_t _expected;
-
+    // Default constructor
     SecurityCheck()
         : _received{0}, _next{0}, _expected{0} {}
-
+    // Class methods
     int update();
-} __attribute__((packed));
+};
 #endif // _STRUCTURE_H
 
