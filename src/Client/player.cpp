@@ -11,6 +11,7 @@
 #include "../../include/Messages/packet.hpp"
 #include "../../include/Client/slave.hpp"
 #include <chrono>
+
 int rval{0};
 int main()
 {
@@ -110,8 +111,9 @@ int main()
         std::cerr << " <== main::player(PacketSend)";
         exit(1);
     }
-
-    _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
+    std::cout << "main()::I'm here 1" << std::endl;
+    _ret_code = PacketReceive(client->GetClientfd(), packet, 0); 
+    std::cout << "main()::I'm here 1" << std::endl;
     if(_ret_code < 0)
     {
         std::cerr << " <== main::player(PacketReceive)"; 

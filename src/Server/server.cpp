@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     Master *server = new Master();
-    unsigned char sbuf[] = "Hello Client!";
+    unsigned char sbuf[] = "ClientHello Client!";
     short int _check{-1};
 
     // Create socket, configure parameters, bind it, make it ready for listen

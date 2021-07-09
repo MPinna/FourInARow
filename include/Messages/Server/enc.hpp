@@ -13,18 +13,20 @@
 #include "../packet.hpp"
 #include <vector>
 
-typedef struct __attribute__((packed))
+struct ClientList
 {
     unsigned short int _n_of_elem{0};
     std::vector<User>  users;
 
     void addUser(char *name);
+    // DESCRIPTION: Member methods
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
     void print();
-    char *serialize();
-    void deserialize(char *ser_buf);
-} ClientList;
+}__attribute__((packed));
 
-typedef struct __attribute__((packed))
+struct GameInfo 
 {
     unsigned char       _ipaddr[ADDRESS_LENGTH];
     unsigned short int  _peer_port{0};
@@ -35,5 +37,5 @@ typedef struct __attribute__((packed))
     // DESCRIPTION: Member methods
     void serialize(unsigned char *to_ser_buf);
     void deserialize(unsigned char *ser_buf);
-} GameInfo;
+}__attribute__((packed));
 #endif

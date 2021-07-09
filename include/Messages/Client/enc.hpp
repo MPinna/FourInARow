@@ -11,58 +11,69 @@
 #include "../../Utils/constant.hpp"
 #include "../crypto.hpp"
 
-typedef struct __attribute__((packed)) 
+struct PlayerList
 {
     // TOCHECK if you can send this packet even without randomness field
     unsigned char   _randomness[RANDOMNESS_LENGTH_16];
-    Tag             tag;
 
     // TODO function to set N bytes at random in a string
+    int setRandomness();
     // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} PlayerList;
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
+}__attribute__((packed));
 
-typedef struct __attribute__((packed))
+ struct ChallengeRequest
 {
     unsigned char   _opp_username[USERNAME_LENGHT_16];
-    Tag             tag;
+
+    int setUsername(const char *user);
+    // DESCRIPTION: Member methods
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
+}__attribute__((packed));
+
+struct ChallengeResponse
+{
+    unsigned short int _answer;
 
     // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} ChallengeRequest;
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
+}__attribute__((packed));
 
-typedef struct __attribute__((packed))
+struct GameMove
 {
-    bool    _answer;
-    Tag     tag;
-
-    // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} ChallengeResponse;
-
-typedef struct __attribute__((packed))
-{
-    unsigned short int  _column_num {0};
+    unsigned short int  _column_num;
     unsigned char       _randomness[RANDOMNESS_LENGTH_16];
-    Tag                 tag;
 
+    // TODO
+    int setRandomness();
     // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} GameMove;
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
+}__attribute__((packed));
 
 // TOCHECK we need something to close the game
-typedef struct __attribute__((packed))
+ struct GameEnd
 {
-    unsigned short int  _signal{0};
+    unsigned short int  _signal;
     unsigned char       _randomness[RANDOMNESS_LENGTH_16];
-    Tag                 tag;
 
+    // TODO
+    int setRandomness();
     // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf); 
-} GameEnd;
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
+}__attribute__((packed));
 #endif

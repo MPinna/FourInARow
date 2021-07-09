@@ -9,69 +9,83 @@
 #include "../crypto.hpp"
 #include <cstddef>
 
-typedef struct __attribute__((packed)) 
+// TODO ClientHello -> Just a message to present itself to the server
+
+/**
+ * DESCRIPTION: the ClientChallenge structure it is used for:
+ *  - Exchange hello message for client - server communication
+ *  - Exchange hello message for peer-to-peer communication
+ */
+struct ClientChallenge
 {
     unsigned char       _username[USERNAME_LENGHT_16];
-    unsigned short int  _port_number{0};
-    unsigned int        _nonce{0};
-    Digest              digest;
-    Signature           signature;
+    unsigned short int  _port_number;
+    unsigned int        _nonce;
 
-    // DESCRIPTION: Setter
-    void setUsername(char *user);
+    // DESCRIPTION: Setter / Getter
+    int setUsername(const char *user);
+    int getType();
+    int getSize();
     // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} ClientHello;
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
+}__attribute__((packed));
 
-typedef struct __attribute__((packed)) 
+/**
+ * DESCRIPTION: the ClientChallenge structure it is used for:
+ *  - Response message for client - server communication
+ *  - Response message for peer-to-peer communication
+ */
+struct ClientResponse
 {
-    unsigned int    _opp_nonce{0};
+    unsigned int    _opp_nonce;
     DHKey           dh_key;
-    Digest          digest;
-    Signature       signature;
 
     // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} ClientResponse;
+    int getType();
+    int getSize();
+    // DESCRIPTION: Member methods
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
+}__attribute__((packed));
 
-typedef struct __attribute__((packed))
+/**
+ * DESCRIPTION: the ClientChallenge structure it is used for:
+ *  - Challenge - Response phase between two peers
+ */
+struct ChallengeRequest
 {
-    unsigned char   _username[USERNAME_LENGHT_16];
-    unsigned int    _nonce{0};
-    Digest          digest;
-    Signature       signature;
-
-    void setUsername(unsigned char *name);
-    // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} PeerHello;
-
-typedef struct __attribute__((packed))
-{   
-    unsigned int    _nonce{0};
-    unsigned int    _opp_nonce{0};
+    unsigned int    _nonce;
+    unsigned int    _opp_nonce;
     DHKey           dh_key;
-    Digest          digest;
-    Signature       signature;
 
     // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} PeerChallenge;
+    int getType();
+    int getSize(); // TOCHECK
+    // DESCRIPTION: Member methods
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
+}__attribute__((packed));
 
-typedef struct __attribute__((packed)) 
+struct ChallengeResponse
 {
-    unsigned int    _opp_nonce{0};
-    short int       _signal{-1};
+    unsigned int    _opp_nonce;
+    short int       _signal; // used to accept or decline challenge between two player
     DHKey           dh_key;
-    Digest          digest;
-    Signature       signature;
 
     // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} PeerResponse; 
+    int getType();
+    int getSize(); // TOCHECK
+    // DESCRIPTION: Member methods
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
+}__attribute__((packed)); 
 #endif

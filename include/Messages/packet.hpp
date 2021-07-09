@@ -12,32 +12,57 @@
 #ifndef _PACKET_H_
 #define _PACKET_H_
 // #define NDEBUG
+#include <openssl/evp.h>
 #include "header.hpp"
+#include "crypto.hpp"
 #include <cassert>
 
 class Packet
 {
 private:
-    Header          header;
-    unsigned char * _payload;
+    Header              header;
 public:
     // DESCRIPTION: Constructor
+    unsigned char *     _payload;
     Packet();
     ~Packet();
+    
     // DESCRIPTION: Setter / Getter
-    void setType(unsigned short int type);
-    void initCounter();
-    void incrCounter();
-    void setPayload(unsigned char * data);
+    int setType(unsigned short int type);
+    int setPayloadSize(size_t size);
+    int setPayload(unsigned char *data, size_t size);
     unsigned short int  getType();
     unsigned int        getCounter();
     unsigned short int  getPayloadSize();
+    unsigned short int  getHeaderSize();
     unsigned char *     getPayload();
+    
     // DESCRIPTION: member methods
-    int initPacket(size_t type);
-    int reallocPayload(unsigned char *data);
-    size_t serialize(unsigned char **buf);
-    void deserializeHeader(unsigned char * ser_buf);
-    void print();
+    int     initCounter();
+    int     incCounter();
+    void    print();
+    int     reallocPayload(unsigned char *data);
+    size_t  serialize(unsigned char **buf);
+    size_t  htonPacket(unsigned char *buf);
+    size_t  ntohHeader(unsigned char *ser_data);
+    int     ntohPayload(unsigned char *ser_data);
+};
+
+class ESP : public Packet{
+    private:
+        Tag tag;
+    public:
+        ESP();
+        ~ESP();
+        // DESCRIPTION setter / getter
+        unsigned short int  getTaglen();
+        unsigned char *     getTag();
+        int setTag(unsigned char *tag, unsigned short int size);
+        // DESCRIPTION Class members
+        size_t  getESPPacketSize();
+        size_t  HtoN(unsigned char **buf);
+        size_t  ntohESPPacket(unsigned char *ser_data);
+        size_t  ntohTaglen(unsigned char *ser_data);
+        int     print();
 };
 #endif

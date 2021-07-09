@@ -12,70 +12,54 @@
 #include <iostream>
 #include <cstddef>
 #include <cstring>
-
-typedef struct __attribute__((packed))
-{   
-    unsigned short int  _sig_size{0};
-    unsigned char *     _signature{NULL};
-
-    // DESCRIPTION: Setter
-    void setSignature(unsigned char *sig);
-    // DESCRIPTION: member structure
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} Signature;
-
-typedef struct __attribute__((packed))
-{
-    unsigned short int  _dig_size{0};
-    unsigned char *     _digest{NULL};
-
-    // DESCRIPTION: Setter
-    void setDigest(unsigned char *digest);
-    // DESCRIPTION: member structure
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
-} Digest;
-
+#include <cassert>
 
 /**
- * DESCRIPTION: 
- * The tag structure it is used to store the tag used to encrypt data according to the AEAD (Authenticated Encryption with Associated Data)
+ * Tag structure represent a generic container which can be used to store:
+ *  1) Signature and signature length
+ *  2) Tag and tag length of AADD data
+ *  3) Hash and hash length
  */
-typedef struct __attribute__((packed))
+struct Tag 
 {   
-    unsigned short int  _tag_size{0};
-    unsigned char *     _tag{NULL};
-    
-    // DESCRIPTION: Setter
-    void setTag(unsigned char * tag); 
-    // DESCRIPTION: member structure
-    void serialize(unsigned char * to_ser_buf);
-    void deserialize(unsigned char * ser_buf);
-} Tag;
+    unsigned short int  _taglen;
+    unsigned char *     _tag;
 
-typedef struct __attribute__((packed))
+    // Setter
+    int setTag(unsigned char *tag, unsigned short int size);
+    // Member structure
+    int HtoN(unsigned char *data);
+    int NtoH(unsigned char *serialized_buf);
+    int NtoHtaglen(unsigned char *data);
+    int print();
+}__attribute__((packed));
+
+struct DHKey
 {
-    unsigned short int  _lenght{0};
-    unsigned char *     _cert{NULL};
+    unsigned int        _nonce; // Value computed as (g)^(a) mod p
+    unsigned short int  _dh_lenght;
+    unsigned char *     _dh_key;
 
-    // DESCRIPTION: Setter
-    void setCert(unsigned char * cert);
-    // DESCRIPTION: member structure
-    void serialize(unsigned char * to_ser_buf);
-    void deserialize(unsigned char * ser_buf);
-} Certificate;
+    // Member methods
+    size_t setDHKey(unsigned char *data);
+    int getDHKey();
+    int getSize();
+    // Member methods
+    size_t serialize(unsigned char *data);
+    size_t HtoN(unsigned char *data);
+    size_t NtoH(unsigned char *ser_data);
+    void print();
+}__attribute__((packed));
 
-typedef struct __attribute__((packed))
+struct Digest
 {
-    unsigned int        _nonce{0}; // NOTE: Value computed as (g)^(a) mod p
-    unsigned short int  _dh_lenght{0};
-    unsigned char *     _dh_key{NULL};
+    unsigned short int  _dig_size;
+    unsigned char *     _digest;
 
-    // DESCRIPTION: Setter
-    void setDHKey(unsigned char *dhkey);
-    // DESCRIPTION: member structure
+    // Setter
+    void setDigest(unsigned char *digest);
+    // Member structure
     void serialize(unsigned char *to_ser_buf);
     void deserialize(unsigned char *ser_buf);
-} DHKey;
+} __attribute__((packed));
 #endif

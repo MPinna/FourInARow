@@ -17,18 +17,21 @@
 #define DEFAULT_PEER_PORT   "11000" // Peer stands for receiver
 #define ADDRESS_LENGTH      (16 + 1)
 
-#define PEER_HELLO          0
-#define PEER_RESPONSE       1
-#define PLAYER_LIST         2
-#define CHALLENGE_REQUEST   3
-#define CHALLENGE_RESPONSE  4
-#define GAME_MOVE           5 
-#define GAME_END            6
-#define SERVER_HELLO        7
-#define SERVER_RESPONSE     8
-#define DH_PARAMS           9
-#define LIST_RESPONSE       10
-#define GAME_INFO           11
+
+#define CLIENT_HELLO        0
+#define CLIENT_RESPONSE     1
+#define PEER_HELLO          2
+#define PEER_RESPONSE       3
+#define PLAYER_LIST         4
+#define CHALLENGE_REQUEST   5
+#define CHALLENGE_RESPONSE  6
+#define GAME_MOVE           7 
+#define GAME_END            8
+#define SERVER_HELLO        9
+#define SERVER_RESPONSE     10
+#define DH_PARAMS           11
+#define LIST_RESPONSE       12
+#define GAME_INFO           13
 
 // DESCRIPTION crypto algorithm parameters
 #define DIGEST_256_LEN  32

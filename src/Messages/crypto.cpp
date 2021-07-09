@@ -1,31 +1,158 @@
 #include "../../include/Messages/crypto.hpp"
+#include <openssl/evp.h>
 
-void Signature::setSignature(unsigned char *signature)
+int 
+Tag::setTag(unsigned char *tag, unsigned short int size)
 {
-    this->_signature = new unsigned char[(strlen((char *)signature) + 1)];
-    memcpy(this->_signature, signature + '\0', strlen((char *)signature) + 1);
-    this->_sig_size = strlen((char *)signature) + 1;
+    if(!tag)
+    {
+        std::cerr << "Tag::setTag(): EMPTY Tag!";
+        return -1;
+    }
+    if(size > SIZE_MAX / sizeof(unsigned short int))
+    {
+        std::cerr << "Tag::setTag(): size overcame SIZE_MAX!";
+        return -1;
+    }
+    this->_tag = new unsigned char[size+1];
+    memcpy(this->_tag, tag + '\0', size+1);
+    this->_taglen = size;
+
+    return 1;
 }
 
-void Signature::serialize(unsigned char *to_ser_buf)
+int
+Tag::HtoN(unsigned char *data)
 {
     size_t pos{0};
-    uint16_t sig_size{htons(this->_sig_size)};
-
-    memcpy(to_ser_buf + pos, &sig_size, sizeof(uint16_t));
+    uint16_t tag_size{htons(this->_taglen)};
+    
+    memcpy(data, &tag_size, sizeof(uint16_t));
     pos += sizeof(uint16_t);
-    memcpy(to_ser_buf + pos, this->_signature, this->_sig_size);
+    memcpy(data + pos, this->_tag, this->_taglen);
+    pos += this->_taglen;
+
+    return pos;
 }
 
-void Signature::deserialize(unsigned char *ser_buf)
+int 
+Tag::NtoH(unsigned char *ser_buf)
 {
     size_t pos{0};
-    uint16_t sig_size{0};
+    uint16_t tag_size{0};
 
-    memcpy(&sig_size, ser_buf + pos, sizeof(uint16_t));
-    this->_sig_size = ntohs(sig_size);
+    memcpy(&tag_size, ser_buf + pos, sizeof(uint16_t));
+    this->_taglen = ntohs(tag_size);
     pos += sizeof(uint16_t);
-    this->setSignature(ser_buf + pos);
+    memcpy(this->_tag, ser_buf + pos, this->_taglen);
+    pos += this->_taglen;
+    
+    return pos;
+}
+
+int 
+Tag::NtoHtaglen(unsigned char *ser_buf)
+{
+    size_t pos{0};
+    uint16_t tag_size{0};
+
+    memcpy(&tag_size, ser_buf + pos, sizeof(uint16_t));
+    this->_taglen = ntohs(tag_size);
+    pos += sizeof(uint16_t);
+    
+    return pos;
+}
+
+int 
+Tag::print()
+{
+    assert(this->_taglen != 0);
+    if(!this->_tag)
+    {
+        std::cerr << "Tag::print() tag length = 0, tag not initialized yet";
+        return -1;
+    }
+    assert(!this->_tag);
+    if(!this->_tag)
+    {
+        std::cerr << "Tag::print() empty tag, cannot display output";
+        return -1;
+    }
+    std::cout << "Tag: " << std::endl;
+    BIO_dump_fp(stdout, (const char *)this->_tag, this->_taglen);
+    std::cout << "\nTag size: " << this->_taglen << std::endl;
+    return 1;
+}
+
+int
+DHKey::getSize()
+{
+    return (
+        sizeof(this->_nonce) +
+        sizeof(this->_dh_lenght) +
+        this->_dh_lenght
+    );
+}
+
+size_t
+DHKey::setDHKey(unsigned char *data)
+{
+    size_t size{strlen((char *)data)};
+    this->_dh_key = new unsigned char [(size + 1)];
+    memcpy(this->_dh_key, data + '\0', size + 1);
+    
+    return size;
+}
+
+size_t 
+DHKey::serialize(unsigned char *data)
+{
+    size_t pos{0};
+
+    memcpy(data, &this->_nonce, sizeof(uint32_t));
+    pos += sizeof(uint32_t);
+    memcpy(data + pos, &_dh_lenght, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    memcpy(data + pos, this->_dh_key, this->_dh_lenght);
+    pos += this->_dh_lenght;
+
+    return pos;
+}
+
+size_t 
+DHKey::HtoN(unsigned char *data)
+{
+    size_t pos{0};
+    uint32_t nonce{htonl(this->_nonce)};
+    uint16_t dh_lenght{htons(this->_dh_lenght)};
+
+    memcpy(data, &nonce, sizeof(uint32_t));
+    pos += sizeof(uint32_t);
+    memcpy(data + pos, &dh_lenght, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    memcpy(data + pos, this->_dh_key, this->_dh_lenght);
+    pos += this->_dh_lenght;
+
+    return pos;
+}
+
+size_t 
+DHKey::NtoH(unsigned char *ser_data)
+{
+    size_t pos{0};
+    uint32_t nonce{0};
+    uint16_t dh_lenght{0};
+
+    memcpy(&nonce, ser_data, sizeof(uint32_t));
+    this->_nonce = ntohl(nonce);
+    pos += sizeof(uint32_t);
+    memcpy(&dh_lenght, ser_data + pos, sizeof(uint16_t));
+    this->_dh_lenght = ntohs(dh_lenght);
+    pos += sizeof(uint16_t);
+    this->setDHKey(ser_data + pos);
+    pos += this->_dh_lenght;
+
+    return pos;
 }
 
 void Digest::setDigest(unsigned char *digest)
@@ -56,104 +183,4 @@ void Digest::deserialize(unsigned char *ser_buf)
     pos += sizeof(uint16_t);
     this->setDigest(ser_buf + pos);
     pos += this->_dig_size;
-}
-
-void
-Tag::setTag(unsigned char *tag)
-{
-    this->_tag = new unsigned char[(strlen((char *)tag + 1))];
-    memcpy(this->_tag, tag + '\0', strlen((char *)tag+1));
-    this->_tag_size = strlen((char *)tag) + 1;
-}
-
-void
-Tag::serialize(unsigned char *to_ser)
-{
-    short int pos{0};
-    uint16_t tag_size{htons(this->_tag_size)};
-
-    memcpy(to_ser, &tag_size, sizeof(uint16_t));
-    pos += sizeof(uint16_t);
-    memcpy(to_ser + pos, this->_tag, this->_tag_size);
-}
-
-void
-Tag::deserialize(unsigned char *ser_buf)
-{
-    short int pos{0};
-    uint16_t tag_size;
-
-    memcpy(&tag_size, ser_buf, sizeof(uint16_t));
-    this->_tag_size = ntohs(tag_size);
-    pos += sizeof(uint16_t);
-    this->setTag(ser_buf + pos);
-}
-
-void
-Certificate::setCert(unsigned char * cert)
-{   // TOCHECK check if in this case you can assign length this way
-    this->_cert = new unsigned char[(strlen((char *)cert+1))];
-    memcpy(this->_cert, cert, strlen((char *)cert+1));
-    this->_lenght = strlen((char *)cert) + 1;
-}
-
-void
-Certificate::serialize(unsigned char * to_ser)
-{
-    short int pos{0};
-    uint16_t lenght{htons(this->_lenght)};
-
-    memcpy(to_ser, &lenght, sizeof(uint16_t));
-    pos += sizeof(uint16_t);
-    memcpy(to_ser + pos, this->_cert, this->_lenght);
-}
-
-void
-Certificate::deserialize(unsigned char *ser_buf)
-{
-    short int pos{0};
-    uint16_t lenght{0};
-
-    memcpy(&lenght, ser_buf, sizeof(uint16_t));
-    this->_lenght = ntohs(lenght);
-    pos += sizeof(uint16_t);
-    this->setCert(ser_buf + pos);
-}
-
-void 
-DHKey::setDHKey(unsigned char *dhkey)
-{
-    this->_dh_key = new unsigned char [(strlen((char *)dhkey) + 1)];
-    memcpy(this->_dh_key, dhkey + '\0', strlen((char *)dhkey) + 1);
-    this->_dh_lenght = strlen((char *)dhkey) + 1;
-}
-
-void 
-DHKey::serialize(unsigned char *to_ser)
-{
-    unsigned short int pos{0};
-    uint16_t dh_lenght{htons(this->_dh_lenght)};
-    uint32_t nonce{htonl(this->_nonce)};
-
-    memcpy(to_ser, &nonce, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-    memcpy(to_ser + pos, &dh_lenght, sizeof(uint16_t));
-    pos += sizeof(uint16_t);
-    memcpy(to_ser + pos, this->_dh_key, this->_dh_lenght);
-}
-
-void 
-DHKey::deserialize(unsigned char *ser_buf)
-{
-    unsigned short int pos{0};
-    uint16_t dh_lenght{0};
-    uint32_t nonce{0};
-
-    memcpy(&nonce, ser_buf, sizeof(uint32_t));
-    this->_nonce = ntohl(nonce);
-    pos += sizeof(uint32_t);
-    memcpy(&dh_lenght, ser_buf + pos, sizeof(uint16_t));
-    this->_dh_lenght = ntohs(dh_lenght);
-    pos += sizeof(uint16_t);
-    this->setDHKey(ser_buf + pos);
 }

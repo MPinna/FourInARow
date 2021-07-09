@@ -5,20 +5,61 @@
 #include "../../include/Messages/packet.hpp"
 #include "../../include/Messages/crypto.hpp"
 
-Header::Header()
+size_t
+Header::HtoN(unsigned char *buf)
 {
-    _type = 0;
-    _counter = 0;
-    _payload_size = 0;
+    size_t pos{0};
+    uint16_t type{htons(_type)};
+    uint32_t count{htonl(_counter)};
+    uint16_t psize{htons(_payload_size)};
+
+    memcpy(buf, &type, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    memcpy(buf + pos, &count, sizeof(uint32_t));
+    pos += sizeof(uint32_t);
+    memcpy(buf + pos, &psize, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+
+    return pos;
+} 
+
+size_t
+Header::serialize(unsigned char *buf)
+{
+    size_t pos{0};
+    memcpy(buf, &_type, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+    memcpy(buf + pos, &_counter, sizeof(uint32_t));
+    pos += sizeof(uint32_t);
+    memcpy(buf + pos, &_payload_size, sizeof(uint16_t));
+    pos += sizeof(uint16_t);
+
+    return pos;
 }
 
-Header::~Header()
+size_t 
+Header::NtoH(unsigned char *header_buf)
 {
+    short int pos{0};
+    uint16_t dtype{0};
+    uint32_t dcount{0};
+    uint16_t dpsize{0};
+
+    memcpy(&dtype, header_buf, sizeof(uint16_t));
+    this->_type = (ntohs(dtype));
+    pos += sizeof(uint16_t);
+    memcpy(&dcount, header_buf + pos, sizeof(uint32_t));
+    this->_counter = (ntohl(dcount));
+    pos += sizeof(uint32_t);
+    memcpy(&dpsize, header_buf + pos, sizeof(uint16_t));
+    this->_payload_size = (ntohs(dpsize));
+    pos += sizeof(uint16_t);
+
+    return pos;
 }
 
-// DESCRIPTION: Constructor
 Packet::Packet()
-    : _payload{NULL}
+    : header{0,0,0}, _payload{NULL} 
 {
 }
 
@@ -30,31 +71,43 @@ Packet::~Packet()
  * DESCRIPTION
  * Member class of Packet structure
  */
-void
+int 
 Packet::setType(unsigned short int type)
 {
+    if(type > SIZE_MAX / sizeof(unsigned short int))
+    {
+        std::cerr << "Packet::setType: SIZE_MAX overcame";
+        return -1;
+    }
     this->header._type = type;
+    return type;
 }
 
-void
-Packet::initCounter()
+int
+Packet::setPayloadSize(size_t size)
 {
-    this->header._counter = 0;
+    if(size > SIZE_MAX / sizeof(size_t))
+    {
+        std::cerr << "Packet::setPayloadSize(): SIZE_MAX overcame";
+        return -1;
+    }
+    this->header._payload_size = size;
+    return 1;
 }
 
-void
-Packet::incrCounter()
+int 
+Packet::setPayload(unsigned char *data, size_t size)
 {
-    this->header._counter++;
-}
-
-void 
-Packet::setPayload(unsigned char *data)
-{
-    size_t size{strlen((char *)data)};
-    this->_payload = new unsigned char[(size + 1)];
+    if(size > SIZE_MAX / sizeof(unsigned short int))
+    {
+        std::cerr << "Packet::setPayload(): SIZE_MAX overcame";
+        return -1;
+    }
+    this->_payload = new unsigned char[(size) + 1];
     memcpy(this->_payload, data + '\0', size + 1);
-    this->header._payload_size = size + 1;
+    this->header._payload_size = size;
+
+    return size;
 }
 
 unsigned short int
@@ -75,31 +128,49 @@ Packet::getPayloadSize()
     return this->header._payload_size;
 }
 
+unsigned short int
+Packet::getHeaderSize()
+{
+    return sizeof(struct Header);
+}
+
 unsigned char *
 Packet::getPayload()
 {
     return this->_payload;
 }
 
-int
-Packet::initPacket(size_t type)
+int 
+Packet::initCounter()
 {
-    int _ret_code{-1};
-    this->setType(type);
-    assert(this->header._type > 0 || this->header._type < 11);
-    if(this->header._type < 0 || this->header._type > 11)
+    unsigned int seed;
+    FILE *urnd;
+    urnd = fopen("/dev/urandom", "rb");
+    if(!urnd)
     {
-        std::cerr << "Packet::initPacket() Unknown type";
+        std::cerr << "Header::Header::fopen() failed!" << std::endl;
         return -1;
     }
-    this->initCounter();
-    assert(this->header._counter == 0);
-    if(this->header._counter != 0)
+    if((fread(&seed, 1, sizeof(seed), urnd)) != sizeof(seed))
     {
-        std::cerr << "Packet::initPacket() Unknown type";
+        std::cerr << "Header::Header::fread() failed!" << std::endl;
         return -1;
     }
+    fclose(urnd);
+    srand(seed);
+    this->header._counter = rand();
+    return 1;
+}
 
+int
+Packet::incCounter()
+{
+    if(this->header._counter == UINT_MAX)
+    {
+        std::cerr << "Packet::incCounter() UINT_MAX reached";
+        return -1;
+    }
+    this->header._counter++;
     return 1;
 }
 
@@ -117,6 +188,8 @@ Packet::reallocPayload(unsigned char *data)
         }
         memset(this->_payload, 0, 1);
         this->header._payload_size = 0;
+        
+        return this->header._payload_size;
     }
     else
     {
@@ -128,57 +201,137 @@ Packet::reallocPayload(unsigned char *data)
         }
         memcpy(this->_payload, data + '\0', size + 1);
         this->header._payload_size = size + 1;
+        
+        return this->header._payload_size;
     }
 
-    return 1;
+    return -1;
+}
+
+/**
+ * @param: packet_buf
+ * @return: pos
+ * DESCRIPTION: the function serialize the packet according to ntoh format and return the position of the buffer, so that the htonESPPacket can continue from this point 
+ */
+size_t
+Packet::htonPacket(unsigned char *packet_buf)
+{   
+    size_t pos{0};
+
+    pos = this->header.HtoN(packet_buf);
+    memcpy(packet_buf + pos, this->_payload, this->header._payload_size);
+    pos += this->header._payload_size;
+
+    return pos;
+}
+
+int
+Packet::ntohPayload(unsigned char *ser_data)
+{
+    return 0;
 }
 
 size_t
-Packet::serialize(unsigned char **buf)
+Packet::serialize(unsigned char **packet_buf)
 {
-    uint16_t type{htons(this->header._type)};
-    uint32_t count{htonl(this->header._counter)};
-    uint16_t psize{htons(this->header._payload_size)};
+    size_t packet_size{sizeof(struct Header) + this->header._payload_size};
+    *packet_buf = new unsigned char[packet_size];
     size_t pos{0};
-    size_t buf_size{sizeof(struct Header) + this->getPayloadSize()};
-    *buf = new unsigned char[buf_size];
+    pos = this->header.serialize(*packet_buf);
+    memcpy(*packet_buf + pos, this->_payload, this->header._payload_size);
+    pos += this->header._payload_size;
+    
+    return packet_size;
+}
 
-    memcpy(*buf, &type, sizeof(uint16_t));
-    pos += sizeof(uint16_t);
-    memcpy(*buf + pos, &count, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-    memcpy(*buf + pos, &psize, sizeof(uint16_t));
-    pos += sizeof(uint16_t);
-    memcpy(*buf + pos, this->_payload, this->header._payload_size);
-
-    return buf_size;
+size_t
+Packet::ntohHeader(unsigned char *ser_data)
+{
+    return this->header.NtoH(ser_data);
 }
 
 void 
-Packet::deserializeHeader(unsigned char *ser_buf)
-{
-    short int pos{0};
-    uint16_t dtype{0};
-    uint32_t dcount{0};
-    uint16_t dpsize{0};
-
-    memcpy(&dtype, ser_buf, sizeof(uint16_t));
-    this->header._type = (ntohs(dtype));
-    pos += sizeof(uint16_t);
-    memcpy(&dcount, ser_buf + pos, sizeof(uint32_t));
-    this->header._counter = (ntohl(dcount));
-    pos += sizeof(uint32_t);
-    memcpy(&dpsize, ser_buf + pos, sizeof(uint16_t));
-    this->header._payload_size = (ntohs(dpsize));
-}
-
-void
 Packet::print()
 {
-    std::cout <<
-        "\nType:        " << this->header._type <<
-        "\nCounter:     " << this->header._counter <<
-        "\nPayload Size:" << this->header._payload_size << 
-        "\nPayload:     " << this->_payload <<
-    std::endl;
+    std::cout << 
+        "\nType:        " << this->header._type << 
+        "\nCounter:     " << this->header._counter << 
+        "\nPayload Size:" << this->header._payload_size <<
+        "\nPayload:     " << this->_payload // TODO cancel this line
+    << std::endl;
+}
+
+ESP::ESP()
+    : tag{0, NULL} 
+{}
+
+ESP::~ESP() 
+{}
+
+unsigned short int
+ESP::getTaglen()
+{
+    if(this->tag._taglen > USHRT_MAX)
+    {
+        std::cerr << "AuthPacket::getSigLen() USHRT_MAX";
+        return 0;
+    }
+    return this->tag._taglen;
+}
+
+unsigned char *
+ESP::getTag()
+{
+    assert(!this->tag._tag);
+    return this->tag._tag;
+}
+
+int 
+ESP::setTag(unsigned char *signature, unsigned short int size)
+{
+    return this->tag.setTag(signature, size);
+}
+
+size_t
+ESP::getESPPacketSize()
+{
+    return 
+        this->getHeaderSize() + 
+        this->getPayloadSize() + 
+        sizeof(this->tag._taglen) + 
+        this->tag._taglen;
+}
+
+/**
+ * @param: authpacket_buf
+ * @return: packet_size
+ * DESCRIPTION: The function serialize the ESP according to ntoh format and return the entire packet size 
+ */
+size_t
+ESP::HtoN(unsigned char **authpacket_buf)
+{
+    size_t pos{0};
+
+    *authpacket_buf = new unsigned char[this->getESPPacketSize()];
+    pos = this->htonPacket(*authpacket_buf + pos);
+    pos = this->tag.HtoN(*authpacket_buf + pos); 
+    return this->getESPPacketSize();
+}
+
+size_t
+ESP::ntohESPPacket(unsigned char *ser_data)
+{
+    return this->tag.NtoH(ser_data);
+}
+
+size_t
+ESP::ntohTaglen(unsigned char *ser_data)
+{
+    return this->tag.NtoHtaglen(ser_data);
+}
+
+int
+ESP::print()
+{
+    return this->tag.print();
 }

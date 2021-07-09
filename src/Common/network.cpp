@@ -230,12 +230,11 @@ ReadNBytes(int socket, void *buf, std::size_t N)
 int 
 PacketSend(int send_sockfd, Packet *packet)
 {
-	// TODO how to manage the type (pass here by value?)
-	packet->incrCounter();
+	packet->incCounter();
 	int _ret_code{-1};
 	size_t _buf_size = sizeof(struct Header) + packet->getPayloadSize();
 	unsigned char *_buf = new unsigned char[_buf_size];
-	packet->serialize(&_buf);
+	packet->htonPacket(_buf);
 	_ret_code = SockSendTo(send_sockfd, _buf, _buf_size);
 	if (_ret_code < 0)
 	{
@@ -257,7 +256,7 @@ PacketReceive(int sockfd, Packet *packet, int type)
     memset(header, 0, sizeof(struct Header) + 1);
     header[sizeof(struct Header) + 1] = '\0';
     int nbytes = ReadNBytes(sockfd, header, sizeof(struct Header));
-	// SECTION receive header
+	// Receive header
     if (nbytes <= 0)
     {
         if (nbytes == 0)
@@ -268,14 +267,14 @@ PacketReceive(int sockfd, Packet *packet, int type)
         _ret_code = SockClose(sockfd); // bye!
         if (_ret_code < 0)
             std::cout << " <== PacketReceive()";
-	
+
         delete[] header;
 		return -1;
     }
     else
-        packet->deserializeHeader(header); 
-    
-	// SECTION receive payload
+		size_t pos = packet->ntohHeader(header);
+
+	// Receive payload
 	assert(packet->getPayloadSize() >= 0);
 	if(packet->getPayloadSize() == 0)
 	{
@@ -299,11 +298,11 @@ PacketReceive(int sockfd, Packet *packet, int type)
 			delete[] header;
 			return -1;
 		}
-		else // TODO at this stage you need to open the switch case and call the right deserialize method
+		// TODO: how to manage different packet type?
+		else
 			packet->reallocPayload(payload);
 
 		delete[] header;
-		delete[] payload;
 	}
     
 	return 1;
