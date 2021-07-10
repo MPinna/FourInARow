@@ -22,6 +22,15 @@ Tag::setTag(unsigned char *tag, unsigned short int size)
 }
 
 int
+Tag::getSize()
+{
+    return (
+        sizeof(this->_taglen) + 
+        this->_taglen
+    );
+}
+
+int
 Tag::HtoN(unsigned char *data)
 {
     size_t pos{0};

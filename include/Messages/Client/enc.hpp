@@ -16,9 +16,10 @@ struct PlayerList
     // TOCHECK if you can send this packet even without randomness field
     unsigned char   _randomness[RANDOMNESS_LENGTH_16];
 
+    // Setter 
     // TODO function to set N bytes at random in a string
     int setRandomness();
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -28,9 +29,9 @@ struct PlayerList
  struct ChallengeRequest
 {
     unsigned char   _opp_username[USERNAME_LENGHT_16];
-
+    // Setter 
     int setUsername(const char *user);
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -41,7 +42,7 @@ struct ChallengeResponse
 {
     unsigned short int _answer;
 
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -54,8 +55,9 @@ struct GameMove
     unsigned char       _randomness[RANDOMNESS_LENGTH_16];
 
     // TODO
+    // Setter
     int setRandomness();
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -69,8 +71,9 @@ struct GameMove
     unsigned char       _randomness[RANDOMNESS_LENGTH_16];
 
     // TODO
+    // Setter
     int setRandomness();
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);

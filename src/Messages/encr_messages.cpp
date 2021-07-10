@@ -6,7 +6,6 @@
  * SECTION
  * Client encrypted messages
  */
-
 // TODO setRandomness
 int 
 PlayerList::setRandomness()
@@ -326,6 +325,112 @@ ClientList::NtoH(unsigned char *ser_buf)
         pos += sizeof(uint16_t);
         this->users.push_back(tmp);
     }
+
+    return pos;
+}
+
+int
+GameInfo::setIPAddr(char *ipaddr)
+{
+    if(strlen(ipaddr) > ADDRESS_LENGTH - 1)
+    {
+        std::cerr << "GameInfo::setIPAddr(): ipaddr length not valid! Maximu length is: " << ADDRESS_LENGTH;
+        return -1;
+    }
+    memcpy(this->_ipaddr, ipaddr, ADDRESS_LENGTH);
+    this->_ipaddr[ADDRESS_LENGTH] = '\0';
+    return 1;
+}
+
+int
+GameInfo::setPeerPort(unsigned int port)
+{
+    if(port > SIZE_MAX / sizeof(unsigned int))
+    {
+        std::cerr << "GameInfo::setPeerPort() error: SIZE_MAX overflow";
+        return -1;
+    }
+    this->_peer_port = port;
+    return 1;
+}
+
+size_t
+GameInfo::setOppPubkey(unsigned char *pubkey)
+{
+    size_t size{strlen((char *)pubkey)};
+    this->_opp_pubkey = new unsigned char[size + 1];
+    memcpy(this->_opp_pubkey, pubkey + '\0', size + 1);
+    this->_pubkey_size = size;
+    return size;
+}
+
+int
+GameInfo::getSize()
+{
+    return (
+        ADDRESS_LENGTH +
+        sizeof(this->_peer_port) +
+        sizeof(this->_pubkey_size) +
+        sizeof(_opp_pubkey)
+    );
+}
+
+size_t
+GameInfo::serialize(unsigned char **data)
+{
+    size_t pos{0}, size{this->getSize()};
+    *data = new unsigned char[size];
+
+    memcpy(*data, this->_ipaddr, ADDRESS_LENGTH);
+    pos += ADDRESS_LENGTH;
+    memcpy(*data + pos, &this->_peer_port, sizeof(this->_peer_port));
+    pos += sizeof(this->_peer_port);
+    memcpy(*data + pos, &this->_pubkey_size, sizeof(this->_pubkey_size));
+    pos += sizeof(this->_pubkey_size);
+    memcpy(*data + pos, this->_opp_pubkey, this->_pubkey_size);
+    pos += this->_pubkey_size;
+
+    return size;
+}
+
+size_t
+GameInfo::HtoN(unsigned char **data)
+{
+    size_t pos{0}, size{this->getSize()};
+    *data = new unsigned char[size];
+    uint16_t peer_port{htons(this->_peer_port)};
+    uint32_t pubkey_size{htonl(this->_pubkey_size)};
+
+    memcpy(*data, this->_ipaddr, ADDRESS_LENGTH);
+    pos += ADDRESS_LENGTH;
+    memcpy(*data + pos, &peer_port, sizeof(peer_port));
+    pos += sizeof(peer_port);
+    memcpy(*data + pos, &pubkey_size, sizeof(pubkey_size));
+    pos += sizeof(pubkey_size);
+    memcpy(*data + pos, this->_opp_pubkey, this->_pubkey_size);
+    pos += this->_pubkey_size;
+
+    return size;
+}
+
+size_t
+GameInfo::NtoH(unsigned char *ser_data)
+{
+    size_t pos{0};
+    uint16_t peer_port{0};
+    uint32_t pubkey_size{0};
+
+    memcpy(this->_ipaddr, ser_data, ADDRESS_LENGTH);
+    this->_ipaddr[ADDRESS_LENGTH] = '\0';
+    pos += ADDRESS_LENGTH;
+    memcpy(&peer_port, ser_data + pos, sizeof(peer_port));
+    this->_peer_port = ntohs(peer_port);
+    pos += sizeof(peer_port);
+    memcpy(&_pubkey_size, ser_data + pos, sizeof(pubkey_size));
+    this->_pubkey_size = ntohl(pubkey_size);
+    pos += sizeof(pubkey_size);
+    memcpy(this->_opp_pubkey, ser_data + pos, this->_pubkey_size);
+    pos += this->_pubkey_size;
 
     return pos;
 }

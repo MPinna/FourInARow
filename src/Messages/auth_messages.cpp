@@ -1,5 +1,5 @@
 /** DESCRIPTION:
- * This file it is used to implement serialization / deserialization class member for all used messages (both for client side and server side)
+ * This file it is used to implement serialization / deserialization class member and other utils functionalities related to each struct for authentication messages only (both for client side and server side)
  */
 #include "../../include/Messages/Client/auth.hpp"
 #include "../../include/Messages/Server/auth.hpp"

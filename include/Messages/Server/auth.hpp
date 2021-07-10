@@ -28,10 +28,10 @@ struct ServerResponse
     unsigned int    _dh_param_g;
     DHKey           dh_key;
 
-    // DESCRIPTION: Member methods
+    // Getter
     int getType();
     int getSize(); // TOCHECK
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -43,10 +43,10 @@ struct Confirmation
 {
     bool authenticated;
     
-    // DESCRIPTION: Member methods
+    // Getter
     int getType();
     int getSize(); 
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);

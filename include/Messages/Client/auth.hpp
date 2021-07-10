@@ -22,11 +22,11 @@ struct ClientChallenge
     unsigned short int  _port_number;
     unsigned int        _nonce;
 
-    // DESCRIPTION: Setter / Getter
+    // Setter / Getter
     int setUsername(const char *user);
     int getType();
     int getSize();
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -43,10 +43,10 @@ struct ClientResponse
     unsigned int    _opp_nonce;
     DHKey           dh_key;
 
-    // DESCRIPTION: Member methods
+    // Member methods
     int getType();
     int getSize();
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -63,10 +63,10 @@ struct ChallengeRequest
     unsigned int    _opp_nonce;
     DHKey           dh_key;
 
-    // DESCRIPTION: Member methods
+    // Member methods
     int getType();
     int getSize(); // TOCHECK
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -79,10 +79,10 @@ struct ChallengeResponse
     short int       _signal; // used to accept or decline challenge between two player
     DHKey           dh_key;
 
-    // DESCRIPTION: Member methods
+    // Member methods
     int getType();
     int getSize(); // TOCHECK
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);

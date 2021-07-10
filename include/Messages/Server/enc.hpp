@@ -18,8 +18,9 @@ struct ClientList
     unsigned short int _n_of_elem{0};
     std::vector<User>  users;
 
+    // setter
     void addUser(char *name);
-    // DESCRIPTION: Member methods
+    // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -28,14 +29,20 @@ struct ClientList
 
 struct GameInfo 
 {
-    unsigned char       _ipaddr[ADDRESS_LENGTH];
-    unsigned short int  _peer_port{0};
-    unsigned short int  _pubkey_size{0};
-    unsigned char       _opp_pubkey{NULL};
-    Tag                 tag;
+    char                _ipaddr[ADDRESS_LENGTH];
+    unsigned int        _peer_port;
+    unsigned short int  _pubkey_size;
+    unsigned char *     _opp_pubkey;
     
-    // DESCRIPTION: Member methods
-    void serialize(unsigned char *to_ser_buf);
-    void deserialize(unsigned char *ser_buf);
+    // Setter / Getter
+    int setIPAddr(char *ipaddr);
+    int setPeerPort(unsigned int port);
+    size_t setOppPubkey(unsigned char *pubkey);
+    int getSize();
+    // Member methods
+    size_t serialize(unsigned char **data);
+    size_t HtoN(unsigned char **data);
+    size_t NtoH(unsigned char *ser_buf);
+    void print();
 }__attribute__((packed));
 #endif
