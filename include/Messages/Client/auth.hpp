@@ -12,11 +12,11 @@
 // TODO ClientHello -> Just a message to present itself to the server
 
 /**
- * DESCRIPTION: the ClientChallenge structure it is used for:
+ * DESCRIPTION: the ClientHello structure it is used for:
  *  - Exchange hello message for client - server communication
  *  - Exchange hello message for peer-to-peer communication
  */
-struct ClientChallenge
+struct ClientHello
 {
     unsigned char       _username[USERNAME_LENGHT_16];
     unsigned short int  _port_number;
@@ -34,7 +34,7 @@ struct ClientChallenge
 }__attribute__((packed));
 
 /**
- * DESCRIPTION: the ClientChallenge structure it is used for:
+ * DESCRIPTION: the ClientHello structure it is used for:
  *  - Response message for client - server communication
  *  - Response message for peer-to-peer communication
  */
@@ -54,7 +54,7 @@ struct ClientResponse
 }__attribute__((packed));
 
 /**
- * DESCRIPTION: the ClientChallenge structure it is used for:
+ * DESCRIPTION: the ClientHello structure it is used for:
  *  - Challenge - Response phase between two peers
  */
 struct ChallengeRequest

@@ -10,7 +10,7 @@
  * Client authentication messages 
  */
 int
-ClientChallenge::setUsername(const char *user)
+ClientHello::setUsername(const char *user)
 {   
     if(strlen(user) > 16)
     {
@@ -23,22 +23,22 @@ ClientChallenge::setUsername(const char *user)
 }
 
 int
-ClientChallenge::getType()
+ClientHello::getType()
 {
     return PEER_HELLO;
 }
 
 int
-ClientChallenge::getSize()
+ClientHello::getSize()
 {
-    return sizeof(struct ClientChallenge);
+    return sizeof(struct ClientHello);
 }
 
 size_t
-ClientChallenge::serialize(unsigned char **data)
+ClientHello::serialize(unsigned char **data)
 {
     unsigned short int pos{0};
-    size_t size{sizeof(struct ClientChallenge)};
+    size_t size{sizeof(struct ClientHello)};
     *data = new unsigned char[size];
 
     memcpy(*data, this->_username, USERNAME_LENGHT_16);
@@ -52,12 +52,12 @@ ClientChallenge::serialize(unsigned char **data)
 }
 
 size_t
-ClientChallenge::HtoN(unsigned char ** to_ser)
+ClientHello::HtoN(unsigned char ** to_ser)
 {
     uint16_t port_num{htons(this->_port_number)};
     uint32_t nonce{htonl(this->_nonce)};
     unsigned short int pos{0};
-    size_t size{sizeof(struct ClientChallenge)};
+    size_t size{sizeof(struct ClientHello)};
     *to_ser = new unsigned char[size];
 
     memcpy(*to_ser + pos, this->_username, USERNAME_LENGHT_16);
@@ -71,7 +71,7 @@ ClientChallenge::HtoN(unsigned char ** to_ser)
 }
 
 size_t
-ClientChallenge::NtoH(unsigned char *ser_buf)
+ClientHello::NtoH(unsigned char *ser_buf)
 {
     size_t pos{0};
     uint16_t port_num{0};
@@ -90,7 +90,7 @@ ClientChallenge::NtoH(unsigned char *ser_buf)
 }
 
 void
-ClientChallenge::print()
+ClientHello::print()
 {
     std::cout << 
         "Username:    "   << this->_username <<
