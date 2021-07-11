@@ -248,6 +248,27 @@ PacketSend(int send_sockfd, Packet *packet)
 	}
 }
 
+int 
+ESPPacketSend(int send_sockfd, ESP *packet)
+{
+	int _ret_code{-1};
+	packet->incCounter();
+	size_t _buf_size = packet->getESPPacketSize();
+	unsigned char *_buf;
+	packet->HtoN(&_buf);
+	_ret_code = SockSendTo(send_sockfd, _buf, _buf_size);
+	if (_ret_code < 0)
+	{
+		std::cerr << " <== PacketSend()";
+		return -1;
+	}
+	else
+	{
+		delete[] _buf;
+		return 1;
+	}
+}
+
 int
 PacketReceive(int sockfd, Packet *packet, int type)
 {
@@ -305,6 +326,80 @@ PacketReceive(int sockfd, Packet *packet, int type)
 		delete[] header;
 	}
     
+	return 1;
+}
+
+int
+ESPPacketReceive(int sockfd, ESP *packet, int type)
+{
+	int _ret_code{-1}, _size_code{0};
+	unsigned char *header = new unsigned char[sizeof(struct Header) + 1];
+    memset(header, 0, sizeof(struct Header) + 1);
+    header[sizeof(struct Header) + 1] = '\0';
+    int nbytes = ReadNBytes(sockfd, header, sizeof(struct Header));
+	// Receive header
+    if (nbytes <= 0)
+    {
+        if (nbytes == 0)
+            std::cerr << " <== ESPPacketReceive(): Empty Header!";
+        else
+            std::cerr << " <== ESPPacketReceive(rec_header)";
+
+        _ret_code = SockClose(sockfd); // bye!
+        if (_ret_code < 0)
+            std::cout << " <== ESPPacketReceive()";
+
+        delete[] header;
+		return -1;
+    }
+    else
+		packet->ntohHeader(header);
+
+	// Receive payload
+	assert(packet->getPayloadSize() >= 0);
+	if(packet->getPayloadSize() == 0)
+	{
+		std::cout << "\nClose Signal received" << std::endl;
+		std::cout << "Peer: " << sockfd << " disconnected" << std::endl;
+		delete[] header;
+		return 0;
+	}
+	else if(packet->getPayloadSize() > 0)
+	{
+		unsigned char *payload = new unsigned char[packet->getPayloadSize()+1];
+		payload[packet->getPayloadSize()+1] = '\0';
+		nbytes = ReadNBytes(sockfd, payload, packet->getPayloadSize());
+		if (nbytes <= 0)
+		{
+			if (nbytes == 0)
+				std::cerr << " <== ESPPacketReceive(): Empty payload";
+			else
+				std::cout << " <== ESPPacketReceive(rec_payload) failed" << std::endl;
+			delete[] payload;
+			delete[] header;
+			return -1;
+		}
+		else
+			packet->setPayload(payload, packet->getPayloadSize());
+
+		delete[] header;
+	}
+	// Receive Payload
+	unsigned char tag_buf[sizeof(uint16_t)+1];
+	nbytes = ReadNBytes(sockfd, tag_buf, sizeof(uint16_t));
+	if (nbytes <= 0)
+	{
+		if (nbytes == 0)
+			std::cerr << " <== ESPPacketReceive(): Empty tag";
+		else
+			std::cout << " <== ESPPacketReceive(rec_tag) failed" << std::endl;
+		delete[] tag_buf;
+		delete[] header;
+		return -1;
+	}
+	else // TODO: i'm here
+		packet->ntohTaglen(tag_buf);
+
 	return 1;
 }
 
