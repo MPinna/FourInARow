@@ -18,17 +18,20 @@
 #define ADDRESS_LENGTH      (16 + 1)
 
 
+// DESCRIPTION: Auth messages
 #define CLIENT_HELLO        0
-#define CLIENT_RESPONSE     1
-#define PEER_HELLO          2
-#define PEER_RESPONSE       3
-#define PLAYER_LIST         4
-#define CHALLENGE_REQUEST   5
-#define CHALLENGE_RESPONSE  6
-#define GAME_MOVE           7 
-#define GAME_END            8
-#define SERVER_HELLO        9
-#define SERVER_RESPONSE     10
+#define SERVER_HELLO        1
+#define SERVER_CHALLENGE    2
+#define CLIENT_RESPONSE     3
+#define SERVER_CONFIRMATION 4
+
+// DESCRIPTION: ADAE (Authenticated data authenticated encryption) messages 
+#define PEER_HELLO          5
+#define PEER_RESPONSE       6
+#define PLAYER_LIST         7
+#define CHALLENGE_RESPONSE  8
+#define GAME_MOVE           9 
+#define GAME_END            10
 #define DH_PARAMS           11
 #define LIST_RESPONSE       12
 #define GAME_INFO           13
