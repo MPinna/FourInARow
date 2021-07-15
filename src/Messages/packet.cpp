@@ -67,6 +67,15 @@ Packet::~Packet()
 {
 }
 
+void
+Packet::reset()
+{
+    this->header._type = 0;
+    this->header._counter = 0;
+    this->header._payload_size = 0;
+    this->_payload = NULL;
+}
+
 /**
  * DESCRIPTION
  * Member class of Packet structure

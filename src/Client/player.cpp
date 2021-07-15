@@ -8,20 +8,26 @@
  *  - Play a four-in-a-row game
  *  - Init a board
  */
+#include "../../include/Utils/structures.hpp"
 #include "../../include/Messages/packet.hpp"
 #include "../../include/Client/slave.hpp"
+#include <openssl/evp.h>
+
 #include <chrono>
 
 int rval{0};
 int main()
 {
+    GameInfo gameinfo;
+    gameinfo.username.append("Player2");
     Slave *client = new Slave();
     Packet *packet = new Packet();
     short int _ret_code{-1};
     
 
     /** 
-     * SECTION_START: Create socket, get server info and connect
+     * SECTION_START: 
+     * Create socket, get server info and connect
      */
     _ret_code = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
     if(_ret_code < 0)
@@ -32,37 +38,23 @@ int main()
     else
     {
         _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
-        if(_ret_code < 0)
+        if (_ret_code < 0)
         {
-            std::cerr << " <== main::player(PacketReceive)";
+            std::cerr << " <== main()";
             exit(1);
         }
-        else
-            packet->print();
+        packet->print();
     }
-    /**
-     * SECTION_END
-     */
+    // SECTION_END
 
     /**
      * SECTION_START
-     * send packet / wait for response
-     */
-    packet->reallocPayload((unsigned char *)"Just a message");
-    _ret_code = PacketSend(client->GetClientfd(), packet);
-    if(_ret_code < 0)
-    {
-        std::cerr << " <== main::player(PacketSend)"; 
-        exit(1);
-    }
-    _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
-    if(_ret_code < 0)
-    {
-        std::cerr << " <== main::player(PacketReceive)";
-        exit(1);
-    }
-    else
-        packet->print();
+     * Authentication phase
+     * TODO: send signed message
+     * challenge - response
+    */
+
+
     // SECTION_END    
 
     /**
@@ -108,15 +100,13 @@ int main()
     _ret_code = PacketSend(client->GetClientfd(), packet);
     if(_ret_code < 0)
     {
-        std::cerr << " <== main::player(PacketSend)";
+        std::cerr << " <== main()::PacketSend() failed to send close connection signal";
         exit(1);
     }
-    std::cout << "main()::I'm here 1" << std::endl;
     _ret_code = PacketReceive(client->GetClientfd(), packet, 0); 
-    std::cout << "main()::I'm here 1" << std::endl;
     if(_ret_code < 0)
     {
-        std::cerr << " <== main::player(PacketReceive)"; 
+        std::cerr << " <== main()::PacketReceive() failed to receive close connection signal"; 
         exit(1);
     }
     else

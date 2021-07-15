@@ -9,19 +9,10 @@
  */
 #include "../../libs/OpensslDS/include/digitalSignature.hpp"
 #include "../../include/Connection/network.hpp"
+#include "../../include/Utils/structures.hpp"
 #include "../../include/Messages/packet.hpp"
 #include "../../include/Server/master.hpp"
 #include <vector>
-
-struct ClientInfo
-{
-    unsigned short int  _status;
-    EVP_PKEY            *client_pubkey;
-    Packet              packet;
-    
-    ClientInfo()
-        : _status{0}, client_pubkey{NULL} {}
-};
 
 Master::Master()
     : _masteraddr{}, _peeraddr{}, _ipserveraddr{DEFAULT_SERVER_ADDR}, _portno{DEFAULT_SERVER_PORT}, _masterfd{-1}, _receivefd{-1}, _fdmax{-1}, _read_fds{0}, _master_set{0}, _addrlen{sizeof(_peeraddr)}
@@ -33,31 +24,31 @@ Master::~Master()
 }
 
 int
-Master::InitMaster(int domain, int socktype, int protocol, int family, int level, int optname, int optval, int backlog_queue)
+Master::Init(int domain, int socktype, int protocol, int family, int level, int optname, int optval, int backlog_queue)
 {   
     short int ret{-1};
     this->_masterfd = InitSocket(domain, socktype, protocol);
     if(this->_masterfd < 0)
     {
-        std::cerr << " <== Master::InitMaster(initSocket)";
+        std::cerr << " <== Master::Init(initSocket)";
         return -1;
     }
     ret = SetSockOpt(this->_masterfd, level, optname, &optval);
     if(ret < 0)
     {
-        std::cerr << " <== Master::InitMaster(setSockOpt)";
+        std::cerr << " <== Master::Init(setSockOpt)";
         return -1;
     }
     ret = SockBind(this->_masterfd, this->_ipserveraddr, _portno, family, this->_masteraddr);
     if(ret < 0)
     {
-        std::cerr << " <== Master::InitMaster(SockBind)";
+        std::cerr << " <== Master::Init(SockBind)";
         return -1;
     }
     ret = SockListen(this->_masterfd, backlog_queue);
     if(ret < 0)
     {
-        std::cerr << " <== Master::InitMaster(SockListen)";
+        std::cerr << " <== Master::Init(SockListen)";
         return -1;
     }
 
@@ -75,15 +66,16 @@ Master::InitMaster(int domain, int socktype, int protocol, int family, int level
 int
 Master::Run()
 {
-    Packet *server_pck = new Packet();
-    std::string wlc_msg{"Connected with => " + this->_ipserveraddr + ":" + this->_portno};
+    std::string wlc_msg{
+        "Connected with: " +
+        this->_ipserveraddr +
+        ":" + this->_portno};
     unsigned char rcv_msg[] = "Message Received!";
     unsigned char cls_msg[] = "Close signal received!";
     int nbytes{-1}, _ret_code{-1};
     std::vector<ClientInfo> clients(this->_fdmax+1);
     for (;;)
     {   
-        // TODO play with the vector
         this->_read_fds = this->_master_set; // copy it
         if (select(this->_fdmax + 1, &this->_read_fds, NULL, NULL, NULL) == -1)
         {
@@ -96,7 +88,7 @@ Master::Run()
         {
             if (FD_ISSET(i, &this->_read_fds))
             {
-                // SECTION New client connected to the server
+                // SECTION New client connected to the server: manage auth phase
                 if (i == this->_masterfd) 
                 {   
                     this->_addrlen = sizeof(this->_peeraddr); 
@@ -111,15 +103,16 @@ Master::Run()
                         clients.resize(this->_fdmax+1);
                     }
                     std::cout << 
-                        "\n==> New connection from " << inet_ntoa(this->_peeraddr.sin_addr) << 
+                        "\n==> New connection from " << 
+                        inet_ntoa(this->_peeraddr.sin_addr) << 
                         " on socket: " << this->_receivefd << 
                     std::endl;
                     clients.at(this->_receivefd)._status = 1;
                     clients.at(this->_receivefd).packet.reallocPayload((unsigned char *)wlc_msg.c_str());
-                    // packet->reallocPayload((unsigned char *)wlc_msg.c_str());
                     _ret_code = PacketSend(this->_receivefd, &clients.at(this->_receivefd).packet);
                     if(_ret_code == -1)
                         std::cerr << " <== Master::Run(): wlc_msg not sent";
+                    // Start authentication phase
                     continue;
                 }
                 // SECTION We are going to manage communication
@@ -137,6 +130,7 @@ Master::Run()
                     }
                     else if(nbytes == 0)
                     {   
+		                std::cout << "Peer: " << i << " disconnected" << std::endl;
                         clients.at(i).packet.reallocPayload(cls_msg);
                         _ret_code = PacketSend(i, &clients.at(i).packet);
                         if(_ret_code < 0)
