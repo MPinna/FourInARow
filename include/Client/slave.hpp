@@ -20,6 +20,7 @@ private:
     /* data */
     struct addrinfo *_serverinfo, *_peerinfo;
     std::string _serveraddr, _serverport;
+    std::string _addr, _port, _username;
     std::string _peeraddr, _peerport;
     struct sockaddr_in _peersock;
     int _clientfd, _peerfd;

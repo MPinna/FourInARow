@@ -41,6 +41,7 @@ public:
     int     initCounter();
     int     incCounter();
     void    print();
+    void    reset();
     int     reallocPayload(unsigned char *data);
     size_t  serialize(unsigned char **buf);
     size_t  htonPacket(unsigned char *buf);

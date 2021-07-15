@@ -17,7 +17,6 @@
 #define DEFAULT_PEER_PORT   "11000" // Peer stands for receiver
 #define ADDRESS_LENGTH      (16 + 1)
 
-
 // DESCRIPTION: Auth messages
 #define CLIENT_HELLO        0
 #define SERVER_HELLO        1
@@ -42,4 +41,7 @@
 #define TAG_SIZE_LEN    16
 #define RSA_2048_LEN    256
 #define IV_DEFAULT_LEN  16
+
+// DESCRIPTION generic
+#define CLOSE_SIGNAL    0
 #endif

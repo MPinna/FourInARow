@@ -54,7 +54,8 @@ Slave::InitPeerReceiver(
     int backlog_queue
 )
 {
-	short int ret{-1};
+	int ret{-1};
+	// TODO implement the choice between default send/receive port or customized one (if and only if you have time)
 
 	this->_peerfd = InitSocket(domain, socktype, protocol);
 	if(this->_peerfd < 0)
@@ -151,8 +152,8 @@ Slave::InitPeerSender(
     int family
 )
 {
-	short int ret{-1};
-
+	int ret{-1};
+	// TODO implement the choice between default send/receive port or customized one (if and only if you have time)
 	this->_peerfd = InitSocket(domain, socktype, protocol);
 	if(this->_peerfd < 0) 
 	{
