@@ -5,7 +5,7 @@
 
 int retrieve_cert(std::string file_name, X509** cacert);
 
-int retrieve_crl(std::string file_name, X509** cacert);
+int retrieve_crl(std::string file_name, X509** crl);
 
 int compare_subject_name(X509* cert, std::string str_name);
 
