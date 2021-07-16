@@ -27,38 +27,10 @@ int main(int argc, char *argv[])
      * TODO 
      * method to initialize all openssl variable, keys, etc...
     */
-    X509* cacert;
-    X509_CRL* crl;
     std::string cacert_file_name;
-    while(true)
-    {
-        int ret{-1};
-        std::cout << "Please, type the PEM file containing a trusted CA's certificate: ";
-        getline(std::cin, cacert_file_name);
-        if (!std::cin)
-        {
-            std::cerr << "Error during input";
-            exit(1);
-        }
-        else if(cacert_file_name.compare("exit"))
-        {
-            std::cout << "You choose to exit. Terminated execution...";
-            exit(1);
-        }
-        else
-        {
-            ret = SetupCert(cacert_file_name, &cacert);
-            if(ret <= 0)
-            {
-                if (ret == 0)
-                    continue;
-                if (ret == -1)
-                    exit(1);
-            }
-            else
-                break; 
-        }
-    }
+    
+    X509* cacert = RetrieveCert();
+    X509_CRL* crl = RetrieveCrl();
 
     /**
      * TODO

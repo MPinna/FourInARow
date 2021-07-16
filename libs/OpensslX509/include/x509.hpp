@@ -5,11 +5,11 @@
 
 int SetupCert(std::string file_name, X509** cacert);
 
-X509* RetrieveCert(std::string cacert_file_name);
+X509* RetrieveCert();
 
 int SetupCrl(std::string file_name, X509_CRL** crl);
 
-X509_CRL* RetrieveCrl(std::string crl_file_name);
+X509_CRL* RetrieveCrl();
 
 int compareSubjectName(X509* cert, std::string str_name);
 

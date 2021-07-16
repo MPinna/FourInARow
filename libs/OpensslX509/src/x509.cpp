@@ -80,7 +80,7 @@ SetupCrl(std::string file_name, X509_CRL** crl)
 }
 
 X509_CRL* 
-RetrieveCrl(std::string crl_file_name)
+RetrieveCrl()
 {
     X509_CRL* crl;
     std::string crl_file_name;
@@ -131,12 +131,11 @@ int compareSubjectName(X509* cert, const char* str_name)
 }
 
 int
-SetupStore(X509_STORE** store, std::string ca_cert_file_name, std::string crl_file_name)
+SetupStore(X509_STORE** store)
 {
-    X509_CRL *crl;
     int ret;
 
-    X509 *ca_cert = RetrieveCert(ca_cert_file_name);
+    X509 *ca_cert = RetrieveCert();
     if(!ca_cert)
     {
         std::cerr << " <== SetupStore() failed retrieving CA Cert";
@@ -150,7 +149,7 @@ SetupStore(X509_STORE** store, std::string ca_cert_file_name, std::string crl_fi
     }
 
     /* Load the CRL */
-    ret = SetupCrl(crl_file_name, &crl);
+    X509_CRL *crl = RetrieveCrl();
     if (!crl)
     {
         std::cerr << "<== SetupStore() failed retrieving CRL";
