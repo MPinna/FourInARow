@@ -1,9 +1,10 @@
 #include "../include/x509.hpp"
 #include <openssl/pem.h>
 #include <iostream>
+#include <cstring>
 
 int 
-retrieve_cert(std::string file_name, X509** cacert)
+SetupCert(std::string file_name, X509** cacert)
 {
     FILE *file = fopen(file_name.c_str(), "r");
     if (!file)
@@ -11,7 +12,7 @@ retrieve_cert(std::string file_name, X509** cacert)
         std::cerr << "Error: cannot open file '" << file_name << "' (missing?) Try with another one (or type \"exit\" to close the program\n";
         return 0;
     }
-    cacert = PEM_read_X509(file, NULL, NULL, NULL);
+    *cacert = PEM_read_X509(file, NULL, NULL, NULL);
     fclose(file);
     if (!cacert)
     {
@@ -21,8 +22,46 @@ retrieve_cert(std::string file_name, X509** cacert)
     return 1;
 }
 
+X509*
+RetrieveCert()
+{
+    X509* cacert;
+    std::string cacert_file_name;
+    while(true)
+    {
+        int ret{-1};
+        std::cout << "Please, type the PEM file containing a trusted CA's certificate: ";
+        getline(std::cin, cacert_file_name);
+        if (!std::cin)
+        {
+            std::cerr << "Error during input";
+            return NULL;
+        }
+        else if(cacert_file_name.compare("exit"))
+        {
+            std::cout << "You choose to exit. Terminated execution...";
+            return NULL;
+        }
+        else
+        {
+            ret = SetupCert(cacert_file_name, &cacert);
+            if(ret <= 0)
+            {
+                if (ret == 0)
+                    continue;
+                if (ret == -1)
+                    std::cerr << "RetrieveCert() Error!";
+                    return NULL;
+            }
+            else
+                break;
+        }
+    }
+    return cacert;
+}
+
 int 
-retrieve_crl(std::string file_name, X509_CRL** crl)
+SetupCrl(std::string file_name, X509_CRL** crl)
 {
     FILE *file = fopen(file_name.c_str(), "r");
     if (!file)
@@ -30,7 +69,7 @@ retrieve_crl(std::string file_name, X509_CRL** crl)
         std::cerr << "Error: cannot open file '" << file_name << "' (missing?) Try with another one (or type \"exit\" to close the program\n";
         return 0;
     }
-    crl = PEM_read_X509_CRL(file, NULL, NULL, NULL);
+    *crl = PEM_read_X509_CRL(file, NULL, NULL, NULL);
     fclose(file);
     if (!crl)
     {
@@ -40,7 +79,46 @@ retrieve_crl(std::string file_name, X509_CRL** crl)
     return 1;
 }
 
-int compare_subject_name(X509* cert, const char* str_name)
+X509_CRL* 
+RetrieveCrl(std::string crl_file_name)
+{
+    X509_CRL* crl;
+    std::string crl_file_name;
+    while(true)
+    {
+        int ret{-1};
+        std::cout << "Please, type the PEM file containing a certificate revocation list (CRL): ";
+        getline(std::cin, crl_file_name);
+        if (!std::cin)
+        {
+            std::cerr << "Error during input";
+            return NULL;
+        }
+        else if(crl_file_name.compare("exit"))
+        {
+            std::cout << "You choose to exit. Terminated execution...";
+            return NULL;
+        }
+        else
+        {
+            ret = SetupCrl(crl_file_name, &crl);
+            if(ret <= 0)
+            {
+                if (ret == 0)
+                    continue;
+                if (ret == -1)
+                    std::cerr << "RetrieveCrl() Error!";
+                    return NULL;
+            }
+            else
+                break;
+        }
+    }
+    return crl;
+}
+
+
+int compareSubjectName(X509* cert, const char* str_name)
 {   
    char* tmp;
    int ret;
@@ -53,43 +131,42 @@ int compare_subject_name(X509* cert, const char* str_name)
 }
 
 int
-setup_store(X509_STORE* store, std::string ca_cert_file_name, std::string crl_file_name)
+SetupStore(X509_STORE** store, std::string ca_cert_file_name, std::string crl_file_name)
 {
-    X509 *ca_cert;
     X509_CRL *crl;
     int ret;
 
-    ca_cert = retrieve_cert(ca_cert_file_name);
-    if (!ca_cert)
+    X509 *ca_cert = RetrieveCert(ca_cert_file_name);
+    if(!ca_cert)
     {
-        std::cerr << "<== setup_store()";
+        std::cerr << " <== SetupStore() failed retrieving CA Cert";
         return -1;
     }
-    ret = X509_STORE_add_cert(store, ca_cert);
+    ret = X509_STORE_add_cert(*store, ca_cert);
     if (ret != 1)
     {
-        std::cerr "setup_store(), Error: X509_STORE_add_cert returned " << ret;
+        std::cerr << "SetupStore(), Error: X509_STORE_add_cert returned: " << ret;
         return -1;
     }
 
     /* Load the CRL */
-    crl = retrieve_crl("crl.pem");
+    ret = SetupCrl(crl_file_name, &crl);
     if (!crl)
     {
-        std::cerr << "<== setup_store()";
+        std::cerr << "<== SetupStore() failed retrieving CRL";
         return -1;
     }
-    ret = X509_STORE_add_crl(store, crl);
+    ret = X509_STORE_add_crl(*store, crl);
     if (ret != 1)
     {
-        std::cerr << "setup_store(), Error: X509_STORE_add_crl returned " << ret;
+        std::cerr << "SetupStore(), Error: X509_STORE_add_crl returned " << ret;
         return -1;
     }
 
-    ret = X509_STORE_set_flags(store, X509_V_FLAG_CRL_CHECK);
+    ret = X509_STORE_set_flags(*store, X509_V_FLAG_CRL_CHECK);
     if (ret != 1)
     {
-        std::cerr << "setup_store(), Error: X509_STORE_set_flags returned \n" << ret;
+        std::cerr << "SetupStore(), Error: X509_STORE_set_flags returned \n" << ret;
         return -1;
     }
 
@@ -98,7 +175,7 @@ setup_store(X509_STORE* store, std::string ca_cert_file_name, std::string crl_fi
 
 // TODO check if needed or not
 int
-send_cert()
+SendCert()
 {
 
 }

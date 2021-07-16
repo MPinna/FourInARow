@@ -9,6 +9,7 @@
 #include "../../include/Utils/structures.hpp"
 #include "../../include/Server/master.hpp"
 #include <vector>
+
 int main(int argc, char *argv[])
 {
     Master *server = new Master();
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            ret = retrieve_cert(cacert_file_name, &cacert);
+            ret = SetupCert(cacert_file_name, &cacert);
             if(ret <= 0)
             {
                 if (ret == 0)

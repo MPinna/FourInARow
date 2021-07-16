@@ -3,15 +3,18 @@
 #include <openssl/x509.h>
 #include <string>
 
-int retrieve_cert(std::string file_name, X509** cacert);
+int SetupCert(std::string file_name, X509** cacert);
 
-int retrieve_crl(std::string file_name, X509** crl);
+X509* RetrieveCert(std::string cacert_file_name);
 
-int compare_subject_name(X509* cert, std::string str_name);
+int SetupCrl(std::string file_name, X509_CRL** crl);
 
-int setup_store(X509_STORE* store, std::string ca_cert_file_name, std::string crl_file_name);
+X509_CRL* RetrieveCrl(std::string crl_file_name);
+
+int compareSubjectName(X509* cert, std::string str_name);
+
+int SetupStore(X509_STORE** store, std::string ca_cert_file_name, std::string crl_file_name);
 
 // TODO: check if needed or not
-int send_cert();
-
+int SendCert();
 #endif
