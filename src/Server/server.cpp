@@ -24,18 +24,20 @@ int main(int argc, char *argv[])
     }
 
     /**
-     * TODO 
      * method to initialize all openssl variable, keys, etc...
     */
-    std::string cacert_file_name;
-    
-    X509* cacert = RetrieveCert();
-    X509_CRL* crl = RetrieveCrl();
+    X509* certificate;
+    ret = RetrieveCert(&certificate);
+    if(ret <= 0)
+    {
+        if(ret < 0)
+            std::cerr << "<== Server Error!" << std::endl;
+        if(ret == 0)
+            std::cerr << "<== Server exit()" << std::endl;
+        exit(1);
+    }
 
-    /**
-     * TODO
-     * 
-    */
+    // Server life cycle
     std::string wlc_msg{"Connected with: " + server->getIPAddr() + ":" + server->getPort()};
     unsigned char rcv_msg[] = "Message Received";
     unsigned char cls_msg[] = "Close signal received";
@@ -79,7 +81,7 @@ int main(int argc, char *argv[])
                     ret = PacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
                     if(ret == -1)
                         std::cerr << " <== server()::response(): wlc_msg not sent";
-                    // Start authentication phase
+                    // TODO Start authentication phase
                     continue;
                 }
                 // SECTION We are going to manage communication
