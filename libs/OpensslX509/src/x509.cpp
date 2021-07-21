@@ -9,9 +9,10 @@ SetupCert(std::string file_name, X509** cacert)
     FILE *file = fopen(file_name.c_str(), "r");
     if (!file)
     {
-        std::cerr << "Error: cannot open file '" << file_name << "' (missing?) Try with another one (or type \"exit\" to close the program\n";
+        std::cerr << "Error: cannot open file '" << file_name << "' (missing?)\nTry with another one (or type \"exit\" to close the program): ";
         return 0;
     }
+
     *cacert = PEM_read_X509(file, NULL, NULL, NULL);
     fclose(file);
     if (!cacert)
@@ -19,45 +20,46 @@ SetupCert(std::string file_name, X509** cacert)
         std::cerr << "Error: PEM_read_X509 returned NULL\n";
         return -1;
     }
+
     return 1;
 }
 
-X509*
-RetrieveCert()
+int
+RetrieveCert(X509** ca_cert)
 {
-    X509* cacert;
     std::string cacert_file_name;
+    std::cout << "Please, type the PEM file containing certificate: ";
     while(true)
     {
         int ret{-1};
-        std::cout << "Please, type the PEM file containing a trusted CA's certificate: ";
         getline(std::cin, cacert_file_name);
         if (!std::cin)
         {
             std::cerr << "Error during input";
-            return NULL;
+            return -1;
         }
-        else if(cacert_file_name.compare("exit"))
+        
+        if(cacert_file_name.compare("exit") == 0)
         {
             std::cout << "You choose to exit. Terminated execution...";
-            return NULL;
+            return 0;
         }
         else
         {
-            ret = SetupCert(cacert_file_name, &cacert);
+            ret = SetupCert(cacert_file_name, ca_cert);
             if(ret <= 0)
             {
                 if (ret == 0)
                     continue;
                 if (ret == -1)
                     std::cerr << "RetrieveCert() Error!";
-                    return NULL;
+                    return -1;
             }
             else
                 break;
         }
     }
-    return cacert;
+    return 1;
 }
 
 int 
@@ -66,7 +68,7 @@ SetupCrl(std::string file_name, X509_CRL** crl)
     FILE *file = fopen(file_name.c_str(), "r");
     if (!file)
     {
-        std::cerr << "Error: cannot open file '" << file_name << "' (missing?) Try with another one (or type \"exit\" to close the program\n";
+        std::cerr << "Error: cannot open file '" << file_name << "' (missing?) \nTry with another one (or type \"exit\" to close the program): ";
         return 0;
     }
     *crl = PEM_read_X509_CRL(file, NULL, NULL, NULL);
@@ -79,42 +81,41 @@ SetupCrl(std::string file_name, X509_CRL** crl)
     return 1;
 }
 
-X509_CRL* 
-RetrieveCrl()
+int
+RetrieveCrl(X509_CRL** crl)
 {
-    X509_CRL* crl;
     std::string crl_file_name;
+    std::cout << "Please, type the PEM file containing a certificate revocation list (CRL): ";
     while(true)
     {
         int ret{-1};
-        std::cout << "Please, type the PEM file containing a certificate revocation list (CRL): ";
         getline(std::cin, crl_file_name);
         if (!std::cin)
         {
             std::cerr << "Error during input";
-            return NULL;
+            return -1;
         }
-        else if(crl_file_name.compare("exit"))
+        if(crl_file_name.compare("exit") == 0)
         {
             std::cout << "You choose to exit. Terminated execution...";
-            return NULL;
+            return 0;
         }
         else
         {
-            ret = SetupCrl(crl_file_name, &crl);
+            ret = SetupCrl(crl_file_name, crl);
             if(ret <= 0)
             {
                 if (ret == 0)
                     continue;
                 if (ret == -1)
                     std::cerr << "RetrieveCrl() Error!";
-                    return NULL;
+                    return -1;
             }
             else
                 break;
         }
     }
-    return crl;
+    return 1;
 }
 
 
@@ -130,42 +131,71 @@ int compareSubjectName(X509* cert, const char* str_name)
    return ret;
 }
 
+// TODO check if you can return the store only. (After this function is run, you are going to loose the ca_cert and crl)
 int
 SetupStore(X509_STORE** store)
 {
     int ret;
-
-    X509 *ca_cert = RetrieveCert();
-    if(!ca_cert)
+    X509 *ca_cert;
+    ret = RetrieveCert(&ca_cert);
+    if(ret <= 0)
     {
-        std::cerr << " <== SetupStore() failed retrieving CA Cert";
+        if(ret < 0)
+        {
+            std::cerr << "<== SetupStore() Error!";
+            return -1;
+        }
+        if(ret == 0)
+        {
+            std::cerr << "<== SetupStore() exit()";
+            return 0;
+        }
+    }
+
+    /* Load the CRL */
+    X509_CRL *crl;
+    ret = RetrieveCrl(&crl);
+    if(ret <= 0)
+    {
+        if(ret < 0)
+        {
+            std::cerr << "<== SetupStore() Error!";
+            return -1;
+        }
+        if(ret == 0)
+        {
+            std::cerr << "<== SetupStore() exit()";
+            return 0;
+        }
+    }
+
+    // build a store with the CA's certificate and the CRL:
+    *store = X509_STORE_new();
+    if (!*store)
+    {
+        std::cerr << "SetupStore() Error: X509_STORE_new returned NULL\n"
+             << ERR_error_string(ERR_get_error(), NULL) << "\n";
         return -1;
     }
     ret = X509_STORE_add_cert(*store, ca_cert);
     if (ret != 1)
     {
-        std::cerr << "SetupStore(), Error: X509_STORE_add_cert returned: " << ret;
-        return -1;
-    }
-
-    /* Load the CRL */
-    X509_CRL *crl = RetrieveCrl();
-    if (!crl)
-    {
-        std::cerr << "<== SetupStore() failed retrieving CRL";
+        std::cerr << "SetupStore() Error: X509_STORE_add_cert returned " << ret << "\n"
+             << ERR_error_string(ERR_get_error(), NULL) << "\n";
         return -1;
     }
     ret = X509_STORE_add_crl(*store, crl);
     if (ret != 1)
     {
-        std::cerr << "SetupStore(), Error: X509_STORE_add_crl returned " << ret;
+        std::cerr << "Error: X509_STORE_add_crl returned " << ret << "\n"
+             << ERR_error_string(ERR_get_error(), NULL) << "\n";
         return -1;
     }
-
     ret = X509_STORE_set_flags(*store, X509_V_FLAG_CRL_CHECK);
     if (ret != 1)
     {
-        std::cerr << "SetupStore(), Error: X509_STORE_set_flags returned \n" << ret;
+        std::cerr << "Error: X509_STORE_set_flags returned " << ret << "\n"
+             << ERR_error_string(ERR_get_error(), NULL) << "\n";
         return -1;
     }
 
@@ -176,5 +206,5 @@ SetupStore(X509_STORE** store)
 int
 SendCert()
 {
-
+    return 1;
 }

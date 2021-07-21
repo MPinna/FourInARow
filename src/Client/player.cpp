@@ -8,37 +8,57 @@
  *  - Play a four-in-a-row game
  *  - Init a board
  */
+#include "../../libs/OpensslDS/include/digitalSignature.hpp"
+#include "../../libs/OpensslX509/include/x509.hpp"
 #include "../../include/Utils/structures.hpp"
 #include "../../include/Messages/packet.hpp"
 #include "../../include/Client/slave.hpp"
 #include <openssl/evp.h>
-
+#include <openssl/pem.h>
 #include <chrono>
+#include <cerrno>
+#include <openssl/err.h> // for error descriptions
+using namespace std;
 
-int rval{0};
 int main()
 {
     GameInfo gameinfo;
     gameinfo.username.append("Player2");
     Slave *client = new Slave();
     Packet *packet = new Packet();
-    short int _ret_code{-1};
+    short int ret{-1};
     
+    /**
+     * SECTION_START
+     * Openssl keys, setup store
+     */
+    X509_STORE* store;
+    ret = SetupStore(&store);
+    if(ret <= 0)
+    {
+        if(ret == 0)
+            std::cout << " <== Player exit";
+        if(ret < 0)
+            std::cerr << " <== Player error!";
+        
+        exit(1);
+    }
+    // 
 
     /** 
      * SECTION_START: 
      * Create socket, get server info and connect
      */
-    _ret_code = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
-    if(_ret_code < 0)
+    ret = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
+    if(ret < 0)
     {
         std::cerr << " <== main(initSlave)";
         exit(1);
     }
     else
     {
-        _ret_code = PacketReceive(client->GetClientfd(), packet, 0);
-        if (_ret_code < 0)
+        ret = PacketReceive(client->GetClientfd(), packet, 0);
+        if (ret < 0)
         {
             std::cerr << " <== main()";
             exit(1);
@@ -97,14 +117,14 @@ int main()
      * Close connection
      */
     packet->reallocPayload((unsigned char *)"");
-    _ret_code = PacketSend(client->GetClientfd(), packet);
-    if(_ret_code < 0)
+    ret = PacketSend(client->GetClientfd(), packet);
+    if(ret < 0)
     {
         std::cerr << " <== main()::PacketSend() failed to send close connection signal";
         exit(1);
     }
-    _ret_code = PacketReceive(client->GetClientfd(), packet, 0); 
-    if(_ret_code < 0)
+    ret = PacketReceive(client->GetClientfd(), packet, 0); 
+    if(ret < 0)
     {
         std::cerr << " <== main()::PacketReceive() failed to receive close connection signal"; 
         exit(1);
