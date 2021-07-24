@@ -12,9 +12,11 @@ int SetupCrl(std::string file_name, X509_CRL** crl);
 
 int RetrieveCrl(X509_CRL** crl);
 
+int SetupStore(X509_STORE** store);
+
 int compareSubjectName(X509* cert, std::string str_name);
 
-int SetupStore(X509_STORE** store);
+int verifyCert();
 
 // TODO: check if needed or not
 int SendCert();

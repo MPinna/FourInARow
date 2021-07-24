@@ -24,6 +24,7 @@ struct SecurityCheck
 struct ClientInfo
 {
     std::string     username;
+    unsigned char   ip_addr[15]; // TOCHECK
     bool            _status;
     EVP_PKEY *      pubkey;
     Packet          packet;

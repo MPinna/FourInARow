@@ -1,8 +1,8 @@
 #include "../../include/Client/slave.hpp"
 #include <sys/time.h>
 
-Slave::Slave()
-    : _serverinfo{NULL}, _peerinfo{NULL}, _serveraddr{DEFAULT_SERVER_ADDR}, _serverport{DEFAULT_SERVER_PORT},  _peeraddr{DEFAULT_PEER_ADDR}, _peerport{DEFAULT_PEER_PORT}, _peersock{0}, _clientfd{-1}, _peerfd{-1}
+Slave::Slave(std::string username)
+    : _serverinfo{NULL}, _peerinfo{NULL}, _serveraddr{DEFAULT_SERVER_ADDR}, _serverport{DEFAULT_SERVER_PORT},  _peeraddr{DEFAULT_PEER_ADDR}, _peerport{DFLT_OPP_LISTENER_PORT}, _peersock{0}, _clientfd{-1}, _peerfd{-1}, _username{username}
 {
 }
 
@@ -39,6 +39,12 @@ Slave::InitSlave(int domain, int socktype, int protocol, int family)
 		return ret;
 	}
 	
+    socklen_t len = sizeof(_sock);
+    if (getsockname(this->GetClientfd(), (struct sockaddr *)&_sock, &len) == -1)
+        std::cerr << "Slave() getsockname error";
+    else
+        this->_port = ntohs(_sock.sin_port);
+
 	return this->_clientfd;
 }
 

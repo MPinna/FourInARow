@@ -10,12 +10,12 @@
 #define RANDOMNESS_LENGTH_16    (16 + 1)
 
 // DESCRIPTION network constants
-#define BACKLOG_QUEUE 5
-#define DEFAULT_SERVER_ADDR "localhost"
-#define DEFAULT_PEER_ADDR   "localhost"
-#define DEFAULT_SERVER_PORT "8888"
-#define DEFAULT_PEER_PORT   "11000" // Peer stands for receiver
-#define ADDRESS_LENGTH      (16 + 1)
+#define BACKLOG_QUEUE           5
+#define DEFAULT_SERVER_ADDR     "localhost"
+#define DEFAULT_PEER_ADDR       "localhost"
+#define DEFAULT_SERVER_PORT     "8888"
+#define DFLT_OPP_LISTENER_PORT  "11000"     // Peer stands for receiver
+#define ADDRESS_LENGTH          (16 + 1)
 
 // DESCRIPTION: Auth messages
 #define CLIENT_HELLO        0
@@ -24,12 +24,12 @@
 #define CLIENT_RESPONSE     3
 #define SERVER_CONFIRMATION 4
 
-// DESCRIPTION: ADAE (Authenticated data authenticated encryption) messages 
+// DESCRIPTION: ADAE (Authenticated Data Authenticated Encryption) messages 
 #define PEER_HELLO          5
 #define PEER_RESPONSE       6
 #define PLAYER_LIST         7
 #define CHALLENGE_RESPONSE  8
-#define GAME_MOVE           9 
+#define GAME_MOVE           9
 #define GAME_END            10
 #define DH_PARAMS           11
 #define LIST_RESPONSE       12

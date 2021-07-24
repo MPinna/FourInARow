@@ -9,8 +9,6 @@
 #include "../crypto.hpp"
 #include <cstddef>
 
-// TODO ClientHello -> Just a message to present itself to the server
-
 /**
  * DESCRIPTION: the ClientHello structure it is used for:
  *  - Exchange hello message for client - server communication
@@ -27,6 +25,7 @@ struct ClientHello
     int getType();
     int getSize();
     // Member methods
+    int initClientHello(unsigned char *username, unsigned char portnum);
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
@@ -35,7 +34,7 @@ struct ClientHello
 
 /**
  * DESCRIPTION: the ClientHello structure it is used for:
- *  - Response message for client - server communication
+ *  - Response message for client - server communication 
  *  - Response message for peer-to-peer communication
  */
 struct ClientResponse
@@ -52,6 +51,7 @@ struct ClientResponse
     size_t NtoH(unsigned char *ser_buf);
     void print();
 }__attribute__((packed));
+// FINISCE L'AUTH TRA CLIENT E SERVER
 
 /**
  * DESCRIPTION: the ClientHello structure it is used for:
@@ -87,5 +87,5 @@ struct ChallengeResponse
     size_t HtoN(unsigned char **data);
     size_t NtoH(unsigned char *ser_buf);
     void print();
-}__attribute__((packed)); 
+}__attribute__((packed));
 #endif

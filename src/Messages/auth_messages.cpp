@@ -3,7 +3,7 @@
  */
 #include "../../include/Messages/Client/auth.hpp"
 #include "../../include/Messages/Server/auth.hpp"
-#include "../../include/Utils/strinops.hpp"
+#include "../../include/Utils/utils.hpp"
 
 /**
  * SECTION: 
@@ -14,7 +14,7 @@ ClientHello::setUsername(const char *user)
 {   
     if(strlen(user) > 16)
     {
-        std::cout << "Hello::setUsername() error: max lenght = 16 char";
+        std::cout << "ClientHello::setUsername() error: max lenght = 16 char";
         return -1; 
     }
     memcpy(this->_username, user, USERNAME_LENGHT_16);
@@ -25,7 +25,7 @@ ClientHello::setUsername(const char *user)
 int
 ClientHello::getType()
 {
-    return PEER_HELLO;
+    return CLIENT_HELLO;
 }
 
 int
