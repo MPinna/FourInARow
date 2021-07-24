@@ -1,11 +1,7 @@
 #ifndef _OPENSSL_DS_H_
 #define _OPENSSL_DS_H_
 #include <openssl/evp.h>
-#include <string>
-
-int readRSAPrvKey(std::string file_name, EVP_PKEY **rsakey);
-
-int readRSAPubKey(std::string file_name, EVP_PKEY **rsakey);
+#include <cstring>
 
 int digestSign(
     unsigned char *msg, size_t msg_len, 

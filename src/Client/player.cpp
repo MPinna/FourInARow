@@ -9,29 +9,106 @@
  *  - Init a board
  */
 #include "../../libs/OpensslDS/include/digitalSignature.hpp"
+#include "../../libs/OpensslUtils/include/sslutils.hpp"
 #include "../../libs/OpensslX509/include/x509.hpp"
-#include "../../include/Utils/structures.hpp"
+#include "../../include/Messages/Client/auth.hpp"
 #include "../../include/Messages/packet.hpp"
+#include "../../include/Utils/structures.hpp"
+#include "../../include/Utils/utils.hpp"
 #include "../../include/Client/slave.hpp"
 #include <openssl/evp.h>
 #include <openssl/pem.h>
+#include <openssl/err.h> // for error descriptions
 #include <chrono>
 #include <cerrno>
-#include <openssl/err.h> // for error descriptions
 using namespace std;
 
-int main()
+int main(int argc, char **argv)
 {
-    GameInfo gameinfo;
-    gameinfo.username.append("Player2");
-    Slave *client = new Slave();
-    Packet *packet = new Packet();
     short int ret{-1};
     
+    if(argc!=2)
+    {
+        std::cerr << "Error inserting parameters. \nUsage " << argv[0] << " (username)" << std::endl;
+        exit(1);
+    }
+
+    // Retrieve private key
+    EVP_PKEY* prvkey;
+    ret = RetrievePubKey(&prvkey);
+    if (ret <= 0)
+    {
+        if (ret == 0)
+            std::cout << " <== Player exit";
+        if (ret < 0)
+            std::cerr << " <== Player error!";
+
+        exit(1);
+    }
+
+    Slave *client = new Slave(argv[1]);
+    ESP packet = ESP();
+    
+    /** 
+     * SECTION_START: 
+     * Create socket, get server info and connect
+     */
+    ret = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
+    if(ret < 0)
+    {
+        std::cerr << " <== main(initSlave)";
+        exit(1);
+    }
+    
+    // Start authentication
+    ClientHello hello = ClientHello();
+    hello.setUsername(argv[1]);
+    hello._port_number = client->_port;
+    hello._nonce = getRandomInt();
+    unsigned char *buf_hello, *sig;
+    size_t sig_len, hello_size;
+    hello_size = hello.serialize(&buf_hello);
+    const EVP_MD *cipher = EVP_sha512();
+    ret = digestSign(buf_hello, hello_size, &sig, &hello_size, prvkey, cipher);
+    if(ret < 0)
+    {
+        std::cerr << argv[1] << "auth failed!" << std::endl;
+    }
+    packet.initCounter();
+    packet.setType(hello.getType());
+    packet.setTag(sig, sig_len);
+    unsigned char *ser_buf;
+    size_t buf_size = packet.HtoN(&ser_buf);
+    ret = PacketSend(client->GetClientfd(), packet);
+    if (ret < 0)
+    {
+        std::cerr << " <== player: hello error";
+        exit(1);
+    }
+    //
+    ret = PacketReceive(client->GetClientfd(), packet, 0);
+    if (ret < 0)
+    {
+        std::cerr << " <== player error!";
+        exit(1);
+    }
+    packet->print();
+    // SECTION_END
+
+
+
     /**
      * SECTION_START
      * Openssl keys, setup store
      */
+    // Prepare challenge message
+    ClientHello hello = ClientHello();
+    
+    // Send challenge message
+
+    // Receive certificate
+
+    // Setup store
     X509_STORE* store;
     ret = SetupStore(&store);
     if(ret <= 0)
@@ -43,29 +120,16 @@ int main()
         
         exit(1);
     }
-    // 
 
-    /** 
-     * SECTION_START: 
-     * Create socket, get server info and connect
-     */
-    ret = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
-    if(ret < 0)
-    {
-        std::cerr << " <== main(initSlave)";
-        exit(1);
-    }
-    else
-    {
-        ret = PacketReceive(client->GetClientfd(), packet, 0);
-        if (ret < 0)
-        {
-            std::cerr << " <== main()";
-            exit(1);
-        }
-        packet->print();
-    }
-    // SECTION_END
+    // Verify Certificate
+
+    // Get public key from certificate
+
+    // Receive response
+
+    // Send DH-Key
+
+    /* SECTION_END */
 
     /**
      * SECTION_START

@@ -4,53 +4,6 @@
 #include <iostream>
 #include <cassert>
 
-int
-readRSAPrvKey(std::string file_name, EVP_PKEY **rsakey)
-{
-    // load my private key:
-    FILE *prvkey_file = fopen(file_name.c_str(), "r");
-    assert(prvkey_file != NULL);
-    if (!prvkey_file)
-    {
-        std::cerr << "Error: cannot open file '" << file_name << "' (missing?)\n";
-        return 0;
-    }
-    *rsakey = PEM_read_PrivateKey(prvkey_file, NULL, NULL, NULL);
-    assert(rsakey != NULL);
-    if (!rsakey)
-    {
-        std::cerr << "Error: PEM_read_PrivateKey returned NULL\n";
-        return 0;
-    }
-    
-    fclose(prvkey_file);
-
-    return 1;
-}
-
-int
-readRSAPubKey(std::string file_name, EVP_PKEY **rsakey)
-{
-    // load my private key:
-    FILE *pubkey_file = fopen(file_name.c_str(), "r");
-    assert(pubkey_file != NULL);
-    if (!pubkey_file)
-    {
-        std::cerr << "Error: cannot open file '" << file_name << "' (missing?)\n";
-        return 0;
-    }
-    *rsakey = PEM_read_PUBKEY(pubkey_file, NULL, NULL, NULL);
-    assert(rsakey != NULL);
-    if (!rsakey)
-    {
-        std::cerr << "Error: PEM_read_PrivateKey returned NULL\n";
-        return 0;
-    }
-    fclose(pubkey_file);
-
-    return 1;
-}
-
 int 
 digestSign(
     unsigned char *msg, size_t msg_len, 

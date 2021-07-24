@@ -1,7 +1,7 @@
 /**
  * DESCRIPTION
  */
-#include "Utils/strinops.hpp"
+#include "../../include/Utils/utils.hpp"
 
 char *
 StringToLower(char *str)
@@ -25,7 +25,8 @@ writeInto(char *dest, char *src)
 	memcpy(dest, src+'\0', strlen(src));
 }
 
-int readFile(unsigned char **buf)
+int 
+readFile(unsigned char **buf)
 {
 	std::string file_name;
 	int ret{-1};
@@ -36,14 +37,14 @@ int readFile(unsigned char **buf)
         getline(std::cin, file_name);
         if (!std::cin)
         {
-            std::cerr << "Error during input";
+            std::cerr << " <==Error during input";
             return -1;
         }
 		FILE *file = fopen(file_name.c_str(), "r");
 		if(file == NULL)
 		{
-			std::cerr << "<== File not found: " << file_name;
-			return 1;
+			std::cerr << " <== File not found: " << file_name;
+			return 0;
 		}
 		
 		/* Retrieve the file size */
@@ -56,12 +57,33 @@ int readFile(unsigned char **buf)
 		ret = fread(*buf, 1, msg_size, file);
 		if (ret < msg_size)
 		{
-			fprintf(stderr, "Error reading the file\n");
-			return 1;
+			std::cerr << " <== Error reading the file";
+			return -1;
 		}
 		*buf[msg_size] = '\0';
 		fclose(file);
-		
 	}
-	std::cout << "Plaintext: " << *buf;
+	std::cout << "File Content: " << *buf;
+	return 1;
+}
+
+unsigned int
+getRandomInt()
+{
+	unsigned int seed;
+    FILE *urnd;
+    urnd = fopen("/dev/urandom", "rb");
+    if(!urnd)
+    {
+        std::cerr << "Header::Header::fopen() failed!" << std::endl;
+        return -1;
+    }
+    if((fread(&seed, 1, sizeof(seed), urnd)) != sizeof(seed))
+    {
+        std::cerr << "Header::Header::fread() failed!" << std::endl;
+        return -1;
+    }
+    fclose(urnd);
+    srand(seed);
+    return rand();
 }

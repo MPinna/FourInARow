@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
             {
                 // SECTION New client connected to the server: manage auth phase
                 if (i == server->_masterfd)
-                {   
-                    server->_addrlen = sizeof(server->_peeraddr); 
+                {
+                    server->_addrlen = sizeof(server->_peeraddr);
                     server->_receivefd = SockAccept(server->_masterfd, (sockaddr *)&server->_peeraddr, &server->_addrlen);
                     if(server->_receivefd == -1)
                         std::cerr << " <== server()::receive(sockAccept)";
@@ -76,16 +76,30 @@ int main(int argc, char *argv[])
                         inet_ntoa(server->_peeraddr.sin_addr) << 
                         " on socket: " << server->_receivefd << 
                     std::endl;
+                    // 
+                    nbytes = PacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0);
+                    clients.at(server->_receivefd).packet.print();
+                    // 
                     clients.at(server->_receivefd)._status = 1;
+                    clients.at(server->_receivefd).packet.setType(SERVER_HELLO);
                     clients.at(server->_receivefd).packet.reallocPayload((unsigned char *)wlc_msg.c_str());
                     ret = PacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
                     if(ret == -1)
                         std::cerr << " <== server()::response(): wlc_msg not sent";
-                    // TODO Start authentication phase
+                    /* SECTION_START: authentication phase */
+                    // Receive Challenge
+                    
+
+                    // Send Certificate
+
+                    // Send response
+
+                    // Receive DH Param
+
                     continue;
                 }
                 // SECTION We are going to manage communication
-                else 
+                else
                 {   
                     nbytes = PacketReceive(i, &clients.at(i).packet, 0);
                     if(nbytes > 0)

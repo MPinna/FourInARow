@@ -118,20 +118,6 @@ RetrieveCrl(X509_CRL** crl)
     return 1;
 }
 
-
-int compareSubjectName(X509* cert, const char* str_name)
-{   
-   char* tmp;
-   int ret;
-
-   tmp = X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0);
-   ret = strcmp(tmp, str_name);
-   free(tmp);
-
-   return ret;
-}
-
-// TODO check if you can return the store only. (After this function is run, you are going to loose the ca_cert and crl)
 int
 SetupStore(X509_STORE** store)
 {
@@ -199,6 +185,47 @@ SetupStore(X509_STORE** store)
         return -1;
     }
 
+    return 1;
+}
+
+int compareSubjectName(X509* cert, const char* str_name)
+{   
+   char* tmp;
+   int ret;
+
+   tmp = X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0);
+   ret = strcmp(tmp, str_name);
+   free(tmp);
+
+   return ret;
+}
+
+int
+verifyCert(X509_STORE *store, X509* cert)
+{
+    int ret{-1};
+    X509_STORE_CTX *certvfy_ctx = X509_STORE_CTX_new();
+    if (!certvfy_ctx)
+    {
+        std::cerr << "Error: X509_STORE_CTX_new returned NULL\n"
+             << ERR_error_string(ERR_get_error(), NULL) << "\n";
+        return -1;
+    }
+    ret = X509_STORE_CTX_init(certvfy_ctx, store, cert, NULL);
+    if (ret != 1)
+    {
+        std::cerr << "verifyCert() Error: X509_STORE_CTX_init returned " << ret << "\n"
+             << ERR_error_string(ERR_get_error(), NULL) << "\n";
+        return -1;
+    }
+    ret = X509_verify_cert(certvfy_ctx);
+    if (ret != 1)
+    {
+        std::cerr << "verifyCert() Error: X509_verify_cert returned " << ret << "\n"
+             << ERR_error_string(ERR_get_error(), NULL) << "\n";
+        return -1;
+    }
+    X509_STORE_CTX_free(certvfy_ctx);
     return 1;
 }
 
