@@ -46,6 +46,8 @@ int SockReceiveFrom(int rec_sockfd, void *rec_buf, size_t len);
 int SockSendTo(int send_sockfd, void *send_buf, size_t len);
 int ReadNBytes(int socket, void *buf, std::size_t N);
 int PacketSend(int send_sockfd, Packet *packet);
+int ESPPacketSend(int send_sockfd, ESP *packet);
 int PacketReceive(int rec_sockfd, Packet *packet, int type);
+int ESPPacketReceive(int sockfd, ESP *packet, int type);
 int SockClose(int sockfd);
 #endif

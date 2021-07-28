@@ -35,7 +35,9 @@ int main(int argc, char **argv)
 
     // Retrieve private key
     EVP_PKEY* prvkey;
-    ret = RetrievePubKey(&prvkey);
+    std::string prvkey_file_name{argv[1]};
+    prvkey_file_name.append(".pem");
+    ret = RetrievePrvKey(&prvkey, prvkey_file_name.c_str());
     if (ret <= 0)
     {
         if (ret == 0)
@@ -46,13 +48,11 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    Slave *client = new Slave(argv[1]);
-    ESP packet = ESP();
-    
     /** 
      * SECTION_START: 
      * Create socket, get server info and connect
      */
+    Slave *client = new Slave(argv[1]);
     ret = client->InitSlave(AF_INET, SOCK_STREAM, 0, AF_INET);
     if(ret < 0)
     {
@@ -60,49 +60,71 @@ int main(int argc, char **argv)
         exit(1);
     }
     
-    // Start authentication
-    ClientHello hello = ClientHello();
-    hello.setUsername(argv[1]);
-    hello._port_number = client->_port;
-    hello._nonce = getRandomInt();
-    unsigned char *buf_hello, *sig;
-    size_t sig_len, hello_size;
-    hello_size = hello.serialize(&buf_hello);
-    const EVP_MD *cipher = EVP_sha512();
-    ret = digestSign(buf_hello, hello_size, &sig, &hello_size, prvkey, cipher);
-    if(ret < 0)
-    {
-        std::cerr << argv[1] << "auth failed!" << std::endl;
-    }
+    /** SECTION_START
+     * Start authentication
+     * - Setup client hello message 
+     * - Serialize and sign
+     * - Send client-hello
+     * - Receive Challenge response
+     * - DH key exchange
+     */            
+    // Set up client hello
+    // ClientHello hello = ClientHello();
+    // hello.setUsername(argv[1]);
+    // hello._port_number = client->_port;
+    // hello._nonce = getRandomInt();
+    // // Serialize
+    // unsigned char *hello_buf;
+    // size_t hsize = hello.HtoN(&hello_buf);
+    // //  Make packet
+    // ESP packet = ESP();
+    // packet.initCounter();
+    // packet.setType(hello.getType());
+    // packet.setPayload(hello_buf, hsize);
+    // unsigned char *packet_buf;
+    // size_t psize = packet.hostToNet(&packet_buf);
+    // // Sign and serialize     
+    // const EVP_MD *cipher = EVP_sha512();
+    // size_t sig_len;
+    // unsigned char *sig_buf;
+    // ret = digestSign(packet_buf, psize, &sig_buf, &sig_len, prvkey, cipher);
+    // if(ret < 0)
+    // {
+    //     std::cerr << argv[1] << "auth failed!" << std::endl;
+    // }
+    // packet.setTag(sig_buf, sig_len);
+    // delete[] hello_buf;
+    // delete[] packet_buf;
+    // delete[] sig_buf;
+     
+    // ESP packet is ready
+    Packet packet = Packet();
     packet.initCounter();
-    packet.setType(hello.getType());
-    packet.setTag(sig, sig_len);
-    unsigned char *ser_buf;
-    size_t buf_size = packet.HtoN(&ser_buf);
-    ret = PacketSend(client->GetClientfd(), packet);
+    packet.setType(1);
+    std::string hello{"Hi from: " + client->_username};
+    packet.setPayload((unsigned char *)hello.c_str(), hello.length());
+    ret = PacketSend(client->GetClientfd(), &packet);
     if (ret < 0)
     {
         std::cerr << " <== player: hello error";
         exit(1);
     }
-    //
-    ret = PacketReceive(client->GetClientfd(), packet, 0);
+
+    ret = PacketReceive(client->GetClientfd(), &packet, 0);
     if (ret < 0)
     {
         std::cerr << " <== player error!";
         exit(1);
     }
-    packet->print();
+    packet.print();
     // SECTION_END
 
 
 
     /**
      * SECTION_START
-     * Openssl keys, setup store
      */
     // Prepare challenge message
-    ClientHello hello = ClientHello();
     
     // Send challenge message
 
@@ -128,18 +150,8 @@ int main(int argc, char **argv)
     // Receive response
 
     // Send DH-Key
+    // SECTION_END
 
-    /* SECTION_END */
-
-    /**
-     * SECTION_START
-     * Authentication phase
-     * TODO: send signed message
-     * challenge - response
-    */
-
-
-    // SECTION_END    
 
     /**
      * SECTION_START
@@ -180,24 +192,25 @@ int main(int argc, char **argv)
      * SECTION_START
      * Close connection
      */
-    packet->reallocPayload((unsigned char *)"");
-    ret = PacketSend(client->GetClientfd(), packet);
+    packet.reallocPayload((unsigned char *)"");
+    packet.setType(CLOSE_SIGNAL);
+    ret = PacketSend(client->GetClientfd(), &packet);
     if(ret < 0)
     {
         std::cerr << " <== main()::PacketSend() failed to send close connection signal";
         exit(1);
     }
-    ret = PacketReceive(client->GetClientfd(), packet, 0); 
+    ret = PacketReceive(client->GetClientfd(), &packet, 0); 
     if(ret < 0)
     {
         std::cerr << " <== main()::PacketReceive() failed to receive close connection signal"; 
         exit(1);
     }
     else
-        packet->print();
+        packet.print();
     SockClose(client->GetClientfd());
 
-    packet->~Packet();
+    packet.~Packet();
     client->~Slave();
     
     return 1;

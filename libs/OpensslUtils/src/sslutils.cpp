@@ -25,8 +25,13 @@ ReadPrvKey(std::string file_name, EVP_PKEY **prvkey)
 }
 
 int
-RetrievePrvKey(EVP_PKEY **prvkey)
+RetrievePrvKey(EVP_PKEY **prvkey, const char * prvkeyname)
 {
+    if((ReadPrvKey(prvkeyname, prvkey)) == 1)
+    {
+        return 1;
+    }
+    // Else, the default name is not valid, insert your own private key name
     std::string prvkey_file_name;
     std::cout << "Please, type the PEM file containing private key: ";
     while(true)
@@ -86,8 +91,12 @@ ReadPubKey(std::string file_name, EVP_PKEY **pubkey)
 }
 
 int
-RetrievePubKey(EVP_PKEY **pubkey)
+RetrievePubKey(EVP_PKEY **pubkey, char * pubkeyname)
 {
+    if((ReadPubKey(pubkeyname, pubkey)) == 1)
+    {
+        return 1;
+    }
     std::string pubkey_file_name;
     std::cout << "Please, type the PEM file containing public key: ";
     while(true)

@@ -14,10 +14,10 @@
 
 int ReadPrvKey(std::string file_name, EVP_PKEY **prvkey);
 
-int RetrievePrvKey(EVP_PKEY **prvkey);
+int RetrievePrvKey(EVP_PKEY **prvkey, const char * prvkeyname);
 
 int ReadPubKey(std::string file_name, EVP_PKEY **pubkey);
 
-int RetrievePubKey(EVP_PKEY **pubkey);
+int RetrievePubKey(EVP_PKEY **pubkey, const char * pubkeyname);
 
 #endif

@@ -41,6 +41,9 @@
 #define TAG_SIZE_LEN    16
 #define RSA_2048_LEN    256
 #define IV_DEFAULT_LEN  16
+#define DEFAULT_CRL     "crl.pem"
+#define DEFAULT_CA_CERT "ca_cert.pem"
+#define DEFAULT_CERT    "cert.pem"
 
 // DESCRIPTION generic
 #define CLOSE_SIGNAL    0

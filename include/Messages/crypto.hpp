@@ -29,9 +29,9 @@ struct Tag
     int setTag(unsigned char *tag, unsigned short int size);
     int getSize();
     // Member structure
-    int HtoN(unsigned char *data);
-    int NtoH(unsigned char *serialized_buf);
-    int NtoHtaglen(unsigned char *data);
+    size_t HtoN(unsigned char *data);
+    size_t NtoH(unsigned char *serialized_buf);
+    size_t NtoHtaglen(unsigned char *data);
     int print();
 }__attribute__((packed));
 

@@ -2,8 +2,8 @@
  * DESCRIPTION
  * The aim of this file, is to provide all required structure used to represent complex data
  */
-#if !defined(_STRUCTURE_H)
-#define _STRUCTURE_H
+#ifndef _STRUCTURE_H_
+#define _STRUCTURE_H_
 #include "../Messages/packet.hpp"
 #include "constant.hpp"
 #include <cstring>
@@ -18,8 +18,8 @@ struct SecurityCheck
     SecurityCheck()
         : _received{0}, _next{0}, _expected{0} {}
     // Class methods
-    void update();
-}__attribute__((packed));
+    void updateFields();
+};
 
 struct ClientInfo
 {
@@ -36,6 +36,7 @@ struct ClientInfo
     void setUsername();
 };
 
+// TOCHECK do we need this ? 
 struct GameInfo
 {
     std::string username;
@@ -43,7 +44,7 @@ struct GameInfo
     std::string game_port;
     std::string opp_game_port;
     EVP_PKEY *privkey;
-    EVP_PKEY *peerkey; 
+    EVP_PKEY *peerkey;
 };
 #endif // _STRUCTURE_H
 

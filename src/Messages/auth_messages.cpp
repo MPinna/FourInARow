@@ -28,7 +28,7 @@ ClientHello::getType()
     return CLIENT_HELLO;
 }
 
-int
+size_t
 ClientHello::getSize()
 {
     return sizeof(struct ClientHello);
@@ -105,7 +105,7 @@ ClientResponse::getType()
     return CLIENT_RESPONSE;
 }
 
-int
+size_t
 ClientResponse::getSize()
 {
     return (
@@ -168,10 +168,10 @@ ClientResponse::print()
 int
 ChallengeRequest::getType()
 {
-    return CHALLENGE_REQUEST;
+    return 1; //FIXME
 }
 
-int
+size_t
 ChallengeRequest::getSize()
 {
     return (
@@ -245,7 +245,7 @@ ChallengeResponse::getType()
     return CHALLENGE_RESPONSE;
 }
 
-int
+size_t
 ChallengeResponse::getSize()
 {
     return (
@@ -330,7 +330,7 @@ ServerCertificate::setCert(unsigned char * cert)
     return size;
 }
 
-int
+size_t
 ServerCertificate::getSize()
 {
     return sizeof(this->_lenght) + this->_lenght;
@@ -353,7 +353,7 @@ ServerCertificate::serialize(unsigned char **data)
 size_t
 ServerCertificate::HtoN(unsigned char **data)
 {
-    short int pos{0}, size{this->getSize()};
+    size_t pos{0}, size{this->getSize()};
     uint16_t lenght{htons(this->_lenght)};
     *data = new unsigned char[size];
 
@@ -381,10 +381,10 @@ ServerCertificate::NtoH(unsigned char *ser_buf)
 int
 ServerResponse::getType()
 {
-    return SERVER_RESPONSE;
+    return 1; // FIXME
 }
 
-int
+size_t
 ServerResponse::getSize()
 {
     return (

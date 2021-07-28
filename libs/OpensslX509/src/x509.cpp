@@ -1,3 +1,4 @@
+#include "../../../include/Utils/constant.hpp"
 #include "../include/x509.hpp"
 #include <openssl/pem.h>
 #include <iostream>
@@ -25,8 +26,53 @@ SetupCert(std::string file_name, X509** cacert)
 }
 
 int
-RetrieveCert(X509** ca_cert)
+RetrieveCACert(X509** ca_cert)
 {
+    if((SetupCert(DEFAULT_CA_CERT, ca_cert)) == 1)
+    {
+        return 1;
+    }
+    std::string cacert_file_name;
+    std::cout << "Please, type the PEM file containing certificate: ";
+    while(true)
+    {
+        int ret{-1};
+        getline(std::cin, cacert_file_name);
+        if (!std::cin)
+        {
+            std::cerr << "Error during input";
+            return -1;
+        }
+        
+        if(cacert_file_name.compare("exit") == 0)
+        {
+            std::cout << "You choose to exit. Terminated execution...";
+            return 0;
+        }
+        else
+        {
+            ret = SetupCert(cacert_file_name, ca_cert);
+            if(ret <= 0)
+            {
+                if (ret == 0)
+                    continue;
+                if (ret == -1)
+                    std::cerr << "RetrieveCert() Error!";
+                    return -1;
+            }
+            else
+                break;
+        }
+    }
+    return 1;
+}
+
+int RetrieveCert(X509** ca_cert)
+{
+    if((SetupCert(DEFAULT_CERT, ca_cert)) == 1)
+    {
+        return 1;
+    }
     std::string cacert_file_name;
     std::cout << "Please, type the PEM file containing certificate: ";
     while(true)
@@ -84,6 +130,10 @@ SetupCrl(std::string file_name, X509_CRL** crl)
 int
 RetrieveCrl(X509_CRL** crl)
 {
+    if((SetupCrl(DEFAULT_CRL, crl)) == 1)
+    {
+        return 1;
+    }
     std::string crl_file_name;
     std::cout << "Please, type the PEM file containing a certificate revocation list (CRL): ";
     while(true)
@@ -123,7 +173,7 @@ SetupStore(X509_STORE** store)
 {
     int ret;
     X509 *ca_cert;
-    ret = RetrieveCert(&ca_cert);
+    ret = RetrieveCACert(&ca_cert);
     if(ret <= 0)
     {
         if(ret < 0)

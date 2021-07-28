@@ -6,6 +6,8 @@
 
 int SetupCert(std::string file_name, X509** cacert);
 
+int RetrieveCACert(X509** ca_cert);
+
 int RetrieveCert(X509** ca_cert);
 
 int SetupCrl(std::string file_name, X509_CRL** crl);

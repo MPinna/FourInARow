@@ -14,7 +14,7 @@ struct ServerCertificate
 
     // Setter / Getter
     size_t setCert(unsigned char *cert);
-    int getSize();
+    size_t getSize();
     // Member structure
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
@@ -30,7 +30,7 @@ struct ServerResponse
 
     // Getter
     int getType();
-    int getSize(); // TOCHECK
+    size_t getSize(); // TOCHECK
     // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
@@ -45,7 +45,7 @@ struct Confirmation
     
     // Getter
     int getType();
-    int getSize(); 
+    size_t getSize(); 
     // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);

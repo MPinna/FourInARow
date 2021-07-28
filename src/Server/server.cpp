@@ -8,6 +8,7 @@
 #include "../../libs/OpensslX509/include/x509.hpp"
 #include "../../include/Utils/structures.hpp"
 #include "../../include/Server/master.hpp"
+#include "../../include/Messages/Client/auth.hpp"
 #include <vector>
 
 int main(int argc, char *argv[])
@@ -76,19 +77,24 @@ int main(int argc, char *argv[])
                         inet_ntoa(server->_peeraddr.sin_addr) << 
                         " on socket: " << server->_receivefd << 
                     std::endl;
-                    // 
-                    nbytes = PacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0);
+                     
+                    /* SECTION_START: authentication phase */
+                    // Receive Challenge
+                    // nbytes = ESPPacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0); // FIXME scoppia quando alloca il payload
+                    // clients.at(server->_receivefd).packet.print();
+                    // // Get packet info
+                    // ClientHello hello = ClientHello();
+                    // hello.NtoH(clients.at(server->_receivefd).packet._payload);
+                    // hello.print();
+                    ret = PacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0);
                     clients.at(server->_receivefd).packet.print();
-                    // 
+                    // TOCHECK Va alla fine dell'autenticazione
                     clients.at(server->_receivefd)._status = 1;
                     clients.at(server->_receivefd).packet.setType(SERVER_HELLO);
                     clients.at(server->_receivefd).packet.reallocPayload((unsigned char *)wlc_msg.c_str());
                     ret = PacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
                     if(ret == -1)
                         std::cerr << " <== server()::response(): wlc_msg not sent";
-                    /* SECTION_START: authentication phase */
-                    // Receive Challenge
-                    
 
                     // Send Certificate
 

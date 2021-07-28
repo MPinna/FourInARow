@@ -23,7 +23,7 @@ struct ClientHello
     // Setter / Getter
     int setUsername(const char *user);
     int getType();
-    int getSize();
+    size_t getSize();
     // Member methods
     int initClientHello(unsigned char *username, unsigned char portnum);
     size_t serialize(unsigned char **data);
@@ -44,7 +44,7 @@ struct ClientResponse
 
     // Member methods
     int getType();
-    int getSize();
+    size_t getSize();
     // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
@@ -65,7 +65,7 @@ struct ChallengeRequest
 
     // Member methods
     int getType();
-    int getSize(); // TOCHECK
+    size_t getSize(); // TOCHECK
     // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);
@@ -81,7 +81,7 @@ struct ChallengeResponse
 
     // Member methods
     int getType();
-    int getSize(); // TOCHECK
+    size_t getSize(); // TOCHECK
     // Member methods
     size_t serialize(unsigned char **data);
     size_t HtoN(unsigned char **data);

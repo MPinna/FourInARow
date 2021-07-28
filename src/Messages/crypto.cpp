@@ -30,7 +30,7 @@ Tag::getSize()
     );
 }
 
-int
+size_t
 Tag::HtoN(unsigned char *data)
 {
     size_t pos{0};
@@ -44,7 +44,7 @@ Tag::HtoN(unsigned char *data)
     return pos;
 }
 
-int 
+size_t 
 Tag::NtoH(unsigned char *ser_buf)
 {
     size_t pos{0};
@@ -59,7 +59,7 @@ Tag::NtoH(unsigned char *ser_buf)
     return pos;
 }
 
-int 
+size_t 
 Tag::NtoHtaglen(unsigned char *ser_buf)
 {
     size_t pos{0};
@@ -162,6 +162,12 @@ DHKey::NtoH(unsigned char *ser_data)
     pos += this->_dh_lenght;
 
     return pos;
+}
+
+void
+DHKey::print()
+{
+    // TODO
 }
 
 void Digest::setDigest(unsigned char *digest)

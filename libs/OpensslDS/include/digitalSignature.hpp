@@ -1,6 +1,7 @@
 #ifndef _OPENSSL_DS_H_
 #define _OPENSSL_DS_H_
 #include <openssl/evp.h>
+#include "../../../include/Messages/packet.hpp"
 #include <cstring>
 
 int digestSign(

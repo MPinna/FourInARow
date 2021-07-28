@@ -17,6 +17,9 @@
 #include "crypto.hpp"
 #include <cassert>
 
+/** DESCRIPTION
+ *  The packet class it is used to contain the header of a packet within its payload. This class has built-in functionalities to serialize data according to Network-to-Host and Host-to-Network of linux socket. Such that data can be sent over a TCP socket and interpreted from another client (a peer) or Server
+ */
 class Packet
 {
 private:
@@ -45,10 +48,16 @@ public:
     int     reallocPayload(unsigned char *data);
     size_t  serialize(unsigned char **buf);
     size_t  htonPacket(unsigned char *buf);
+    size_t  hostToNet(unsigned char **buf);
     size_t  ntohHeader(unsigned char *ser_data);
     int     ntohPayload(unsigned char *ser_data);
 };
 
+/** DESCRIPTION
+ * The esp class, extends the Packet class to manage a generic 'tag' which is attached within a packet. Note: we talk about a generic tag because the tag can assume different meaning:
+ * - Can represent the Signature of such packet
+ * - Can contain the Auth Data used during the exchanged message with DH-Key
+ */
 class ESP : public Packet{
     private:
         Tag tag;
@@ -62,8 +71,14 @@ class ESP : public Packet{
         // DESCRIPTION Class members
         size_t  getESPPacketSize();
         size_t  HtoN(unsigned char **buf);
+        size_t  serializeTag(unsigned char **buf);
+        size_t  htonESP(
+            unsigned char *pbuf, size_t psize, 
+            unsigned char *tbuf, size_t tsize, 
+            unsigned char **ser_buf
+        );
         size_t  ntohESPPacket(unsigned char *ser_data);
         size_t  ntohTaglen(unsigned char *ser_data);
-        int     print();
+        int     tagPrint();
 };
 #endif
