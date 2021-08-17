@@ -27,7 +27,7 @@ struct ClientInfo
     unsigned char   ip_addr[15]; // TOCHECK
     bool            _status;
     EVP_PKEY *      pubkey;
-    Packet          packet;
+    ESP             packet;
     SecurityCheck   check;
 
     ClientInfo()

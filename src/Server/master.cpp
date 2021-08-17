@@ -72,6 +72,8 @@ Master::Run()
         ":" + this->_portno};
     unsigned char rcv_msg[] = "Message Received!";
     unsigned char cls_msg[] = "Close signal received!";
+    size_t rcv_msg_size = strlen((char *)rcv_msg);
+    size_t cls_msg_size = strlen((char *)cls_msg);
     int nbytes{-1}, _ret_code{-1};
     std::vector<ClientInfo> clients(this->_fdmax+1);
     for (;;)
@@ -108,7 +110,7 @@ Master::Run()
                         " on socket: " << this->_receivefd << 
                     std::endl;
                     clients.at(this->_receivefd)._status = 1;
-                    clients.at(this->_receivefd).packet.reallocPayload((unsigned char *)wlc_msg.c_str());
+                    clients.at(this->_receivefd).packet.reallocPayload((unsigned char *)wlc_msg.c_str(), wlc_msg.length());
                     _ret_code = PacketSend(this->_receivefd, &clients.at(this->_receivefd).packet);
                     if(_ret_code == -1)
                         std::cerr << " <== Master::Run(): wlc_msg not sent";
@@ -122,7 +124,7 @@ Master::Run()
                     if(nbytes > 0)
                     {   
                         clients.at(i).packet.print();
-                        clients.at(i).packet.reallocPayload(rcv_msg);
+                        clients.at(i).packet.reallocPayload(rcv_msg, rcv_msg_size);
                         _ret_code = PacketSend(i, &clients.at(i).packet);
                         if(_ret_code < 0)
                             std::cerr << " <== Master::Run(): response msg not sent";
@@ -131,7 +133,7 @@ Master::Run()
                     else if(nbytes == 0)
                     {   
 		                std::cout << "Peer: " << i << " disconnected" << std::endl;
-                        clients.at(i).packet.reallocPayload(cls_msg);
+                        clients.at(i).packet.reallocPayload(cls_msg, cls_msg_size);
                         _ret_code = PacketSend(i, &clients.at(i).packet);
                         if(_ret_code < 0)
                             std::cerr << " <== Master::Run(): close msg not sent";

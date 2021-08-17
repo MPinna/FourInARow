@@ -9,18 +9,22 @@
  * SECTION: 
  * Client authentication messages 
  */
-int
-ClientHello::setUsername(const char *user)
-{   
-    if(strlen(user) > 16)
-    {
-        std::cout << "ClientHello::setUsername() error: max lenght = 16 char";
-        return -1; 
-    }
-    memcpy(this->_username, user, USERNAME_LENGHT_16);
-    this->_username[USERNAME_LENGHT_16] = '\0';
-    return 1;
-}
+// int
+// ClientHello::setUsername(const char *user)
+// {   
+//     if(strlen(user) > 16)
+//     {
+//         std::cout << "ClientHello::setUsername() error: max lenght = 16 char";
+//         return -1;
+//     }
+//     memcpy(this->_username, user, strlen(user));
+//     // TEST
+//     int diff = (USERNAME_LENGHT_16 - 1) - strlen(user);
+//     memset(this->_username + strlen(user), '.', diff);
+//     // TEST
+//     this->_username[USERNAME_LENGHT_16] = '\0';
+//     return 1;
+// }
 
 int
 ClientHello::getType()
@@ -41,8 +45,8 @@ ClientHello::serialize(unsigned char **data)
     size_t size{sizeof(struct ClientHello)};
     *data = new unsigned char[size];
 
-    memcpy(*data, this->_username, USERNAME_LENGHT_16);
-    pos += USERNAME_LENGHT_16;
+    // memcpy(*data, this->_username, USERNAME_LENGHT_16);
+    // pos += USERNAME_LENGHT_16;
     memcpy(*data + pos, &this->_port_number, sizeof(this->_port_number));
     pos += sizeof(this->_port_number);
     memcpy(*data + pos, &this->_nonce, sizeof(this->_nonce));
@@ -60,8 +64,8 @@ ClientHello::HtoN(unsigned char ** to_ser)
     size_t size{sizeof(struct ClientHello)};
     *to_ser = new unsigned char[size];
 
-    memcpy(*to_ser + pos, this->_username, USERNAME_LENGHT_16);
-    pos += USERNAME_LENGHT_16;
+    // memcpy(*to_ser + pos, this->_username, USERNAME_LENGHT_16);
+    // pos += USERNAME_LENGHT_16;
     memcpy(*to_ser + pos, &port_num, sizeof(uint16_t));
     pos += sizeof(uint16_t);
     memcpy(*to_ser + pos, &nonce, sizeof(uint32_t));
@@ -77,8 +81,8 @@ ClientHello::NtoH(unsigned char *ser_buf)
     uint16_t port_num{0};
     uint32_t nonce{0};
     
-    memcpy(this->_username, ser_buf, USERNAME_LENGHT_16);
-    pos += USERNAME_LENGHT_16;
+    // memcpy(this->_username, ser_buf, USERNAME_LENGHT_16);
+    // pos += USERNAME_LENGHT_16;
     memcpy(&port_num, ser_buf + pos, sizeof(uint16_t));
     this->_port_number = ntohs(port_num);
     pos += sizeof(uint16_t);
@@ -93,7 +97,7 @@ void
 ClientHello::print()
 {
     std::cout << 
-        "Username:    "   << this->_username <<
+        // "Username:    "   << this->_username <<
         "\nPort number: " << this->_port_number <<
         "\nNonce:       " << this->_nonce <<
     std::endl;

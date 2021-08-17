@@ -109,7 +109,7 @@ int Packet::setPayload(unsigned char *data, size_t size)
         return -1;
     }
     this->_payload = new unsigned char[(size) + 1];
-    memcpy(this->_payload, data + '\0', size + 1);
+    memcpy(this->_payload, data+'\0', size);
     this->header._payload_size = size;
 
     return size;
@@ -177,10 +177,9 @@ int Packet::incCounter()
     return 1;
 }
 
-int Packet::reallocPayload(unsigned char *data)
+int Packet::reallocPayload(unsigned char *data, size_t size)
 {
-    size_t size{strlen((char *)data)};
-    if (size == 0)
+    if(size == 0)
     {
         this->_payload = (unsigned char *)realloc(this->_payload, 1 * sizeof(char));
         if (!this->_payload)
@@ -195,19 +194,18 @@ int Packet::reallocPayload(unsigned char *data)
     }
     else
     {
-        this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char)); // FIXME
+        this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char) + 1);
         if (!this->_payload)
         {
             std::cerr << "Packet::reallocPayload(2): something went wrong =>";
             return -1;
         }
-        memcpy(this->_payload, data + '\0', size + 1);
-        this->header._payload_size = size + 1;
+        memcpy(this->_payload, data, size);
+        this->_payload[size+1] = '\0';
+        this->header._payload_size = size+1;
 
-        return this->header._payload_size;
+        return size+1;
     }
-
-    return -1;
 }
 
 /**
@@ -228,7 +226,7 @@ Packet::htonPacket(unsigned char *packet_buf)
 }
 
 size_t
-Packet::hostToNet(unsigned char **buf)
+Packet::htonPacket(unsigned char **buf)
 {
     size_t packet_size{sizeof(struct Header) + this->header._payload_size};
     *buf = new unsigned char[packet_size];
@@ -266,8 +264,12 @@ int Packet::ntohPayload(unsigned char *ser_data)
 
 void Packet::print()
 {
-    std::cout << "\nType:        " << this->header._type << "\nCounter:     " << this->header._counter << "\nPayload Size:" << this->header._payload_size << "\nPayload:     " << this->_payload // TODO cancel this line
-              << std::endl;
+    std::cout << 
+        "\nType: " << this->header._type << 
+        "\nCounter: " << this->header._counter << 
+        "\nPayload Size: " << this->header._payload_size << 
+        "\nPayload: " << this->_payload // TODO cancel this line
+    << std::endl;
 }
 
 ESP::ESP()
@@ -303,11 +305,18 @@ int ESP::setTag(unsigned char *signature, unsigned short int size)
 }
 
 size_t
-ESP::getESPPacketSize()
+ESP::getSize()
 {
     return this->getHeaderSize() +
            this->getPayloadSize() +
            sizeof(this->tag._taglen) +
+           this->tag._taglen;
+}
+
+size_t
+ESP::getTagSize()
+{
+    return sizeof(this->tag._taglen) +
            this->tag._taglen;
 }
 
@@ -319,12 +328,12 @@ ESP::getESPPacketSize()
 size_t
 ESP::HtoN(unsigned char **authpacket_buf)
 {
-    size_t pos{0};
+    size_t pos{0}, size{this->getSize()};
 
-    *authpacket_buf = new unsigned char[this->getESPPacketSize()];
+    *authpacket_buf = new unsigned char[size];
     pos = this->htonPacket(*authpacket_buf + pos);
     pos = this->tag.HtoN(*authpacket_buf + pos);
-    return this->getESPPacketSize();
+    return size;
 }
 
 size_t
@@ -336,6 +345,13 @@ ESP::serializeTag(unsigned char **buf)
 
     return tsize;
 }
+
+size_t
+ESP::htonTag(unsigned char *buf)
+{
+    return this->tag.HtoN(buf);
+}
+
 
 size_t
 ESP::htonESP(unsigned char *pbuf, size_t psize, unsigned char *tbuf, size_t tsize, unsigned char **ser_buf)
@@ -364,7 +380,7 @@ ESP::ntohTaglen(unsigned char *ser_data)
     return this->tag.NtoHtaglen(ser_data);
 }
 
-int ESP::tagPrint()
+int ESP::printTag()
 {
     return this->tag.print();
 }

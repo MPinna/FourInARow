@@ -40,7 +40,9 @@
 #define DH_SECRET_LEN   32
 #define TAG_SIZE_LEN    16
 #define RSA_2048_LEN    256
-#define IV_DEFAULT_LEN  16
+#define RSA_4096_LEN    512
+#define IV_12_LEN       12
+#define IV_16_LEN       16
 #define DEFAULT_CRL     "crl.pem"
 #define DEFAULT_CA_CERT "ca_cert.pem"
 #define DEFAULT_CERT    "cert.pem"

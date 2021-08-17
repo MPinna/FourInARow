@@ -312,7 +312,7 @@ PacketReceive(int sockfd, Packet *packet, int type)
 			return -1;
 		}
 		else
-			packet->reallocPayload(payload);
+			packet->reallocPayload(payload, packet->getPayloadSize());
 
 		delete[] header;
 	}
@@ -365,13 +365,12 @@ ESPPacketReceive(int sockfd, ESP *packet, int type)
 				std::cout << " <== ESPPacketReceive(payload): Unexpected";
 			delete[] payload;
 			delete[] header;
-    		std::cout << "I'm here <=0" << std::endl;
 			return -1;
 		}
 		else
-			packet->reallocPayload(payload);
+			packet->setPayload(payload, packet->getPayloadSize()); // FIXME
 		
-		unsigned char *taglen = new unsigned char[sizeof(uint16_t)+1];
+		unsigned char *taglen = new unsigned char[sizeof(uint16_t)];
 		nbytes = ReadNBytes(sockfd, taglen, sizeof(uint16_t));
 		if (nbytes <= 0)
 		{
@@ -387,7 +386,9 @@ ESPPacketReceive(int sockfd, ESP *packet, int type)
 		}
 		else
 		{
+			// Deserialize tag len
 			packet->ntohTaglen(taglen);
+			
 			// Receive tag
 			size_t tag_length{packet->getTaglen()};
 			unsigned char *tag_buf = new unsigned char[tag_length];
@@ -406,8 +407,7 @@ ESPPacketReceive(int sockfd, ESP *packet, int type)
 				return -1;
 			}
 			else
-				packet->ntohTaglen(taglen);
-
+				packet->setTag(tag_buf, tag_length);
 			delete[] header;
 			delete[] payload;
 			delete[] taglen;

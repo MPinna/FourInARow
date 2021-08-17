@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
     std::string wlc_msg{"Connected with: " + server->getIPAddr() + ":" + server->getPort()};
     unsigned char rcv_msg[] = "Message Received";
     unsigned char cls_msg[] = "Close signal received";
+    size_t rcv_msg_size = strlen((char *)rcv_msg);
+    size_t cls_msg_size = strlen((char *)cls_msg);
     std::vector<ClientInfo> clients(server->_fdmax+1);
     for (;;)
     {   
@@ -80,21 +82,26 @@ int main(int argc, char *argv[])
                      
                     /* SECTION_START: authentication phase */
                     // Receive Challenge
-                    // nbytes = ESPPacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0); // FIXME scoppia quando alloca il payload
-                    // clients.at(server->_receivefd).packet.print();
-                    // // Get packet info
-                    // ClientHello hello = ClientHello();
-                    // hello.NtoH(clients.at(server->_receivefd).packet._payload);
-                    // hello.print();
-                    ret = PacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0);
+                    nbytes = ESPPacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0); // FIXME scoppia quando alloca il payload
                     clients.at(server->_receivefd).packet.print();
-                    // TOCHECK Va alla fine dell'autenticazione
-                    clients.at(server->_receivefd)._status = 1;
-                    clients.at(server->_receivefd).packet.setType(SERVER_HELLO);
-                    clients.at(server->_receivefd).packet.reallocPayload((unsigned char *)wlc_msg.c_str());
-                    ret = PacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
-                    if(ret == -1)
-                        std::cerr << " <== server()::response(): wlc_msg not sent";
+                    clients.at(server->_receivefd).packet.printTag();
+                    // Get packet info
+                    ClientHello hello = ClientHello();
+                    hello.NtoH(clients.at(server->_receivefd).packet._payload);
+                    hello.print();
+
+                    // Check signature
+                    
+                    // ret = PacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0);
+                    // clients.at(server->_receivefd).packet.print();
+                    // // TOCHECK Va alla fine dell'autenticazione
+                    // clients.at(server->_receivefd)._status = 1;
+                    // clients.at(server->_receivefd).packet.setType(SERVER_HELLO);
+                    // clients.at(server->_receivefd).packet.reallocPayload((unsigned char *)wlc_msg.c_str(), wlc_msg.length());
+                    
+                    // ret = PacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
+                    // if(ret == -1)
+                    //     std::cerr << " <== server()::response(): wlc_msg not sent";
 
                     // Send Certificate
 
@@ -111,7 +118,7 @@ int main(int argc, char *argv[])
                     if(nbytes > 0)
                     {   
                         clients.at(i).packet.print();
-                        clients.at(i).packet.reallocPayload(rcv_msg);
+                        clients.at(i).packet.reallocPayload(rcv_msg, rcv_msg_size);
                         ret = PacketSend(i, &clients.at(i).packet);
                         if(ret < 0)
                             std::cerr << " <== server()::response(): response msg not sent";
@@ -120,7 +127,7 @@ int main(int argc, char *argv[])
                     else if(nbytes == 0)
                     {   
 		                std::cout << "Peer: " << i << " disconnected" << std::endl;
-                        clients.at(i).packet.reallocPayload(cls_msg);
+                        clients.at(i).packet.reallocPayload(cls_msg, cls_msg_size);
                         ret = PacketSend(i, &clients.at(i).packet);
                         if(ret < 0)
                             std::cerr << " <== server()::response(): close msg not sent";

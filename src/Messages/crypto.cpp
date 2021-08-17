@@ -44,7 +44,7 @@ Tag::HtoN(unsigned char *data)
     return pos;
 }
 
-size_t 
+size_t
 Tag::NtoH(unsigned char *ser_buf)
 {
     size_t pos{0};
@@ -53,13 +53,13 @@ Tag::NtoH(unsigned char *ser_buf)
     memcpy(&tag_size, ser_buf + pos, sizeof(uint16_t));
     this->_taglen = ntohs(tag_size);
     pos += sizeof(uint16_t);
-    memcpy(this->_tag, ser_buf + pos, this->_taglen);
+    this->setTag(ser_buf + pos, this->_taglen);
     pos += this->_taglen;
     
     return pos;
 }
 
-size_t 
+size_t
 Tag::NtoHtaglen(unsigned char *ser_buf)
 {
     size_t pos{0};
@@ -81,7 +81,7 @@ Tag::print()
         std::cerr << "Tag::print() tag length = 0, tag not initialized yet";
         return -1;
     }
-    assert(!this->_tag);
+    assert(this->_tag);
     if(!this->_tag)
     {
         std::cerr << "Tag::print() empty tag, cannot display output";

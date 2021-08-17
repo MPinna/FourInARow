@@ -26,25 +26,10 @@ using namespace std;
 int main(int argc, char **argv)
 {
     short int ret{-1};
-    
+    std::string test;
     if(argc!=2)
     {
         std::cerr << "Error inserting parameters. \nUsage " << argv[0] << " (username)" << std::endl;
-        exit(1);
-    }
-
-    // Retrieve private key
-    EVP_PKEY* prvkey;
-    std::string prvkey_file_name{argv[1]};
-    prvkey_file_name.append(".pem");
-    ret = RetrievePrvKey(&prvkey, prvkey_file_name.c_str());
-    if (ret <= 0)
-    {
-        if (ret == 0)
-            std::cout << " <== Player exit";
-        if (ret < 0)
-            std::cerr << " <== Player error!";
-
         exit(1);
     }
 
@@ -59,78 +44,23 @@ int main(int argc, char **argv)
         std::cerr << " <== main(initSlave)";
         exit(1);
     }
-    
-    /** SECTION_START
-     * Start authentication
-     * - Setup client hello message 
-     * - Serialize and sign
-     * - Send client-hello
-     * - Receive Challenge response
-     * - DH key exchange
-     */            
-    // Set up client hello
-    // ClientHello hello = ClientHello();
-    // hello.setUsername(argv[1]);
-    // hello._port_number = client->_port;
-    // hello._nonce = getRandomInt();
-    // // Serialize
-    // unsigned char *hello_buf;
-    // size_t hsize = hello.HtoN(&hello_buf);
-    // //  Make packet
-    // ESP packet = ESP();
-    // packet.initCounter();
-    // packet.setType(hello.getType());
-    // packet.setPayload(hello_buf, hsize);
-    // unsigned char *packet_buf;
-    // size_t psize = packet.hostToNet(&packet_buf);
-    // // Sign and serialize     
-    // const EVP_MD *cipher = EVP_sha512();
-    // size_t sig_len;
-    // unsigned char *sig_buf;
-    // ret = digestSign(packet_buf, psize, &sig_buf, &sig_len, prvkey, cipher);
-    // if(ret < 0)
-    // {
-    //     std::cerr << argv[1] << "auth failed!" << std::endl;
-    // }
-    // packet.setTag(sig_buf, sig_len);
-    // delete[] hello_buf;
-    // delete[] packet_buf;
-    // delete[] sig_buf;
-     
-    // ESP packet is ready
-    Packet packet = Packet();
-    packet.initCounter();
-    packet.setType(1);
-    std::string hello{"Hi from: " + client->_username};
-    packet.setPayload((unsigned char *)hello.c_str(), hello.length());
-    ret = PacketSend(client->GetClientfd(), &packet);
-    if (ret < 0)
+
+    /* Retrieve private key */
+    EVP_PKEY* prvkey;
+    std::string prvkey_file_name{argv[1]};
+    prvkey_file_name.append(".pem");
+    ret = RetrievePrvKey(&prvkey, prvkey_file_name.c_str());
+    if (ret <= 0)
     {
-        std::cerr << " <== player: hello error";
+        if (ret == 0)
+            std::cout << " <== Player exit";
+        if (ret < 0)
+            std::cerr << " <== Player error!";
+
         exit(1);
     }
 
-    ret = PacketReceive(client->GetClientfd(), &packet, 0);
-    if (ret < 0)
-    {
-        std::cerr << " <== player error!";
-        exit(1);
-    }
-    packet.print();
-    // SECTION_END
-
-
-
-    /**
-     * SECTION_START
-     */
-    // Prepare challenge message
-    
-    // Send challenge message
-
-    // Receive certificate
-
-    // Setup store
+    /* Setup store */
     X509_STORE* store;
     ret = SetupStore(&store);
     if(ret <= 0)
@@ -143,20 +73,71 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // Verify Certificate
+    /**
+     * SECTION_START
+     */
+    
+    /* FIXME Make hello message */
+    ClientHello hello = ClientHello();
+    // hello.setUsername(argv[1]);
+    hello._port_number = client->_port;
+    hello._nonce = getRandomInt();
+    unsigned char *hello_buf;
+    size_t hello_size = hello.HtoN(&hello_buf);
+    
+    /* Make ESP packet */
+    ESP *esp = new ESP();
+    esp->initCounter();
+    esp->setType(hello.getType());
+    esp->setPayload(hello_buf, hello_size);
+    unsigned char *packet_buf;
+    size_t packet_size = esp->htonPacket(packet_buf);
 
-    // Get public key from certificate
+    /* Sign ESP packet */
+    const EVP_MD *cipher = EVP_sha512();
+    size_t sig_len;
+    unsigned char *sig_buf;
+    ret = digestSign(packet_buf, packet_size, &sig_buf, &sig_len, prvkey, cipher);
+    if(ret < 0)
+    {
+        std::cerr << argv[0] << "Sign failed!" << std::endl;
+    }
+    esp->setTag(sig_buf, sig_len);
+    // delete[] hello_buf;
+    // delete[] sig_buf;
+    // delete[] packet_buf;
 
-    // Receive response
+    /* Send ESP packet */
+    esp->print();
+    hello.print();
+    esp->printTag();
+    
+    // std::cout << "esp.getSize(): "<< esp->getSize() << std::endl;
+    // std::cout << "esp.getPayloadSize(): "<< esp->getPayloadSize() << std::endl;
+    // std::cout << "esp.getHeaderSize(): "<< esp->getHeaderSize() << std::endl;
+    
+    // std::cout << "Just before" << std::endl;
+    ESPPacketSend(client->GetClientfd(), esp); // TOCHECK
+    // std::cout << "Just after" << std::endl;
+    
+    
+    // sockaddr_in my_addr;
+    // char myIP[16];
+    // unsigned int myPort;
+    // bzero(&my_addr, sizeof(my_addr));
+    // socklen_t len = sizeof(my_addr);
+    // getsockname(client->GetClientfd(), (struct sockaddr *) &my_addr, &len);
+    // inet_ntop(AF_INET, &my_addr.sin_addr, myIP, sizeof(myIP));
+    // myPort = ntohs(my_addr.sin_port);
 
-    // Send DH-Key
-    // SECTION_END
-
+    // printf("Local ip address: %s\n", myIP);
+    // printf("Local port : %u\n", myPort);
 
     /**
      * SECTION_START
      * Manage peer-to-peer connection
      */
+    Packet packet = Packet();
     std::string assign;
     std::cout << "Please, type s (for sender) r (for receiver): ";
     getline(std::cin, assign);
@@ -186,13 +167,12 @@ int main(int argc, char **argv)
     srand(time(0));
     int tmp = rand() % 10;
     sleep(tmp);
-    std::cout << "RAND: " << tmp << std::endl;
 
     /**
      * SECTION_START
      * Close connection
      */
-    packet.reallocPayload((unsigned char *)"");
+    packet.reallocPayload((unsigned char *)"", 0);
     packet.setType(CLOSE_SIGNAL);
     ret = PacketSend(client->GetClientfd(), &packet);
     if(ret < 0)

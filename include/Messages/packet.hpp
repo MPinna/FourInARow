@@ -45,10 +45,10 @@ public:
     int     incCounter();
     void    print();
     void    reset();
-    int     reallocPayload(unsigned char *data);
+    int     reallocPayload(unsigned char *data, size_t size);
     size_t  serialize(unsigned char **buf);
     size_t  htonPacket(unsigned char *buf);
-    size_t  hostToNet(unsigned char **buf);
+    size_t  htonPacket(unsigned char **buf);
     size_t  ntohHeader(unsigned char *ser_data);
     int     ntohPayload(unsigned char *ser_data);
 };
@@ -69,7 +69,9 @@ class ESP : public Packet{
         unsigned char *     getTag();
         int setTag(unsigned char *tag, unsigned short int size);
         // DESCRIPTION Class members
-        size_t  getESPPacketSize();
+        size_t  getSize();
+        size_t  getTagSize();
+        size_t  htonTag(unsigned char *buf);
         size_t  HtoN(unsigned char **buf);
         size_t  serializeTag(unsigned char **buf);
         size_t  htonESP(
@@ -79,6 +81,6 @@ class ESP : public Packet{
         );
         size_t  ntohESPPacket(unsigned char *ser_data);
         size_t  ntohTaglen(unsigned char *ser_data);
-        int     tagPrint();
+        int     printTag();
 };
 #endif
