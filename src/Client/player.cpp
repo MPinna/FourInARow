@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     
     /* FIXME Make hello message */
     ClientHello hello = ClientHello();
-    // hello.setUsername(argv[1]);
+    hello.setUsername(argv[1]);
     hello._port_number = client->_port;
     hello._nonce = getRandomInt();
     unsigned char *hello_buf;
@@ -90,9 +90,14 @@ int main(int argc, char **argv)
     esp->initCounter();
     esp->setType(hello.getType());
     esp->setPayload(hello_buf, hello_size);
+    
+    // Print out
+    esp->print();
+    hello.print();
+    
     unsigned char *packet_buf;
     size_t packet_size = esp->htonPacket(packet_buf);
-
+    
     /* Sign ESP packet */
     const EVP_MD *cipher = EVP_sha512();
     size_t sig_len;
@@ -103,21 +108,15 @@ int main(int argc, char **argv)
         std::cerr << argv[0] << "Sign failed!" << std::endl;
     }
     esp->setTag(sig_buf, sig_len);
-    // delete[] hello_buf;
-    // delete[] sig_buf;
-    // delete[] packet_buf;
 
     /* Send ESP packet */
-    esp->print();
-    hello.print();
-    esp->printTag();
+    ESPPacketSend(client->GetClientfd(), esp); // TOCHECK
     
     // std::cout << "esp.getSize(): "<< esp->getSize() << std::endl;
     // std::cout << "esp.getPayloadSize(): "<< esp->getPayloadSize() << std::endl;
     // std::cout << "esp.getHeaderSize(): "<< esp->getHeaderSize() << std::endl;
     
     // std::cout << "Just before" << std::endl;
-    ESPPacketSend(client->GetClientfd(), esp); // TOCHECK
     // std::cout << "Just after" << std::endl;
     
     

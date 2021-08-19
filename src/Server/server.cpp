@@ -75,22 +75,20 @@ int main(int argc, char *argv[])
                         clients.resize(server->_fdmax+1);
                     }
                     std::cout << 
-                        "\n==> New connection from " << 
+                        "==> New connection from " << 
                         inet_ntoa(server->_peeraddr.sin_addr) << 
                         " on socket: " << server->_receivefd << 
                     std::endl;
                      
                     /* SECTION_START: authentication phase */
                     // Receive Challenge
-                    nbytes = ESPPacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0); // FIXME scoppia quando alloca il payload
+                    nbytes = ESPPacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0); 
                     clients.at(server->_receivefd).packet.print();
                     clients.at(server->_receivefd).packet.printTag();
                     // Get packet info
                     ClientHello hello = ClientHello();
                     hello.NtoH(clients.at(server->_receivefd).packet._payload);
                     hello.print();
-
-                    // Check signature
                     
                     // ret = PacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, 0);
                     // clients.at(server->_receivefd).packet.print();
@@ -101,7 +99,9 @@ int main(int argc, char *argv[])
                     
                     // ret = PacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
                     // if(ret == -1)
-                    //     std::cerr << " <== server()::response(): wlc_msg not sent";
+                    //      std::cerr << " <== server()::response(): wlc_msg not sent";
+
+                    // Check signature
 
                     // Send Certificate
 

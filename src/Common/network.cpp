@@ -324,8 +324,9 @@ int
 ESPPacketReceive(int sockfd, ESP *packet, int type)
 {
 	int _ret_code{-1}, _size_code{0};
-	unsigned char *header = new unsigned char[sizeof(struct Header) + 1];
-	header[sizeof(struct Header) + 1] = '\0';
+	unsigned char *header = new unsigned char[sizeof(struct Header)];
+	// unsigned char *header = new unsigned char[sizeof(struct Header)+1];
+	// header[sizeof(struct Header) + 1] = '\0';
     int nbytes = ReadNBytes(sockfd, header, sizeof(struct Header));
 	// Receive header
     if (nbytes <= 0)
@@ -354,9 +355,9 @@ ESPPacketReceive(int sockfd, ESP *packet, int type)
 	}
 	else if(packet->getPayloadSize() > 0)
 	{
-		unsigned char *payload = new unsigned char[packet->getPayloadSize()+1];
+		unsigned char *payload = new unsigned char[packet->getPayloadSize()];
 		nbytes = ReadNBytes(sockfd, payload, packet->getPayloadSize());
-		payload[packet->getPayloadSize()+1] = '\0';
+		// payload[packet->getPayloadSize()] = '\0';
 		if (nbytes <= 0)
 		{
 			if (nbytes == 0)
@@ -368,7 +369,7 @@ ESPPacketReceive(int sockfd, ESP *packet, int type)
 			return -1;
 		}
 		else
-			packet->setPayload(payload, packet->getPayloadSize()); // FIXME
+			packet->reallocPayload(payload, packet->getPayloadSize()); // FIXME
 		
 		unsigned char *taglen = new unsigned char[sizeof(uint16_t)];
 		nbytes = ReadNBytes(sockfd, taglen, sizeof(uint16_t));

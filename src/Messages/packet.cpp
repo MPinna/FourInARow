@@ -108,8 +108,11 @@ int Packet::setPayload(unsigned char *data, size_t size)
         std::cerr << "Packet::setPayload(): SIZE_MAX overcame";
         return -1;
     }
-    this->_payload = new unsigned char[(size) + 1];
-    memcpy(this->_payload, data+'\0', size);
+    // this->_payload = new unsigned char[(size) + 1];
+    this->_payload = new unsigned char[(size)];
+    memcpy(this->_payload, data, size);
+    // this->_payload[size + 1] = '\0';
+    // this->header._payload_size = size+1;
     this->header._payload_size = size;
 
     return size;
@@ -194,15 +197,17 @@ int Packet::reallocPayload(unsigned char *data, size_t size)
     }
     else
     {
-        this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char) + 1);
+        this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char));
+        // this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char) + 1);
         if (!this->_payload)
         {
             std::cerr << "Packet::reallocPayload(2): something went wrong =>";
             return -1;
         }
         memcpy(this->_payload, data, size);
-        this->_payload[size+1] = '\0';
-        this->header._payload_size = size+1;
+        // this->_payload[size+1] = '\0';
+        this->header._payload_size = size;
+        // this->header._payload_size = size + 1;
 
         return size+1;
     }
