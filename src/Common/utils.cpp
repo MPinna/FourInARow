@@ -11,20 +11,6 @@ StringToLower(char *str)
 	return str;
 }
 
-void
-writeInto(unsigned char *dest, unsigned char *src)
-{
-	dest = (unsigned char *)malloc(strlen((char *)src));
-	memcpy(dest, src+'\0', strlen((char *)src));
-}
-
-void
-writeInto(char *dest, char *src)
-{
-	dest = (char *)malloc(strlen(src));
-	memcpy(dest, src+'\0', strlen(src));
-}
-
 int 
 readFile(unsigned char **buf)
 {

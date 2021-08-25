@@ -23,17 +23,17 @@ struct SecurityCheck
 
 struct ClientInfo
 {
-    std::string     username;
-    unsigned char   ip_addr[15]; // TOCHECK
+    std::string     _username;
+    std::string     _ip_addr; // TOCHECK
     bool            _status;
-    EVP_PKEY *      pubkey;
-    ESP             packet;
-    SecurityCheck   check;
+    EVP_PKEY *      _pubkey;
+    ESP             _packet;
+    SecurityCheck   _check;
 
     ClientInfo()
-        : username{NULL}, _status{false}, pubkey{NULL} {}
+        : _username{NULL}, _status{false}, _pubkey{NULL} {}
 
-    void setUsername();
+    int setUsername(char *data);
 };
 
 // TOCHECK do we need this ? 

@@ -11,14 +11,15 @@
  */
 int
 ClientHello::setUsername(const char *user)
-{   
-    if(strlen(user) > 16)
+{
+    if (strlen(user) > 16)
     {
         std::cout << "ClientHello::setUsername() error: max lenght = 16 char";
         return -1;
     }
     memcpy(this->_username, user, strlen(user));
     this->_username[USERNAME_LENGHT_16] = '\0';
+    
     return 1;
 }
 

@@ -38,6 +38,7 @@ public:
     unsigned int        getCounter();
     unsigned short int  getPayloadSize();
     unsigned short int  getHeaderSize();
+    size_t              getPacketSize();
     unsigned char *     getPayload();
     
     // DESCRIPTION: member methods
@@ -69,7 +70,7 @@ class ESP : public Packet{
         unsigned char *     getTag();
         int setTag(unsigned char *tag, unsigned short int size);
         // DESCRIPTION Class members
-        size_t  getSize();
+        size_t  getESPSize();
         size_t  getTagSize();
         size_t  htonTag(unsigned char *buf);
         size_t  HtoN(unsigned char **buf);

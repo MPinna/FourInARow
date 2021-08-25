@@ -14,8 +14,8 @@ Tag::setTag(unsigned char *tag, unsigned short int size)
         std::cerr << "Tag::setTag(): size overcame SIZE_MAX!";
         return -1;
     }
-    this->_tag = new unsigned char[size+1];
-    memcpy(this->_tag, tag + '\0', size+1);
+    this->_tag = new unsigned char[size];
+    memcpy(this->_tag, tag, size);
     this->_taglen = size;
 
     return 1;

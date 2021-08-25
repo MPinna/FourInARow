@@ -128,12 +128,11 @@ digestVerify(
         std::cerr << "Error: EVP_MD_CTX_new returned NULL\n";
         return 0;
     }
-    
     ret = EVP_DigestVerifyInit(vrf_ctx, NULL, cipher, NULL, pubkey);
     assert(ret > 0);
     if (ret == 0)
     {
-        std::cerr << "Error: EVP_DigestVerifyInit returned " << ret << "\n";
+        std::cerr << "Error: EVP_DigestVerifyInit failed " << ret << "\n";
         return 0;
     }
     if (ret == -2)
@@ -141,12 +140,11 @@ digestVerify(
         std::cerr << "Error: EVP_DigestVerifyInit returned " << ret << "\noperation is not supported by the public key algorithm" << std::endl;
         return 0;
     }
-
     ret = EVP_DigestVerifyUpdate(vrf_ctx, msg, msg_len);
     assert(ret > 0);
     if (ret == 0)
     {
-        std::cerr << "Error: EVP_DigestVerifyUpdate returned " << ret << "\n";
+        std::cerr << "Error: EVP_DigestVerifyUpdate failed " << ret << "\n";
         return 0;
     }
     if (ret == -2)
@@ -155,13 +153,15 @@ digestVerify(
         return 0;
     }
 
-    // Write the signature inside the sgnt_buf
+    // Verify the evaluated signature with the opponent one 
     ret = EVP_DigestVerifyFinal(vrf_ctx, sig, sig_len);
-    assert(ret > 0);
+    // assert(ret > 0);
     if (ret != 1)
     {
-        std::cerr << "EVP_DigestVerifyFinal failed (3), return code " << ret << " error 0x%lx\n"
-                  << ERR_get_error() << std::endl;
+        std::cerr << 
+            "EVP_DigestVerifyFinal failed! return code " << ret << 
+            " error 0x%lx: " << ERR_get_error() 
+        << std::endl;
         return 0;
     }
     if (ret == -2)

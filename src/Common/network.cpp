@@ -127,7 +127,7 @@ SockReceive(int rec_sockfd, void *rec_buf, size_t len)
 		return ret;
 	}
 
-	return ret; // TOCHECK
+	return ret;
 }
 
 int 
@@ -142,7 +142,7 @@ SockSend(int send_sockfd, void *send_buf, size_t len)
 		return ret;
 	}
 
-	return ret; // TOCHECK
+	return ret; 
 }
 
 int 
@@ -250,7 +250,6 @@ ESPPacketSend(int send_sockfd, ESP *packet)
 {
 	int _ret_code{-1};
 	unsigned char *_buf;
-	packet->incCounter();
 	size_t _buf_size = packet->HtoN(&_buf);
 	_ret_code = SockSendTo(send_sockfd, _buf, _buf_size);
 	if (_ret_code < 0)
@@ -258,6 +257,7 @@ ESPPacketSend(int send_sockfd, ESP *packet)
 		std::cerr << " <== ESPPacketSend()";
 		return -1;
 	}
+	packet->incCounter();
 	delete[] _buf;
 	return 1;
 }
@@ -321,7 +321,7 @@ PacketReceive(int sockfd, Packet *packet, int type)
 }
 
 int
-ESPPacketReceive(int sockfd, ESP *packet, int type)
+ESPPacketReceive(int sockfd, ESP *packet, unsigned char **msg)
 {
 	int _ret_code{-1}, _size_code{0};
 	unsigned char *header = new unsigned char[sizeof(struct Header)];
@@ -345,7 +345,7 @@ ESPPacketReceive(int sockfd, ESP *packet, int type)
     }
     else
 		packet->ntohHeader(header);
-
+	
 	// Receive payload
 	assert(packet->getPayloadSize() >= 0);
 	if(packet->getPayloadSize() == 0)
@@ -409,16 +409,25 @@ ESPPacketReceive(int sockfd, ESP *packet, int type)
 			}
 			else
 				packet->setTag(tag_buf, tag_length);
+			
+			// TOCHECK tieni il buffer originale
+			*msg = new unsigned char[packet->getPacketSize()];
+			memcpy(*msg, header, packet->getHeaderSize());
+			memcpy(*msg + packet->getHeaderSize(), payload, packet->getPayloadSize());
+
 			delete[] header;
 			delete[] payload;
 			delete[] taglen;
 			delete[] tag_buf;
+
+			// TOCHECK incrementi il counter del pacchetto
+			packet->incCounter();
 		}
 	}
-	return 1; // At this stage you have to verify the tag (whatever it means: digital signature, AEAD, end-to-end encryption)
+	return 1;
 }
 
-int 
+int
 SockClose(int sockfd)
 {
 	short int ret{-1};

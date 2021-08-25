@@ -9,8 +9,6 @@
 #include <string>
 
 char *          StringToLower(char *str);
-void            writeInto(unsigned char *dest, unsigned char *src);
-void            writeInto(char *dest, char *src);
 int             readFile(unsigned char **buf);
 unsigned int    getRandomInt();
 

@@ -43,9 +43,9 @@
 #define RSA_4096_LEN    512
 #define IV_12_LEN       12
 #define IV_16_LEN       16
-#define DEFAULT_CRL     "crl.pem"
-#define DEFAULT_CA_CERT "ca_cert.pem"
-#define DEFAULT_CERT    "cert.pem"
+#define DEFAULT_CRL     "cert/crl.pem"
+#define DEFAULT_CA_CERT "cert/ca_cert.pem"
+#define DEFAULT_CERT    "cert/cert.pem"
 
 // DESCRIPTION generic
 #define CLOSE_SIGNAL    0

@@ -28,6 +28,7 @@ public:
     std::string _username;
     std::string _addr;
     int _port;
+    
     // DESCRIPTION: Constructor / Deconstructor 
     Slave(std::string username);
     ~Slave();

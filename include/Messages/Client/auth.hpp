@@ -16,7 +16,7 @@
  */
 struct ClientHello
 {
-    unsigned char       _username[USERNAME_LENGHT_16];
+    char                _username[USERNAME_LENGHT_16];
     unsigned short int  _port_number;
     unsigned int        _nonce;
 

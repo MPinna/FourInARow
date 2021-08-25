@@ -48,6 +48,6 @@ int ReadNBytes(int socket, void *buf, std::size_t N);
 int PacketSend(int send_sockfd, Packet *packet);
 int ESPPacketSend(int send_sockfd, ESP *packet);
 int PacketReceive(int rec_sockfd, Packet *packet, int type);
-int ESPPacketReceive(int sockfd, ESP *packet, int type);
+int ESPPacketReceive(int sockfd, ESP *packet, unsigned char **msg);
 int SockClose(int sockfd);
 #endif

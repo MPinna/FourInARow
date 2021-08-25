@@ -142,6 +142,12 @@ Packet::getHeaderSize()
     return sizeof(struct Header);
 }
 
+size_t
+Packet::getPacketSize()
+{
+    return sizeof(struct Header) + this->header._payload_size;
+}
+
 unsigned char *
 Packet::getPayload()
 {
@@ -300,17 +306,17 @@ ESP::getTaglen()
 unsigned char *
 ESP::getTag()
 {
-    assert(!this->tag._tag);
     return this->tag._tag;
 }
 
-int ESP::setTag(unsigned char *signature, unsigned short int size)
+int 
+ESP::setTag(unsigned char *signature, unsigned short int size)
 {
     return this->tag.setTag(signature, size);
 }
 
 size_t
-ESP::getSize()
+ESP::getESPSize()
 {
     return this->getHeaderSize() +
            this->getPayloadSize() +
@@ -333,7 +339,7 @@ ESP::getTagSize()
 size_t
 ESP::HtoN(unsigned char **authpacket_buf)
 {
-    size_t pos{0}, size{this->getSize()};
+    size_t pos{0}, size{this->getESPSize()};
 
     *authpacket_buf = new unsigned char[size];
     pos = this->htonPacket(*authpacket_buf + pos);

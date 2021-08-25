@@ -16,9 +16,6 @@
 #include "../../include/Utils/structures.hpp"
 #include "../../include/Utils/utils.hpp"
 #include "../../include/Client/slave.hpp"
-#include <openssl/evp.h>
-#include <openssl/pem.h>
-#include <openssl/err.h> // for error descriptions
 #include <chrono>
 #include <cerrno>
 using namespace std;
@@ -26,7 +23,8 @@ using namespace std;
 int main(int argc, char **argv)
 {
     short int ret{-1};
-    std::string test;
+    
+    // Check initial arguments
     if(argc!=2)
     {
         std::cerr << "Error inserting parameters. \nUsage " << argv[0] << " (username)" << std::endl;
@@ -47,8 +45,7 @@ int main(int argc, char **argv)
 
     /* Retrieve private key */
     EVP_PKEY* prvkey;
-    std::string prvkey_file_name{argv[1]};
-    prvkey_file_name.append(".pem");
+    std::string prvkey_file_name{client->_username.append(".pem")};
     ret = RetrievePrvKey(&prvkey, prvkey_file_name.c_str());
     if (ret <= 0)
     {
@@ -90,13 +87,11 @@ int main(int argc, char **argv)
     esp->initCounter();
     esp->setType(hello.getType());
     esp->setPayload(hello_buf, hello_size);
+    delete hello_buf;
     
-    // Print out
-    esp->print();
-    hello.print();
     
     unsigned char *packet_buf;
-    size_t packet_size = esp->htonPacket(packet_buf);
+    size_t packet_size = esp->htonPacket(&packet_buf);
     
     /* Sign ESP packet */
     const EVP_MD *cipher = EVP_sha512();
@@ -108,9 +103,24 @@ int main(int argc, char **argv)
         std::cerr << argv[0] << "Sign failed!" << std::endl;
     }
     esp->setTag(sig_buf, sig_len);
+    
+    /* Print out */
+    esp->print();
+    hello.print();
+    esp->printTag();
 
-    /* Send ESP packet */
-    ESPPacketSend(client->GetClientfd(), esp); // TOCHECK
+    delete[] packet_buf;
+    delete[] sig_buf;
+
+
+    ESPPacketSend(client->GetClientfd(), esp);
+    /* VERIFIED Send ESP packet */
+
+    /* Receive Certificate */
+
+    /* Verify it */
+
+    /* Receive response (ClientHello) */
     
     // std::cout << "esp.getSize(): "<< esp->getSize() << std::endl;
     // std::cout << "esp.getPayloadSize(): "<< esp->getPayloadSize() << std::endl;
