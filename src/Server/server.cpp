@@ -25,11 +25,9 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    /**
-     * method to initialize all openssl variable, keys, etc...
-    */
-    X509* certificate;
-    ret = RetrieveCert(&certificate);
+    /* Retrieve certificate and serialize it */
+    X509* x509;
+    ret = RetrieveCert(&x509);
     if(ret <= 0)
     {
         if(ret < 0)
@@ -39,6 +37,10 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    unsigned char *x509_buff;
+    x509_buff = NULL;
+    size_t x509_len = i2d_X509(x509, &x509_buff);  // converting to unsigned char*
+    
     // Server life cycle
     std::string wlc_msg{"Connected with: " + server->getIPAddr() + ":" + server->getPort()};
     unsigned char rcv_msg[] = "Message Received";
@@ -85,16 +87,26 @@ int main(int argc, char *argv[])
                     
                     /* Receive Challenge */
                     unsigned char *msg;
-                    nbytes = ESPPacketReceive(server->_receivefd, &clients.at(server->_receivefd)._packet, &msg); 
+                    ret = ESPPacketReceive(server->_receivefd, &clients.at(server->_receivefd).packet, &msg);
+                    if(ret < 1)
+                    {
+                        std::cerr << "ClientHello() receive error from socket: " << server->_receivefd << std::endl;
+                        continue;
+                    }
                     
                     /* Get message info: content and signature */
                     ClientHello hello = ClientHello();
-                    hello.NtoH(clients.at(server->_receivefd)._packet._payload);
+                    hello.NtoH(clients.at(server->_receivefd).packet._payload);
+                    
+                    /* Store the received nonce from the client */
+                    clients.at(server->_receivefd).check._nonce = hello._nonce;
+                    clients.at(server->_receivefd).check._received = clients.at(server->_receivefd).packet.getCounter();
+                    clients.at(server->_receivefd).check.updateFields();
                     
                     // Print received info
-                    clients.at(server->_receivefd)._packet.print();
+                    clients.at(server->_receivefd).packet.print();
                     hello.print();
-                    clients.at(server->_receivefd)._packet.printTag();
+                    clients.at(server->_receivefd).packet.printTag();
 
                     /* Retrieve pubkey of client 'i' */
                     std::string pubkey_filename{"key/"};
@@ -113,12 +125,12 @@ int main(int argc, char *argv[])
                     }
 
                     /* Check signature */
-                    const EVP_MD *cipher = EVP_sha512();
+                    const EVP_MD *cipher = EVP_sha256();
                     ret = digestVerify(
                         msg,
-                        clients.at(server->_receivefd)._packet.getPacketSize(),
-                        clients.at(server->_receivefd)._packet.getTag(),
-                        clients.at(server->_receivefd)._packet.getTaglen(),clients.at(server->_receivefd)._pubkey,
+                        clients.at(server->_receivefd).packet.getPacketSize(),
+                        clients.at(server->_receivefd).packet.getTag(),
+                        clients.at(server->_receivefd).packet.getTaglen(),clients.at(server->_receivefd)._pubkey,
                         cipher
                     );
                     if (ret < 0)
@@ -127,9 +139,40 @@ int main(int argc, char *argv[])
                         continue;
                     }
                     
+                    /* Write certificate inside payload */
+                    clients.at(server->_receivefd).packet.reallocPayload(x509_buff, x509_len);
+                    
                     /* Send Certificate */
+                    ret = ESPPacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
 
-                    /* Send response */
+                    /* Load Diffie-Hellman parameters in dh_params */
+                    EVP_PKEY* dh_params;
+                    dh_params = EVP_PKEY_new();
+                    if(dh_params == NULL)
+                        std::cerr << "Error setting up DH parameters" << std::endl;
+                    EVP_PKEY_set1_DH(dh_params, DH_get_2048_224());
+
+                    /* Generation of private/public key pair */
+                    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new(dh_params, NULL);
+                    EVP_PKEY* my_prvkey;
+                    EVP_PKEY_keygen_init(ctx);
+                    EVP_PKEY_keygen(ctx, &my_prvkey);
+
+                    /* Send the public key inside my_prvkey to the peer */
+
+
+                    /* Retrieve the public key of the peer and store it in peer_pubkey */
+
+                    /* Initializing shared secret derivation context */
+
+                    /* Retrieving shared secret's length */
+
+                    /* Deriving shared secret */
+
+                    /* Setup Diffie-Hellman parameters, get priv, pub key pairs. Send the public parameters along with my pubkey to the client */
+
+
+                    EVP_PKEY* peer_pubkey;
 
                     /* Receive DH Param */
 
@@ -146,12 +189,12 @@ int main(int argc, char *argv[])
                 // SECTION We are going to manage communication
                 else
                 {   
-                    nbytes = PacketReceive(i, &clients.at(i)._packet, 0);
+                    nbytes = PacketReceive(i, &clients.at(i).packet, 0);
                     if(nbytes > 0)
                     {   
-                        clients.at(i)._packet.print();
-                        clients.at(i)._packet.reallocPayload(rcv_msg, rcv_msg_size);
-                        ret = PacketSend(i, &clients.at(i)._packet);
+                        clients.at(i).packet.print();
+                        clients.at(i).packet.reallocPayload(rcv_msg, rcv_msg_size);
+                        ret = PacketSend(i, &clients.at(i).packet);
                         if(ret < 0)
                             std::cerr << " <== server()::response(): response msg not sent";
                             continue;
@@ -159,8 +202,8 @@ int main(int argc, char *argv[])
                     else if(nbytes == 0)
                     {   
 		                std::cout << "Peer: " << i << " disconnected" << std::endl;
-                        clients.at(i)._packet.reallocPayload(cls_msg, cls_msg_size);
-                        ret = PacketSend(i, &clients.at(i)._packet);
+                        clients.at(i).packet.reallocPayload(cls_msg, cls_msg_size);
+                        ret = PacketSend(i, &clients.at(i).packet);
                         if(ret < 0)
                             std::cerr << " <== server()::response(): close msg not sent";
                         ret = SockClose(i);
@@ -169,7 +212,7 @@ int main(int argc, char *argv[])
                         FD_CLR(i, &server->_master_set);
                         clients.at(i)._username.clear();
                         clients.at(i)._status = false;
-                        clients.at(i)._packet.reset();
+                        clients.at(i).packet.reset();
                         continue;
                     }
                     else
@@ -179,7 +222,7 @@ int main(int argc, char *argv[])
                         FD_CLR(i, &server->_master_set);
                         clients.at(i)._username.clear();
                         clients.at(i)._status = false;
-                        clients.at(i)._packet.reset();
+                        clients.at(i).packet.reset();
                         std::cerr << " <== Conncetion forcefully closed";
                         continue;
                     }

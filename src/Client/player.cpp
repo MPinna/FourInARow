@@ -94,7 +94,7 @@ int main(int argc, char **argv)
     size_t packet_size = esp->htonPacket(&packet_buf);
     
     /* Sign ESP packet */
-    const EVP_MD *cipher = EVP_sha512();
+    const EVP_MD *cipher = EVP_sha256();
     size_t sig_len;
     unsigned char *sig_buf;
     ret = digestSign(packet_buf, packet_size, &sig_buf, &sig_len, prvkey, cipher);
@@ -117,8 +117,17 @@ int main(int argc, char **argv)
     /* VERIFIED Send ESP packet */
 
     /* Receive Certificate */
+    ESPPacketReceive(client->GetClientfd(), esp, NULL);
 
-    /* Verify it */
+    /* Setup certificate and verify it */
+    const unsigned char *serialized_x509;
+    serialized_x509 = esp->getPayload();
+    X509 *x509 = d2i_X509(NULL, &serialized_x509, esp->getPayloadSize());
+    ret = verifyCert(store, x509);
+    if(ret > 0)
+    {
+        std::cout << "Server certificate is valid, authentication will continue" << std::endl;
+    }
 
     /* Receive response (ClientHello) */
     

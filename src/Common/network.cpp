@@ -369,7 +369,7 @@ ESPPacketReceive(int sockfd, ESP *packet, unsigned char **msg)
 			return -1;
 		}
 		else
-			packet->reallocPayload(payload, packet->getPayloadSize()); // FIXME
+			packet->reallocPayload(payload, packet->getPayloadSize());
 		
 		unsigned char *taglen = new unsigned char[sizeof(uint16_t)];
 		nbytes = ReadNBytes(sockfd, taglen, sizeof(uint16_t));
@@ -410,10 +410,13 @@ ESPPacketReceive(int sockfd, ESP *packet, unsigned char **msg)
 			else
 				packet->setTag(tag_buf, tag_length);
 			
-			// TOCHECK tieni il buffer originale
-			*msg = new unsigned char[packet->getPacketSize()];
-			memcpy(*msg, header, packet->getHeaderSize());
-			memcpy(*msg + packet->getHeaderSize(), payload, packet->getPayloadSize());
+			// TOCHECK tieni il buffer originale per fare il check della firma
+			if(msg != NULL)
+			{
+				*msg = new unsigned char[packet->getPacketSize()];
+				memcpy(*msg, header, packet->getHeaderSize());
+				memcpy(*msg + packet->getHeaderSize(), payload, packet->getPayloadSize());
+			}
 
 			delete[] header;
 			delete[] payload;
