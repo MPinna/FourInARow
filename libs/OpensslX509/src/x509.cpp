@@ -279,9 +279,8 @@ verifyCert(X509_STORE *store, X509* cert)
     return 1;
 }
 
-// TODO check if needed or not
 int
-SendCert()
+serializeCert(X509* cert, unsigned char **ser_cert)
 {
     return 1;
 }

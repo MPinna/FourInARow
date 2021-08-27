@@ -21,15 +21,16 @@ struct ClientHello
     unsigned int        _nonce;
 
     // Setter / Getter
-    int setUsername(const char *user);
-    int getType();
-    size_t getSize();
+    int     setUsername(const char *user);
+    int     getType();
+    size_t  getSize();
+
     // Member methods
-    int initClientHello(unsigned char *username, unsigned char portnum);
-    size_t serialize(unsigned char **data);
-    size_t HtoN(unsigned char **data);
-    size_t NtoH(unsigned char *ser_buf);
-    void print();
+    int     initClientHello(unsigned char *username, unsigned char portnum);
+    size_t  serialize(unsigned char **data);
+    size_t  HtoN(unsigned char **data);
+    size_t  NtoH(unsigned char *ser_buf);
+    void    print();
 }__attribute__((packed));
 
 /**
@@ -43,13 +44,14 @@ struct ClientResponse
     DHKey           dh_key;
 
     // Member methods
-    int getType();
-    size_t getSize();
+    int     getType();
+    size_t  getSize();
+    
     // Member methods
-    size_t serialize(unsigned char **data);
-    size_t HtoN(unsigned char **data);
-    size_t NtoH(unsigned char *ser_buf);
-    void print();
+    size_t  serialize(unsigned char **data);
+    size_t  HtoN(unsigned char **data);
+    size_t  NtoH(unsigned char *ser_buf);
+    void    print();
 }__attribute__((packed));
 // FINISCE L'AUTH TRA CLIENT E SERVER
 
@@ -64,13 +66,14 @@ struct ChallengeRequest
     DHKey           dh_key;
 
     // Member methods
-    int getType();
-    size_t getSize(); // TOCHECK
+    int     getType();
+    size_t  getSize(); // TOCHECK
+
     // Member methods
-    size_t serialize(unsigned char **data);
-    size_t HtoN(unsigned char **data);
-    size_t NtoH(unsigned char *ser_buf);
-    void print();
+    size_t  serialize(unsigned char **data);
+    size_t  HtoN(unsigned char **data);
+    size_t  NtoH(unsigned char *ser_buf);
+    void    print();
 }__attribute__((packed));
 
 struct ChallengeResponse
@@ -80,12 +83,12 @@ struct ChallengeResponse
     DHKey           dh_key;
 
     // Member methods
-    int getType();
-    size_t getSize(); // TOCHECK
+    int     getType();
+    size_t  getSize(); // TOCHECK
     // Member methods
-    size_t serialize(unsigned char **data);
-    size_t HtoN(unsigned char **data);
-    size_t NtoH(unsigned char *ser_buf);
-    void print();
+    size_t  serialize(unsigned char **data);
+    size_t  HtoN(unsigned char **data);
+    size_t  NtoH(unsigned char *ser_buf);
+    void    print();
 }__attribute__((packed));
 #endif

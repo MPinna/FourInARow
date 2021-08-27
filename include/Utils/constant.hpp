@@ -17,14 +17,14 @@
 #define DFLT_OPP_LISTENER_PORT  "11000"     // Peer stands for receiver
 #define ADDRESS_LENGTH          (16 + 1)
 
-// DESCRIPTION: Auth messages
+// DESCRIPTION: Auth messages code
 #define CLIENT_HELLO        0
 #define SERVER_HELLO        1
 #define SERVER_CHALLENGE    2
 #define CLIENT_RESPONSE     3
 #define SERVER_CONFIRMATION 4
 
-// DESCRIPTION: ADAE (Authenticated Data Authenticated Encryption) messages 
+// DESCRIPTION: ADAE (Authenticated Data Authenticated Encryption) messages code
 #define PEER_HELLO          5
 #define PEER_RESPONSE       6
 #define PLAYER_LIST         7

@@ -29,13 +29,13 @@ struct ServerResponse
     DHKey           dh_key;
 
     // Getter
-    int getType();
-    size_t getSize(); // TOCHECK
+    int     getType();
+    size_t  getSize(); // TOCHECK
     // Member methods
-    size_t serialize(unsigned char **data);
-    size_t HtoN(unsigned char **data);
-    size_t NtoH(unsigned char *ser_buf);
-    void print();
+    size_t  serialize(unsigned char **data);
+    size_t  HtoN(unsigned char **data);
+    size_t  NtoH(unsigned char *ser_buf);
+    void    print();
 }__attribute__((packed));
 
 // TODO: message sent by the server to confirm client authentication, but also to setup client info (status, pubkey, etc...). Check fields correctness and member methods
@@ -44,12 +44,12 @@ struct Confirmation
     bool authenticated;
     
     // Getter
-    int getType();
-    size_t getSize(); 
+    int     getType();
+    size_t  getSize(); 
     // Member methods
-    size_t serialize(unsigned char **data);
-    size_t HtoN(unsigned char **data);
-    size_t NtoH(unsigned char *ser_buf);
-    void print();
+    size_t  serialize(unsigned char **data);
+    size_t  HtoN(unsigned char **data);
+    size_t  NtoH(unsigned char *ser_buf);
+    void    print();
 }__attribute__((packed));
 #endif

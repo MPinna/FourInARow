@@ -18,8 +18,8 @@ int SetupStore(X509_STORE** store);
 
 int compareSubjectName(X509* cert, std::string str_name);
 
-int verifyCert();
+int verifyCert(X509_STORE *store, X509* cert);
 
-// TODO: check if needed or not
-int SendCert();
+int serializeCert(X509* cert, unsigned char **ser_cert);
+
 #endif

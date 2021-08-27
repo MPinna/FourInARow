@@ -10,13 +10,13 @@
 
 struct SecurityCheck
 {
-    size_t _received;
-    size_t _next;
-    size_t _expected;
+    unsigned int    _nonce;
+    size_t          _received;
+    size_t          _expected;
     
     // Default constructor
     SecurityCheck()
-        : _received{0}, _next{0}, _expected{0} {}
+        : _nonce{0}, _received{0}, _expected{0} {}
     // Class methods
     void updateFields();
 };
@@ -27,8 +27,8 @@ struct ClientInfo
     std::string     _ip_addr; // TOCHECK
     bool            _status;
     EVP_PKEY *      _pubkey;
-    ESP             _packet;
-    SecurityCheck   _check;
+    ESP             packet;
+    SecurityCheck   check;
 
     ClientInfo()
         : _username{NULL}, _status{false}, _pubkey{NULL} {}
