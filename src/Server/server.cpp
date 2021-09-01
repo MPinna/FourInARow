@@ -147,19 +147,66 @@ int main(int argc, char *argv[])
 
                     /* Load Diffie-Hellman parameters in dh_params */
                     EVP_PKEY* dh_params;
-                    dh_params = EVP_PKEY_new();
-                    if(dh_params == NULL)
+                    if (NULL == (dh_params = EVP_PKEY_new()))
                         std::cerr << "Error setting up DH parameters" << std::endl;
-                    EVP_PKEY_set1_DH(dh_params, DH_get_2048_224());
+
+                    DH *temp_params = DH_get_2048_224();
+                    if(1 != EVP_PKEY_set1_DH(dh_params, temp_params))
+                        std::cerr << "EVP_PKEY_set1_DH failed (fail to set the dh key)" << std::endl;
+
+                    /* Create context for the key generation */
+                    EVP_PKEY_CTX* dh_ctx;
+                    if(!(dh_ctx = EVP_PKEY_CTX_new(dh_params, NULL)))
+                        std::cerr << "DH Context failed (error during context creation)" << std::endl;
 
                     /* Generation of private/public key pair */
-                    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new(dh_params, NULL);
-                    EVP_PKEY* my_prvkey;
-                    EVP_PKEY_keygen_init(ctx);
-                    EVP_PKEY_keygen(ctx, &my_prvkey);
+                    std::cout << "... Generating ephemeral DH KeyPair ..." << std::endl;
+                    EVP_PKEY* my_dhkey = NULL;
+                    if(1 != EVP_PKEY_keygen_init(dh_ctx))
+                        std::cerr << "EVP_PKEY_keygen_init() failed" << std::endl;
+                    if(1 != EVP_PKEY_keygen(dh_ctx, &my_dhkey))
+                        std::cerr << "EVP_PKEY_keygen() failed generating DH Keys" << std::endl;
+
+                    std::cout << "EVP_PKEY_size "<< EVP_PKEY_size(my_dhkey) << std::endl;
+                    long int size{EVP_PKEY_size(my_dhkey)};
+                    unsigned char *buf = new unsigned char[size];
+                    memcpy(buf, dh_params, size);
+                    
+                    /* Write pubkey and dh parameters inside a buffer */
+                    BIO *server_bio = BIO_new(BIO_s_mem());
+                    PEM_write_bio_DHparams(server_bio, temp_params);
+                    const int dh_size = BIO_pending(server_bio);
+                    std::cout << "dh_size: "<< dh_size << std::endl;
+                    unsigned char *dh_char = new unsigned char[dh_size];
+                    BIO_read(server_bio, dh_char, dh_size);
+                    std::cout << "wrote bio data into char " << std::endl;
+
+                    /* CLIENT SIDE */
+                    BIO *client_bio = BIO_new(BIO_s_mem());
+                    BIO *client_bio2 = BIO_new(BIO_s_mem());
+                    DH *new_params = NULL;
+                    BIO_write(client_bio, dh_char, dh_size);
+                    BIO_write(client_bio2, dh_char, dh_size);
+                    const int test = BIO_get_mem_data(client_bio, dh_char);
+                    PEM_read_bio_DHparams(client_bio, &new_params, NULL, NULL);
+                    std::cout << "test: "<< test << std::endl;
+                    std::cout << "PEM_read_bio_DHparams" << std::endl;
+                    
+                    unsigned char *dh_char2 = new unsigned char[dh_size];
+                    BIO_read(client_bio2, dh_char2, dh_size);
+                    std::cout << "wrote bio data into char " << std::endl;
+
+                    for(int i = 0; i < dh_size; i++)
+                        std::cout << dh_char[i] << ".";
+
+                    std::cout << "\n\n BIO2:\n";
+
+                    for(int i = 0; i < dh_size; i++)
+                        std::cout << dh_char2[i] << ".";
+
+                    // NOTE
 
                     /* Send the public key inside my_prvkey to the peer */
-
 
                     /* Retrieve the public key of the peer and store it in peer_pubkey */
 
@@ -170,9 +217,6 @@ int main(int argc, char *argv[])
                     /* Deriving shared secret */
 
                     /* Setup Diffie-Hellman parameters, get priv, pub key pairs. Send the public parameters along with my pubkey to the client */
-
-
-                    EVP_PKEY* peer_pubkey;
 
                     /* Receive DH Param */
 

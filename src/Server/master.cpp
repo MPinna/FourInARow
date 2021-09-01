@@ -110,8 +110,8 @@ Master::Run()
                         " on socket: " << this->_receivefd << 
                     std::endl;
                     clients.at(this->_receivefd)._status = 1;
-                    clients.at(this->_receivefd)._packet.reallocPayload((unsigned char *)wlc_msg.c_str(), wlc_msg.length());
-                    _ret_code = PacketSend(this->_receivefd, &clients.at(this->_receivefd)._packet);
+                    clients.at(this->_receivefd).packet.reallocPayload((unsigned char *)wlc_msg.c_str(), wlc_msg.length());
+                    _ret_code = PacketSend(this->_receivefd, &clients.at(this->_receivefd).packet);
                     if(_ret_code == -1)
                         std::cerr << " <== Master::Run(): wlc_msg not sent";
                     // Start authentication phase
@@ -120,12 +120,12 @@ Master::Run()
                 // SECTION We are going to manage communication
                 else 
                 {   
-                    nbytes = PacketReceive(i, &clients.at(i)._packet, 0);
+                    nbytes = PacketReceive(i, &clients.at(i).packet, 0);
                     if(nbytes > 0)
                     {   
-                        clients.at(i)._packet.print();
-                        clients.at(i)._packet.reallocPayload(rcv_msg, rcv_msg_size);
-                        _ret_code = PacketSend(i, &clients.at(i)._packet);
+                        clients.at(i).packet.print();
+                        clients.at(i).packet.reallocPayload(rcv_msg, rcv_msg_size);
+                        _ret_code = PacketSend(i, &clients.at(i).packet);
                         if(_ret_code < 0)
                             std::cerr << " <== Master::Run(): response msg not sent";
                             continue;
@@ -133,8 +133,8 @@ Master::Run()
                     else if(nbytes == 0)
                     {   
 		                std::cout << "Peer: " << i << " disconnected" << std::endl;
-                        clients.at(i)._packet.reallocPayload(cls_msg, cls_msg_size);
-                        _ret_code = PacketSend(i, &clients.at(i)._packet);
+                        clients.at(i).packet.reallocPayload(cls_msg, cls_msg_size);
+                        _ret_code = PacketSend(i, &clients.at(i).packet);
                         if(_ret_code < 0)
                             std::cerr << " <== Master::Run(): close msg not sent";
                         _ret_code = SockClose(i);
