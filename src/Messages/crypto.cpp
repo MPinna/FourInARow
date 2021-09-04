@@ -1,5 +1,6 @@
 #include "../../include/Messages/crypto.hpp"
 #include <openssl/evp.h>
+#include <openssl/pem.h>
 
 int 
 Tag::setTag(unsigned char *tag, unsigned short int size)
@@ -93,50 +94,32 @@ Tag::print()
     return 1;
 }
 
-int
+size_t
 DHKey::getSize()
 {
     return (
-        sizeof(this->_nonce) +
         sizeof(this->_dh_lenght) +
         this->_dh_lenght
     );
 }
 
-size_t
-DHKey::setDHKey(unsigned char *data)
+int
+DHKey::setKey(EVP_PKEY *key)
 {
-    size_t size{strlen((char *)data)};
-    this->_dh_key = new unsigned char [(size + 1)];
-    memcpy(this->_dh_key, data + '\0', size + 1);
+    int size{EVP_PKEY_size(key)};
+    this->_dh_key = new unsigned char[size];
+    memcpy(this->_dh_key, key, size);
+    this->_dh_lenght = size;
     
-    return size;
-}
-
-size_t 
-DHKey::serialize(unsigned char *data)
-{
-    size_t pos{0};
-
-    memcpy(data, &this->_nonce, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-    memcpy(data + pos, &_dh_lenght, sizeof(uint16_t));
-    pos += sizeof(uint16_t);
-    memcpy(data + pos, this->_dh_key, this->_dh_lenght);
-    pos += this->_dh_lenght;
-
-    return pos;
+    return 1;
 }
 
 size_t 
 DHKey::HtoN(unsigned char *data)
 {
     size_t pos{0};
-    uint32_t nonce{htonl(this->_nonce)};
     uint16_t dh_lenght{htons(this->_dh_lenght)};
 
-    memcpy(data, &nonce, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
     memcpy(data + pos, &dh_lenght, sizeof(uint16_t));
     pos += sizeof(uint16_t);
     memcpy(data + pos, this->_dh_key, this->_dh_lenght);
@@ -149,17 +132,14 @@ size_t
 DHKey::NtoH(unsigned char *ser_data)
 {
     size_t pos{0};
-    uint32_t nonce{0};
     uint16_t dh_lenght{0};
 
-    memcpy(&nonce, ser_data, sizeof(uint32_t));
-    this->_nonce = ntohl(nonce);
-    pos += sizeof(uint32_t);
     memcpy(&dh_lenght, ser_data + pos, sizeof(uint16_t));
     this->_dh_lenght = ntohs(dh_lenght);
     pos += sizeof(uint16_t);
-    this->setDHKey(ser_data + pos);
-    pos += this->_dh_lenght;
+    this->_dh_key = new unsigned char[dh_lenght];
+    memcpy(this->_dh_key, ser_data + pos, dh_lenght);
+    pos += dh_lenght;
 
     return pos;
 }
@@ -167,7 +147,82 @@ DHKey::NtoH(unsigned char *ser_data)
 void
 DHKey::print()
 {
-    // TODO
+    std::cout << 
+        "DH Key length: " << this->_dh_lenght << 
+        "\nDH Key: " << this->_dh_key << 
+    std::endl;
+}
+
+int
+DHParams::setParams(DH *params)
+{
+    BIO *bio = BIO_new(BIO_s_mem());
+    if(bio == NULL)
+    {    
+        std::cerr << "<== DHParams::setParams(BIO_new) failed!" << std::endl;
+        return 0;
+    }
+    if(PEM_write_bio_DHparams(bio, params) < 1)
+    {
+        std::cerr << "<== DHParams::setParams(PEM_write_bio_DHparams) failed!";
+        return 0;
+    }
+    const int dh_size = BIO_pending(bio);
+    this->_params = new unsigned char[dh_size];
+    BIO_read(bio, this->_params, dh_size);
+    this->_params_length = dh_size;
+    BIO_free(bio);
+
+    return 1;
+}
+
+size_t
+DHParams::getSize()
+{
+    return (
+        sizeof(this->_params_length) +
+        this->_params_length
+    );
+}
+
+size_t
+DHParams::HtoN(unsigned char *data)
+{
+    size_t pos{0};
+    uint16_t params_length{htons(this->_params_length)};
+
+    memcpy(data + pos, &params_length, sizeof(params_length));
+    pos += sizeof(params_length);
+    memcpy(data + pos, this->_params, this->_params_length);
+    pos += this->_params_length;
+
+    return pos;
+}
+
+size_t
+DHParams::NtoH(unsigned char *ser_data)
+{
+    size_t pos{0};
+    uint16_t params_length{0};
+
+    memcpy(&params_length, ser_data + pos, sizeof(params_length));
+    this->_params_length = ntohs(params_length);
+    pos += sizeof(params_length);
+    this->_params = new unsigned char[params_length];
+    memcpy(this->_params, ser_data + pos, this->_params_length);
+    pos += _params_length;
+
+    return pos;
+}
+
+
+void
+DHParams::print()
+{
+    std::cout <<
+        "Params length: " << this->_params_length << 
+        "\nDH Params: " << this->_params <<
+    std::endl;
 }
 
 void Digest::setDigest(unsigned char *digest)

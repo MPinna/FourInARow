@@ -23,16 +23,13 @@ struct ServerCertificate
 
 struct ServerResponse
 {
-    unsigned int    _opp_nonce;
-    unsigned int    _dh_param_p;
-    unsigned int    _dh_param_g;
-    DHKey           dh_key;
+    DHParams    params;
+    DHKey       dh_key;
 
     // Getter
     int     getType();
-    size_t  getSize(); // TOCHECK
+    size_t  getSize();
     // Member methods
-    size_t  serialize(unsigned char **data);
     size_t  HtoN(unsigned char **data);
     size_t  NtoH(unsigned char *ser_buf);
     void    print();

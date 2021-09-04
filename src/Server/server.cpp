@@ -8,6 +8,7 @@
 #include "../../libs/OpensslUtils/include/sslutils.hpp"
 #include "../../libs/OpensslX509/include/x509.hpp"
 #include "../../include/Messages/Client/auth.hpp"
+#include "../../include/Messages/Server/auth.hpp"
 #include "../../include/Utils/structures.hpp"
 #include "../../include/Server/master.hpp"
 #include <vector>
@@ -117,9 +118,9 @@ int main(int argc, char *argv[])
                     if (ret <= 0)
                     {
                         if (ret == 0)
-                            std::cout << " <== Server failed";
+                            std::cout << " <== (RetrievePubKey) Server failed";
                         if (ret < 0)
-                            std::cerr << " <== Internal Server error!";
+                            std::cerr << " <== (RetrievePubKey) Internal Server error!";
                         
                         continue;
                     }
@@ -160,53 +161,39 @@ int main(int argc, char *argv[])
                         std::cerr << "DH Context failed (error during context creation)" << std::endl;
 
                     /* Generation of private/public key pair */
-                    std::cout << "... Generating ephemeral DH KeyPair ..." << std::endl;
                     EVP_PKEY* my_dhkey = NULL;
                     if(1 != EVP_PKEY_keygen_init(dh_ctx))
                         std::cerr << "EVP_PKEY_keygen_init() failed" << std::endl;
                     if(1 != EVP_PKEY_keygen(dh_ctx, &my_dhkey))
                         std::cerr << "EVP_PKEY_keygen() failed generating DH Keys" << std::endl;
 
-                    std::cout << "EVP_PKEY_size "<< EVP_PKEY_size(my_dhkey) << std::endl;
-                    long int size{EVP_PKEY_size(my_dhkey)};
-                    unsigned char *buf = new unsigned char[size];
-                    memcpy(buf, dh_params, size);
-                    
+                    // TODO: da eliminare
                     /* Write pubkey and dh parameters inside a buffer */
-                    BIO *server_bio = BIO_new(BIO_s_mem());
-                    PEM_write_bio_DHparams(server_bio, temp_params);
-                    const int dh_size = BIO_pending(server_bio);
-                    std::cout << "dh_size: "<< dh_size << std::endl;
-                    unsigned char *dh_char = new unsigned char[dh_size];
-                    BIO_read(server_bio, dh_char, dh_size);
-                    std::cout << "wrote bio data into char " << std::endl;
-
-                    /* CLIENT SIDE */
-                    BIO *client_bio = BIO_new(BIO_s_mem());
-                    BIO *client_bio2 = BIO_new(BIO_s_mem());
-                    DH *new_params = NULL;
-                    BIO_write(client_bio, dh_char, dh_size);
-                    BIO_write(client_bio2, dh_char, dh_size);
-                    const int test = BIO_get_mem_data(client_bio, dh_char);
-                    PEM_read_bio_DHparams(client_bio, &new_params, NULL, NULL);
-                    std::cout << "test: "<< test << std::endl;
-                    std::cout << "PEM_read_bio_DHparams" << std::endl;
+                    // BIO *server_bio = BIO_new(BIO_s_mem());
+                    // PEM_write_bio_DHparams(server_bio, temp_params);
+                    // const int dh_size = BIO_pending(server_bio);
+                    // unsigned char *dh_char = new unsigned char[dh_size];
+                    // BIO_read(server_bio, dh_char, dh_size);
                     
-                    unsigned char *dh_char2 = new unsigned char[dh_size];
-                    BIO_read(client_bio2, dh_char2, dh_size);
-                    std::cout << "wrote bio data into char " << std::endl;
+                    // long int size{EVP_PKEY_size(my_dhkey)};
+                    // unsigned char *buf = new unsigned char[size];
+                    // memcpy(buf, dh_params, size);
+                    
+                    ServerResponse response = ServerResponse();
+                    response.params.setParams(temp_params);
+                    response.dh_key.setKey(my_dhkey);
 
-                    for(int i = 0; i < dh_size; i++)
-                        std::cout << dh_char[i] << ".";
+                    unsigned char *response_buf;    
+                    size_t response_size = response.HtoN(&response_buf);
+                    clients.at(server->_receivefd).packet.setType(response.getType());
+                    clients.at(server->_receivefd).packet.reallocPayload(response_buf, response_size);
 
-                    std::cout << "\n\n BIO2:\n";
+                    // TODO generate key pairs for server 
+                    // clients.at(server->_receivefd).packet.sign()
 
-                    for(int i = 0; i < dh_size; i++)
-                        std::cout << dh_char2[i] << ".";
 
-                    // NOTE
-
-                    /* Send the public key inside my_prvkey to the peer */
+                    /* Send pubkey and dh parameters */
+                    
 
                     /* Retrieve the public key of the peer and store it in peer_pubkey */
 

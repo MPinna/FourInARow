@@ -115,20 +115,6 @@ ClientResponse::getSize()
 }
 
 size_t
-ClientResponse::serialize(unsigned char **data)
-{
-    uint32_t opp_nonce{htonl(this->_opp_nonce)};
-    size_t size{this->getSize()}, pos{0};
-    *data = new unsigned char[size];
-
-    memcpy(*data, &opp_nonce, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-    this->dh_key.serialize(*data + pos);
-
-    return size;
-}
-
-size_t
 ClientResponse::HtoN(unsigned char **data)
 {
     uint32_t opp_nonce{htons(this->_opp_nonce)};
@@ -179,21 +165,6 @@ ChallengeRequest::getSize()
         sizeof(this->_opp_nonce) + 
         this->dh_key.getSize()
     );
-}
-
-size_t
-ChallengeRequest::serialize(unsigned char **data)
-{
-    size_t pos{0}, size{this->getSize()};
-    *data = new unsigned char[size];
-
-    memcpy(*data, &this->_nonce, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-    memcpy(*data, &this->_opp_nonce, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-    this->dh_key.serialize(*data + pos);
-
-    return size;
 }
 
 size_t
@@ -253,21 +224,6 @@ ChallengeResponse::getSize()
         sizeof(this->_signal) +
         this->dh_key.getSize()
     );
-}
-
-size_t
-ChallengeResponse::serialize(unsigned char **data)
-{
-    size_t pos{0}, size{this->getSize()};
-    *data = new unsigned char[size];
-
-    memcpy(*data, &this->_opp_nonce, sizeof(_opp_nonce));
-    pos += sizeof(_opp_nonce);
-    memcpy(*data + pos, &this->_signal, sizeof(_signal));
-    pos += sizeof(_signal);
-    this->dh_key.serialize(*data + pos);
-
-    return size;
 }
 
 size_t
@@ -381,51 +337,28 @@ ServerCertificate::NtoH(unsigned char *ser_buf)
 int
 ServerResponse::getType()
 {
-    return 1; // FIXME
+    return 1;
 }
 
 size_t
 ServerResponse::getSize()
 {
     return (
-        sizeof(this->_opp_nonce) + 
-        sizeof(this->_dh_param_g) +
-        sizeof(this->_dh_param_p) +
+        this->params.getSize() +
         this->dh_key.getSize()
     );
 }
 
 size_t
-ServerResponse::serialize(unsigned char **data)
-{
-    size_t pos{0}, size{this->getSize()};
-    *data = new unsigned char[size];
-
-    memcpy(*data, &this->_opp_nonce, sizeof(this->_opp_nonce));
-    pos += sizeof(this->_opp_nonce);
-    memcpy(*data + pos, &this->_dh_param_p, sizeof(this->_dh_param_p));
-    pos += sizeof(this->_dh_param_p);
-    memcpy(*data + pos, &this->_dh_param_g, sizeof(this->_dh_param_g));
-    pos += sizeof(this->_dh_param_g);
-    this->dh_key.serialize(*data + pos);
-
-    return size;
-}
-
-size_t
 ServerResponse::HtoN(unsigned char **data)
 {
-    size_t pos{0}, size{this->getSize()};
-    uint32_t opp_nonce{htonl(this->_opp_nonce)}, param_g{htonl(this->_dh_param_g)}, param_p{htonl(this->_dh_param_p)};
+    size_t pos{0}, size{this->dh_key.getSize() + this->params.getSize()};
     *data = new unsigned char[size];
 
-    memcpy(*data, &opp_nonce, sizeof(opp_nonce));
-    pos += sizeof(opp_nonce);
-    memcpy(*data + pos, &param_p, sizeof(param_p));
-    pos += sizeof(param_p);
-    memcpy(*data + pos, &param_g, sizeof(param_g));
-    pos += sizeof(param_g);
-    this->dh_key.serialize(*data + pos);
+    this->params.HtoN(*data + pos);
+    pos += this->params.getSize();
+    this->dh_key.HtoN(*data + pos);
+    pos += this->dh_key.getSize();
 
     return size;
 }
@@ -434,18 +367,11 @@ size_t
 ServerResponse::NtoH(unsigned char *data)
 {
     size_t pos{0};
-    uint32_t opp_nonce{0}, param_g{0}, param_p{0};
 
-    memcpy(&opp_nonce, data, sizeof(opp_nonce));
-    this->_opp_nonce = ntohl(opp_nonce);
-    pos += sizeof(opp_nonce);
-    memcpy(&param_p, data + pos, sizeof(param_p));
-    this->_dh_param_p = ntohl(param_p);
-    pos += sizeof(param_p);
-    memcpy(&param_g, data + pos, sizeof(param_g));
-    this->_dh_param_g = ntohl(param_g);
-    pos += sizeof(param_g);
+    this->params.NtoH(data + pos);
+    pos += this->params.getSize();
     this->dh_key.NtoH(data + pos);
+    pos += this->dh_key.getSize();
 
     return pos;
 }

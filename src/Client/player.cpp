@@ -1,7 +1,6 @@
 /**
  * SECTION
  * The Client class, it is responsible for:
- * TODO
  *  - Launch a new client
  *  - Interact with server
  *  - Challenge another client
@@ -73,7 +72,7 @@ int main(int argc, char **argv)
     /**
      * SECTION_START
      */
-    
+
     /* FIXME Make hello message */
     ClientHello hello = ClientHello();
     hello.setUsername(argv[1]);
@@ -104,14 +103,13 @@ int main(int argc, char **argv)
     }
     esp->setTag(sig_buf, sig_len);
     
+    delete[] packet_buf;
+    delete[] sig_buf;
+
     /* Print out */
     esp->print();
     hello.print();
     esp->printTag();
-
-    delete[] packet_buf;
-    delete[] sig_buf;
-
 
     ESPPacketSend(client->GetClientfd(), esp);
     /* VERIFIED Send ESP packet */

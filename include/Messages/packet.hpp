@@ -83,5 +83,6 @@ class ESP : public Packet{
         size_t  ntohESPPacket(unsigned char *ser_data);
         size_t  ntohTaglen(unsigned char *ser_data);
         int     printTag();
+        int     sign(EVP_PKEY *prvkey);
 };
 #endif

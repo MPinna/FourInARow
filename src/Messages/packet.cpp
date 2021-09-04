@@ -4,6 +4,7 @@
  */
 #include "../../include/Messages/packet.hpp"
 #include "../../include/Messages/crypto.hpp"
+#include "../../libs/OpensslDS/include/digitalSignature.hpp"
 
 size_t
 Header::HtoN(unsigned char *buf)
@@ -391,7 +392,28 @@ ESP::ntohTaglen(unsigned char *ser_data)
     return this->tag.NtoHtaglen(ser_data);
 }
 
-int ESP::printTag()
+int 
+ESP::printTag()
 {
     return this->tag.print();
+}
+
+int 
+ESP::sign(EVP_PKEY *prvkey)
+{
+    /* Sign ESP packet */
+    const EVP_MD *cipher = EVP_sha256();
+    size_t sig_len, packet_len;
+    unsigned char *sig_buf, *packet_buf;
+    packet_len = this->htonPacket(&packet_buf);
+    if(digestSign(packet_buf, packet_len, &sig_buf, &sig_len, prvkey, cipher) < 0)
+    {
+        std::cerr << " <== ESP::sign() failed!" << std::endl;
+        return 0;
+    }
+    this->setTag(sig_buf, sig_len);
+    
+    delete[] sig_buf;
+
+    return 1;
 }

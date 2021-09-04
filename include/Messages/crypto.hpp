@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <cstring>
 #include <cassert>
+#include <openssl/dh.h>
 
 /**
  * Tag structure represent a generic container which can be used to store:
@@ -37,16 +38,25 @@ struct Tag
 
 struct DHKey
 {
-    unsigned int        _nonce; // Value computed as (g)^(a) mod p
     unsigned short int  _dh_lenght;
     unsigned char *     _dh_key;
 
+    int setKey(EVP_PKEY *key);
+    size_t getSize();
     // Member methods
-    size_t setDHKey(unsigned char *data);
-    int getDHKey();
-    int getSize();
+    size_t HtoN(unsigned char *data);
+    size_t NtoH(unsigned char *ser_data);
+    void print();
+}__attribute__((packed));
+
+struct DHParams
+{
+    uint16_t        _params_length;
+    unsigned char * _params;
+
+    int setParams(DH *params);
+    size_t getSize();
     // Member methods
-    size_t serialize(unsigned char *data);
     size_t HtoN(unsigned char *data);
     size_t NtoH(unsigned char *ser_data);
     void print();
