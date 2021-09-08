@@ -6,18 +6,20 @@
  *  - Challenge another client
  *  - Play a four-in-a-row game
  *  - Init a board
+ * TODO
+ * manage all error (exit, go on, message error and close connection, etc...)
  */
 #include "../../libs/OpensslDS/include/digitalSignature.hpp"
 #include "../../libs/OpensslUtils/include/sslutils.hpp"
 #include "../../libs/OpensslX509/include/x509.hpp"
 #include "../../include/Messages/Client/auth.hpp"
+#include "../../include/Messages/Server/auth.hpp"
 #include "../../include/Messages/packet.hpp"
 #include "../../include/Utils/structures.hpp"
 #include "../../include/Utils/utils.hpp"
 #include "../../include/Client/slave.hpp"
 #include <chrono>
 #include <cerrno>
-using namespace std;
 
 int main(int argc, char **argv)
 {
@@ -69,11 +71,13 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    /* Init security check structure */
+    SecurityCheck check = SecurityCheck();
+
     /**
      * SECTION_START
+     * Client - Server authentication
      */
-
-    /* FIXME Make hello message */
     ClientHello hello = ClientHello();
     hello.setUsername(argv[1]);
     hello._port_number = client->_port;
@@ -88,11 +92,13 @@ int main(int argc, char **argv)
     esp->setPayload(hello_buf, hello_size);
     delete hello_buf;
     
-    
+    check._nonce = hello._nonce;
+    check._sent  = esp->getCounter();
+
     unsigned char *packet_buf;
     size_t packet_size = esp->htonPacket(&packet_buf);
     
-    /* Sign ESP packet */
+    /* Sign hello packet */
     const EVP_MD *cipher = EVP_sha256();
     size_t sig_len;
     unsigned char *sig_buf;
@@ -117,18 +123,71 @@ int main(int argc, char **argv)
     /* Receive Certificate */
     ESPPacketReceive(client->GetClientfd(), esp, NULL);
 
+    /* TODO Check counter */
+    // if(esp->getCounter() != check._expected)
+    //     std::cerr << "Attention: possible reply attack! Sequence number already seen" << std::endl;
+
     /* Setup certificate and verify it */
     const unsigned char *serialized_x509;
     serialized_x509 = esp->getPayload();
     X509 *x509 = d2i_X509(NULL, &serialized_x509, esp->getPayloadSize());
     ret = verifyCert(store, x509);
-    if(ret > 0)
+    if(ret < 1)
     {
-        std::cout << "Server certificate is valid, authentication will continue" << std::endl;
+        std::cerr << "Server certificate is not valid, authentication phase failed!" << std::endl;
     }
+    else
+        std::cout << "Server certificate is valid, authentication will continue" << std::endl;
+    EVP_PKEY *server_pubkey{NULL};
+
+    server_pubkey = X509_get_pubkey(x509);
+
+    check.updateFields();
 
     /* Receive response (ClientHello) */
+    unsigned char *response_buff;
+    ret = ESPPacketReceive(client->GetClientfd(), esp, &response_buff);
+    if(ret < 1)
+    {
+        std::cerr << "Server response error: failed to receive DH key and parameters" << std::endl; 
+    }
+
+    /* TODO Check counter */
+    // if(esp->getCounter() != check._expected)
+    //     std::cerr << "Attention: possible reply attack! Sequence number already seen" << std::endl;
+
+    /* Verify validity and check packet contents */
+    ret = digestVerify(
+        response_buff,
+        esp->getPacketSize(),
+        esp->getTag(),
+        esp->getTaglen(),
+        server_pubkey,
+        EVP_sha256()
+    );
+    if(ret < 1)
+        std::cerr << "DH Key exchange verification failure: signature mismatch" << std::endl;
     
+    /* Get information */
+    ServerResponse response = ServerResponse();
+    response.NtoH(esp->getPayload());
+
+    /* Retrieve DH params and DH public key of server */
+    BIO *dh_params_bio = BIO_new(BIO_s_mem());
+    DH *dh_params{NULL};
+    BIO_write(dh_params_bio, response.params._params, response.params._params_length);
+    PEM_read_bio_DHparams(dh_params_bio, &dh_params, NULL, NULL);
+    
+    BIO *dh_serverkey_bio = BIO_new(BIO_s_mem());
+    BIO_write(dh_serverkey_bio, response.dh_key._dh_key, response.dh_key._dh_lenght);
+    EVP_PKEY *serverdh_key{NULL};
+    PEM_read_bio_PUBKEY(dh_serverkey_bio, &serverdh_key, NULL, NULL);
+
+    /* Generate client DH Key */
+    
+    /* TODO Derive the shared secret */
+
+
     // std::cout << "esp.getSize(): "<< esp->getSize() << std::endl;
     // std::cout << "esp.getPayloadSize(): "<< esp->getPayloadSize() << std::endl;
     // std::cout << "esp.getHeaderSize(): "<< esp->getHeaderSize() << std::endl;

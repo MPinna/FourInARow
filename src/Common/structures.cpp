@@ -3,5 +3,6 @@
 void
 SecurityCheck::updateFields()
 {
-    _expected = _received + 1;
+    _sent = _received + 1;
+    _expected = _sent + 1;
 }

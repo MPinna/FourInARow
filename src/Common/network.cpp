@@ -9,7 +9,6 @@
 int 
 InitSocket(int domain, int socktype, int protocol)
 {
-	// 0 on success, -1 on failure
 	int _sockfd = socket(domain, socktype, protocol);
 	if (_sockfd < 0)
 		std::cerr << "InitSocket()::socket() failed";

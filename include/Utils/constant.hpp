@@ -46,6 +46,7 @@
 #define DEFAULT_CRL     "cert/crl.pem"
 #define DEFAULT_CA_CERT "cert/ca_cert.pem"
 #define DEFAULT_CERT    "cert/cert.pem"
+#define DEFAULT_SER_KEY "key/serverprvkey.pem"
 
 // DESCRIPTION generic
 #define CLOSE_SIGNAL    0

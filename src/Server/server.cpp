@@ -26,6 +26,20 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    /* Retrive private key */
+    EVP_PKEY* prvkey;
+    std::string prvkey_file_name{DEFAULT_SER_KEY};
+    ret = RetrievePrvKey(&prvkey, prvkey_file_name.c_str());
+    if (ret <= 0)
+    {
+        if (ret == 0)
+            std::cout << " <== Server exit";
+        if (ret < 0)
+            std::cerr << " <== Server error!";
+
+        exit(1);
+    }
+
     /* Retrieve certificate and serialize it */
     X509* x509;
     ret = RetrieveCert(&x509);
@@ -101,8 +115,8 @@ int main(int argc, char *argv[])
                     
                     /* Store the received nonce from the client */
                     clients.at(server->_receivefd).check._nonce = hello._nonce;
+
                     clients.at(server->_receivefd).check._received = clients.at(server->_receivefd).packet.getCounter();
-                    clients.at(server->_receivefd).check.updateFields();
                     
                     // Print received info
                     clients.at(server->_receivefd).packet.print();
@@ -125,14 +139,14 @@ int main(int argc, char *argv[])
                         continue;
                     }
 
-                    /* Check signature */
+                    /* Check signature TODO automatize */
                     const EVP_MD *cipher = EVP_sha256();
                     ret = digestVerify(
                         msg,
                         clients.at(server->_receivefd).packet.getPacketSize(),
                         clients.at(server->_receivefd).packet.getTag(),
                         clients.at(server->_receivefd).packet.getTaglen(),clients.at(server->_receivefd)._pubkey,
-                        cipher
+                        EVP_sha256()
                     );
                     if (ret < 0)
                     {
@@ -144,6 +158,7 @@ int main(int argc, char *argv[])
                     clients.at(server->_receivefd).packet.reallocPayload(x509_buff, x509_len);
                     
                     /* Send Certificate */
+                    clients.at(server->_receivefd).packet.incCounter();
                     ret = ESPPacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
 
                     /* Load Diffie-Hellman parameters in dh_params */
@@ -183,17 +198,16 @@ int main(int argc, char *argv[])
                     response.params.setParams(temp_params);
                     response.dh_key.setKey(my_dhkey);
 
-                    unsigned char *response_buf;    
+                    unsigned char *response_buf;
+                    clients.at(server->_receivefd).packet.incCounter();
                     size_t response_size = response.HtoN(&response_buf);
                     clients.at(server->_receivefd).packet.setType(response.getType());
                     clients.at(server->_receivefd).packet.reallocPayload(response_buf, response_size);
 
-                    // TODO generate key pairs for server 
-                    // clients.at(server->_receivefd).packet.sign()
-
+                    clients.at(server->_receivefd).packet.sign(prvkey);
 
                     /* Send pubkey and dh parameters */
-                    
+                    ret = ESPPacketSend(server->_receivefd, &clients.at(server->_receivefd).packet); // TOCHECK
 
                     /* Retrieve the public key of the peer and store it in peer_pubkey */
 
