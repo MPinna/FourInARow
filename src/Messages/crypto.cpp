@@ -106,15 +106,29 @@ DHKey::getSize()
 int
 DHKey::setKey(EVP_PKEY *key)
 {
-    int size{EVP_PKEY_size(key)};
+    BIO *bio = BIO_new(BIO_s_mem());
+    if(bio == NULL)
+    {
+        std::cerr << "DHKey::setKey <== BIO_new() failed!";
+        return 0;
+    }
+
+    if(PEM_write_bio_PUBKEY(bio, key) < 1)
+    {
+        std::cerr << "DHKey::setKey <== PEM_write_bio_PUBKEY() failed!";
+        return 0;
+    }
+
+    const int size = BIO_pending(bio);
     this->_dh_key = new unsigned char[size];
-    memcpy(this->_dh_key, key, size);
+    BIO_read(bio, this->_dh_key, size);
     this->_dh_lenght = size;
+    BIO_free(bio);
     
     return 1;
 }
 
-size_t 
+size_t
 DHKey::HtoN(unsigned char *data)
 {
     size_t pos{0};
@@ -162,11 +176,13 @@ DHParams::setParams(DH *params)
         std::cerr << "<== DHParams::setParams(BIO_new) failed!" << std::endl;
         return 0;
     }
+
     if(PEM_write_bio_DHparams(bio, params) < 1)
     {
         std::cerr << "<== DHParams::setParams(PEM_write_bio_DHparams) failed!";
         return 0;
     }
+
     const int dh_size = BIO_pending(bio);
     this->_params = new unsigned char[dh_size];
     BIO_read(bio, this->_params, dh_size);
@@ -207,7 +223,7 @@ DHParams::NtoH(unsigned char *ser_data)
 
     memcpy(&params_length, ser_data + pos, sizeof(params_length));
     this->_params_length = ntohs(params_length);
-    pos += sizeof(params_length);
+    pos += sizeof(this->_params_length);
     this->_params = new unsigned char[params_length];
     memcpy(this->_params, ser_data + pos, this->_params_length);
     pos += _params_length;

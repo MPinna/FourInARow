@@ -68,7 +68,8 @@ Packet::~Packet()
 {
 }
 
-void Packet::reset()
+void 
+Packet::reset()
 {
     this->header._type = 0;
     this->header._counter = 0;
@@ -80,7 +81,8 @@ void Packet::reset()
  * DESCRIPTION
  * Member class of Packet structure
  */
-int Packet::setType(unsigned short int type)
+int 
+Packet::setType(unsigned short int type)
 {
     if (type > SIZE_MAX / sizeof(unsigned short int))
     {
@@ -91,7 +93,8 @@ int Packet::setType(unsigned short int type)
     return type;
 }
 
-int Packet::setPayloadSize(size_t size)
+int 
+Packet::setPayloadSize(size_t size)
 {
     if (size > SIZE_MAX / sizeof(size_t))
     {
@@ -102,7 +105,8 @@ int Packet::setPayloadSize(size_t size)
     return 1;
 }
 
-int Packet::setPayload(unsigned char *data, size_t size)
+int 
+Packet::setPayload(unsigned char *data, size_t size)
 {
     if (size > SIZE_MAX / sizeof(unsigned short int))
     {
@@ -117,6 +121,40 @@ int Packet::setPayload(unsigned char *data, size_t size)
     this->header._payload_size = size;
 
     return size;
+}
+
+int 
+Packet::reallocPayload(unsigned char *data, size_t size)
+{
+    if(size == 0)
+    {
+        this->_payload = (unsigned char *)realloc(this->_payload, 1 * sizeof(char));
+        if (!this->_payload)
+        {
+            std::cerr << "Packet::reallocPayload(1): something went wrong =>";
+            return -1;
+        }
+        memset(this->_payload, 0, 1);
+        this->header._payload_size = 0;
+
+        return this->header._payload_size;
+    }
+    else
+    {
+        this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char));
+        // this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char) + 1);
+        if (!this->_payload)
+        {
+            std::cerr << "Packet::reallocPayload(2): something went wrong =>";
+            return -1;
+        }
+        memcpy(this->_payload, data, size);
+        // this->_payload[size+1] = '\0';
+        this->header._payload_size = size;
+        // this->header._payload_size = size + 1;
+
+        return size;
+    }
 }
 
 unsigned short int
@@ -155,7 +193,8 @@ Packet::getPayload()
     return this->_payload;
 }
 
-int Packet::initCounter()
+int 
+Packet::initCounter()
 {
     unsigned int seed;
     FILE *urnd;
@@ -176,7 +215,8 @@ int Packet::initCounter()
     return 1;
 }
 
-int Packet::incCounter()
+int 
+Packet::incCounter()
 {
     if (this->header._counter == UINT_MAX)
     {
@@ -187,38 +227,7 @@ int Packet::incCounter()
     return 1;
 }
 
-int Packet::reallocPayload(unsigned char *data, size_t size)
-{
-    if(size == 0)
-    {
-        this->_payload = (unsigned char *)realloc(this->_payload, 1 * sizeof(char));
-        if (!this->_payload)
-        {
-            std::cerr << "Packet::reallocPayload(1): something went wrong =>";
-            return -1;
-        }
-        memset(this->_payload, 0, 1);
-        this->header._payload_size = 0;
 
-        return this->header._payload_size;
-    }
-    else
-    {
-        this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char));
-        // this->_payload = (unsigned char *)realloc(this->_payload, size * sizeof(char) + 1);
-        if (!this->_payload)
-        {
-            std::cerr << "Packet::reallocPayload(2): something went wrong =>";
-            return -1;
-        }
-        memcpy(this->_payload, data, size);
-        // this->_payload[size+1] = '\0';
-        this->header._payload_size = size;
-        // this->header._payload_size = size + 1;
-
-        return size+1;
-    }
-}
 
 /**
  * @param: packet_buf
@@ -269,12 +278,14 @@ Packet::ntohHeader(unsigned char *ser_data)
     return this->header.NtoH(ser_data);
 }
 
-int Packet::ntohPayload(unsigned char *ser_data)
+int 
+Packet::ntohPayload(unsigned char *ser_data)
 {
     return 0;
 }
 
-void Packet::print()
+void 
+Packet::print()
 {
     std::cout << 
         "\nType: " << this->header._type << 

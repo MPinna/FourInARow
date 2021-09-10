@@ -5,10 +5,13 @@
 #include <openssl/dh.h>
 #include <iostream>
 
-int setupDHctx(EVP_PKEY *dh_params, DH *temp_params, EVP_PKEY_CTX *dh_ctx);
+int initDHparams(EVP_PKEY *dh_key, DH *dh_params);
 
-int setupDHKey(EVP_PKEY *my_dhkey, EVP_PKEY_CTX *dh_ctx);
+int setupDHparams(EVP_PKEY *dh_key, DH *dh_params);
+
+int initDHctx(EVP_PKEY_CTX *dh_ctx, EVP_PKEY *dh_key);
+
+int initDHKey(EVP_PKEY *my_dhkey, EVP_PKEY_CTX *dh_ctx);
 
 int deriveSecret();
-
 #endif

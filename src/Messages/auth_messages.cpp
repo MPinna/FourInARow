@@ -375,5 +375,3 @@ ServerResponse::NtoH(unsigned char *data)
 
     return pos;
 }
-
-// TODO implementation of confirmation structure

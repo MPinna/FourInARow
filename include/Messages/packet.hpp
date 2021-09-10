@@ -62,6 +62,7 @@ public:
 class ESP : public Packet{
     private:
         Tag tag;
+        
     public:
         ESP();
         ~ESP();

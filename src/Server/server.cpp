@@ -182,6 +182,7 @@ int main(int argc, char *argv[])
                     if(1 != EVP_PKEY_keygen(dh_ctx, &my_dhkey))
                         std::cerr << "EVP_PKEY_keygen() failed generating DH Keys" << std::endl;
 
+
                     // TODO: da eliminare
                     /* Write pubkey and dh parameters inside a buffer */
                     // BIO *server_bio = BIO_new(BIO_s_mem());
@@ -207,8 +208,16 @@ int main(int argc, char *argv[])
                     clients.at(server->_receivefd).packet.sign(prvkey);
 
                     /* Send pubkey and dh parameters */
-                    ret = ESPPacketSend(server->_receivefd, &clients.at(server->_receivefd).packet); // TOCHECK
+                    ret = ESPPacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
 
+                    std::cout << "DH Server parameters\n";
+                    BIO_dump_fp(stdout, (const char *)response.params._params, response.params._params_length);
+
+                    std::cout << "DH Server Key\n";
+                    BIO_dump_fp(stdout, (const char *)response.dh_key._dh_key, response.dh_key._dh_lenght);
+                    
+                    /* Receive Client DH Key */
+                    
                     /* Retrieve the public key of the peer and store it in peer_pubkey */
 
                     /* Initializing shared secret derivation context */

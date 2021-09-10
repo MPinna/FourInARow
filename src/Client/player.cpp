@@ -12,6 +12,7 @@
 #include "../../libs/OpensslDS/include/digitalSignature.hpp"
 #include "../../libs/OpensslUtils/include/sslutils.hpp"
 #include "../../libs/OpensslX509/include/x509.hpp"
+#include "../../libs/OpensslDH/src/dh.cpp"
 #include "../../include/Messages/Client/auth.hpp"
 #include "../../include/Messages/Server/auth.hpp"
 #include "../../include/Messages/packet.hpp"
@@ -118,7 +119,6 @@ int main(int argc, char **argv)
     esp->printTag();
 
     ESPPacketSend(client->GetClientfd(), esp);
-    /* VERIFIED Send ESP packet */
 
     /* Receive Certificate */
     ESPPacketReceive(client->GetClientfd(), esp, NULL);
@@ -169,24 +169,129 @@ int main(int argc, char **argv)
         std::cerr << "DH Key exchange verification failure: signature mismatch" << std::endl;
     
     /* Get information */
-    ServerResponse response = ServerResponse();
-    response.NtoH(esp->getPayload());
+    ServerResponse sresponse = ServerResponse();
+    sresponse.NtoH(esp->getPayload());
 
     /* Retrieve DH params and DH public key of server */
     BIO *dh_params_bio = BIO_new(BIO_s_mem());
+    BIO_write(dh_params_bio, sresponse.params._params, sresponse.params._params_length);
     DH *dh_params{NULL};
-    BIO_write(dh_params_bio, response.params._params, response.params._params_length);
     PEM_read_bio_DHparams(dh_params_bio, &dh_params, NULL, NULL);
     
+    // TOCHECK devi rivedere come tiri fuori la chiave del server
     BIO *dh_serverkey_bio = BIO_new(BIO_s_mem());
-    BIO_write(dh_serverkey_bio, response.dh_key._dh_key, response.dh_key._dh_lenght);
+    BIO_write(dh_serverkey_bio, sresponse.dh_key._dh_key, sresponse.dh_key._dh_lenght);
     EVP_PKEY *serverdh_key{NULL};
     PEM_read_bio_PUBKEY(dh_serverkey_bio, &serverdh_key, NULL, NULL);
 
-    /* Generate client DH Key */
-    
-    /* TODO Derive the shared secret */
+    std::cout << "DH Server parameters\n";
+    BIO_dump_fp(stdout, (const char *)sresponse.params._params, sresponse.params._params_length);
 
+    std::cout << "DH Server Key\n";
+    BIO_dump_fp(stdout, (const char *)sresponse.dh_key._dh_key, sresponse.dh_key._dh_lenght);
+
+    /* Generate client DH Key */
+    EVP_PKEY *dh_key{NULL};
+    /* Load Diffie-Hellman parameters in dh_key */
+    if (NULL == (dh_key = EVP_PKEY_new()))
+    {
+        std::cerr << "Error setting up DH parameters";
+        return 0;
+    }
+    
+    if (1 != EVP_PKEY_set1_DH(dh_key, dh_params))
+    {
+        std::cerr << "EVP_PKEY_set1_DH failed (fail to set the dh key)";
+        return 0;
+    }
+    
+    
+    /* Create context for the key generation */
+    EVP_PKEY_CTX *dh_ctx{NULL};
+    if (!(dh_ctx = EVP_PKEY_CTX_new(dh_key, NULL)))
+    {
+        std::cerr << "DH Context Initialization failed!";
+        return 0;
+    }
+
+        
+    /* Generation of private/public key pair */
+    EVP_PKEY *my_dhkey{NULL};
+    if (1 != EVP_PKEY_keygen_init(dh_ctx))
+    {
+        std::cerr << "EVP_PKEY_keygen_init() failed";
+        return 0;
+    }
+    
+    /* Store inside EVP_PKEY variable */
+    if (1 != EVP_PKEY_keygen(dh_ctx, &my_dhkey))
+    {
+        std::cerr << "EVP_PKEY_keygen() failed generating DH Keys";
+        return 0;
+    }
+
+    // /* TOCHECK Send my DH Key along with nonce to the server */
+    // ClientResponse cresponse = ClientResponse();
+    // cresponse._opp_nonce = 1;
+    // cresponse.dh_key.setKey(my_dhkey);
+
+    // unsigned char *cresponse_buf;
+    // size_t cresponse_size = cresponse.HtoN(&cresponse_buf);
+    // esp->reallocPayload(cresponse_buf, cresponse_size);
+
+    // delete[] cresponse_buf;
+
+    // /* Sign ESP packet */
+    // size_t sig_len2, packet_len2;
+    // unsigned char *sig_buf2, *packet_buf2;
+    // packet_len2 = esp->htonPacket(&packet_buf);
+    // if(digestSign(packet_buf2, packet_len2, &sig_buf2, &sig_len2, prvkey, cipher) < 0)
+    // {
+    //     std::cerr << " <== ESP::sign() failed!" << std::endl;
+    //     return 0;
+    // }
+    // esp->setTag(sig_buf2, sig_len2);
+    
+    // delete[] packet_buf2;
+    // delete[] sig_buf2;
+
+    // ret = ESPPacketSend(client->GetClientfd(), esp);
+    // if(ret < 1)
+    //     std::cerr << " <== Player Error!";
+
+    /* TODO creating a context, the buffer for the shared key and an int for its length */
+    EVP_PKEY_CTX *derive_ctx;
+    unsigned char *skey;
+    size_t skeylen;
+    derive_ctx = EVP_PKEY_CTX_new(my_dhkey, NULL);
+    if (!derive_ctx)
+        std::cerr << "EVP_PKEY_CTX_new() failed!";
+
+    if (EVP_PKEY_derive_init(derive_ctx) <= 0)
+        std::cerr << "EVP_PKEY_derive_init() failed!";
+    
+	/* Setting the peer with its pubkey */
+    if (EVP_PKEY_derive_set_peer(derive_ctx, serverdh_key) <= 0)
+        std::cerr << "EVP_PKEY_derive_set_peer() failed!";
+    
+	/* Determine buffer length, by performing a derivation but writing the result nowhere */
+    EVP_PKEY_derive(derive_ctx, NULL, &skeylen);
+    
+	/* allocate buffer for the shared secret */
+    skey = (unsigned char *)(malloc(int(skeylen)));
+    if (!skey)
+        std::cerr << "malloc() failed!" << std::endl;
+    
+	/*Perform again the derivation and store it in skey buffer*/
+    if (EVP_PKEY_derive(derive_ctx, skey, &skeylen) <= 0)
+        std::cerr << "EVP_PKEY_derive() failed!" << std::endl;
+    
+    printf("Here it is the shared secret: \n");
+    // BIO_dump_fp(stdout, (const char *)skey, skeylen);
+    /*WARNING! YOU SHOULD NOT USE THE DERIVED SECRET AS A SESSION KEY!
+	 * IS COMMON PRACTICE TO HASH THE DERIVED SHARED SECRET TO OBTAIN A SESSION KEY
+     * IN NEXT LABORATORY LESSON WE ADDRESS HASHING!
+    */
 
     // std::cout << "esp.getSize(): "<< esp->getSize() << std::endl;
     // std::cout << "esp.getPayloadSize(): "<< esp->getPayloadSize() << std::endl;
