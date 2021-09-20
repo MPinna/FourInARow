@@ -118,7 +118,7 @@ DHKey::setKey(EVP_PKEY *key)
         std::cerr << "DHKey::setKey <== PEM_write_bio_PUBKEY() failed!";
         return 0;
     }
-
+    
     const int size = BIO_pending(bio);
     this->_dh_key = new unsigned char[size];
     BIO_read(bio, this->_dh_key, size);

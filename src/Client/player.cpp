@@ -184,6 +184,21 @@ int main(int argc, char **argv)
     EVP_PKEY *serverdh_key{NULL};
     PEM_read_bio_PUBKEY(dh_serverkey_bio, &serverdh_key, NULL, NULL);
 
+    /* SECTION */
+    std::cout << "PKEY_SIZE: " << EVP_PKEY_size(serverdh_key);
+    
+    FILE *p1w = fopen("dhkey.pem", "w");
+    if (!p1w)
+    {
+        std::cerr << "Error: cannot open file '" << "dhkey" << "' (missing?)\n";
+        exit(1);
+    }
+    PEM_write_PUBKEY(p1w, serverdh_key);
+    fclose(p1w);
+    
+    /* SECTION */
+
+
     std::cout << "DH Server parameters\n";
     BIO_dump_fp(stdout, (const char *)sresponse.params._params, sresponse.params._params_length);
 
@@ -230,6 +245,94 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    /* TODO creating a context, the buffer for the shared key and an int for its length */
+
+    EVP_PKEY_CTX *derive_ctx;
+    unsigned char *skey;
+    size_t skeylen;
+    std::string peer_pubkey_file_name;
+    std::cout << "Please, type the PEM file that contains the peer's DH public key: ";
+    getline(std::cin, peer_pubkey_file_name);
+    if (!std::cin)
+    {
+        std::cerr << "Error during input\n";
+        exit(1);
+    }
+
+    /* Load peer public key from a file */
+    FILE *p2r = fopen(peer_pubkey_file_name.c_str(), "r");
+    if (!p2r)
+    {
+        std::cerr << "Error: cannot open file '" << peer_pubkey_file_name << "' (missing?)\n";
+        exit(1);
+    }
+    EVP_PKEY *peer_pubkey = PEM_read_PUBKEY(p2r, NULL, NULL, NULL);
+    fclose(p2r);
+    if (!peer_pubkey)
+    {
+        std::cerr << "Error: PEM_read_PUBKEY returned NULL\n";
+        exit(1);
+    }
+
+    derive_ctx = EVP_PKEY_CTX_new(my_dhkey, NULL);
+    if (!derive_ctx)
+        std::cerr << "EVP_PKEY_CTX_new() failed!" << std::endl;
+
+    if (EVP_PKEY_derive_init(derive_ctx) <= 0)
+        std::cerr << "EVP_PKEY_derive_init() failed!" << std::endl;
+
+    /* Setting the peer with its pubkey */
+    if (EVP_PKEY_derive_set_peer(derive_ctx, peer_pubkey) <= 0)
+        std::cerr << "EVP_PKEY_derive_set_peer() failed!" << std::endl;
+
+    /* Determine buffer length, by performing a derivation but writing the result nowhere */
+    EVP_PKEY_derive(derive_ctx, NULL, &skeylen);
+
+    /* allocate buffer for the shared secret */
+    skey = (unsigned char *)(malloc(int(skeylen)));
+    if (!skey)
+        std::cerr << "malloc() failed!" << std::endl;
+
+    /*Perform again the derivation and store it in skey buffer*/
+    if (EVP_PKEY_derive(derive_ctx, skey, &skeylen) <= 0)
+        std::cerr << "EVP_PKEY_derive() failed!" << std::endl;
+
+    printf("Here it is the shared secret: \n");
+    BIO_dump_fp(stdout, (const char *)skey, skeylen);
+
+    // EVP_PKEY_CTX *derive_ctx;
+    // unsigned char *skey;
+    // size_t skeylen;
+    // derive_ctx = EVP_PKEY_CTX_new(my_dhkey, NULL);
+    // if (!derive_ctx)
+    //     std::cerr << "EVP_PKEY_CTX_new() failed!" << std::endl;
+
+    // if (EVP_PKEY_derive_init(derive_ctx) <= 0)
+    //     std::cerr << "EVP_PKEY_derive_init() failed!" << std::endl; 
+    
+	// /* Setting the peer with its pubkey */
+    // if (EVP_PKEY_derive_set_peer(derive_ctx, serverdh_key) <= 0)
+    //     std::cerr << "EVP_PKEY_derive_set_peer() failed!" << std::endl;
+    
+	// /* Determine buffer length, by performing a derivation but writing the result nowhere */
+    // EVP_PKEY_derive(derive_ctx, NULL, &skeylen);
+    
+	// /* allocate buffer for the shared secret */
+    // skey = (unsigned char *)(malloc(int(skeylen)));
+    // if (!skey)
+    //     std::cerr << "malloc() failed!" << std::endl;
+    
+	// /*Perform again the derivation and store it in skey buffer*/
+    // if (EVP_PKEY_derive(derive_ctx, skey, &skeylen) <= 0)
+    //     std::cerr << "EVP_PKEY_derive() failed!" << std::endl;
+    
+    // printf("Here it is the shared secret: \n");
+    // BIO_dump_fp(stdout, (const char *)skey, skeylen);
+    /*WARNING! YOU SHOULD NOT USE THE DERIVED SECRET AS A SESSION KEY!
+	 * IS COMMON PRACTICE TO HASH THE DERIVED SHARED SECRET TO OBTAIN A SESSION KEY
+     * IN NEXT LABORATORY LESSON WE ADDRESS HASHING!
+    */
+
     // /* TOCHECK Send my DH Key along with nonce to the server */
     // ClientResponse cresponse = ClientResponse();
     // cresponse._opp_nonce = 1;
@@ -258,40 +361,6 @@ int main(int argc, char **argv)
     // ret = ESPPacketSend(client->GetClientfd(), esp);
     // if(ret < 1)
     //     std::cerr << " <== Player Error!";
-
-    /* TODO creating a context, the buffer for the shared key and an int for its length */
-    EVP_PKEY_CTX *derive_ctx;
-    unsigned char *skey;
-    size_t skeylen;
-    derive_ctx = EVP_PKEY_CTX_new(my_dhkey, NULL);
-    if (!derive_ctx)
-        std::cerr << "EVP_PKEY_CTX_new() failed!";
-
-    if (EVP_PKEY_derive_init(derive_ctx) <= 0)
-        std::cerr << "EVP_PKEY_derive_init() failed!";
-    
-	/* Setting the peer with its pubkey */
-    if (EVP_PKEY_derive_set_peer(derive_ctx, serverdh_key) <= 0)
-        std::cerr << "EVP_PKEY_derive_set_peer() failed!";
-    
-	/* Determine buffer length, by performing a derivation but writing the result nowhere */
-    EVP_PKEY_derive(derive_ctx, NULL, &skeylen);
-    
-	/* allocate buffer for the shared secret */
-    skey = (unsigned char *)(malloc(int(skeylen)));
-    if (!skey)
-        std::cerr << "malloc() failed!" << std::endl;
-    
-	/*Perform again the derivation and store it in skey buffer*/
-    if (EVP_PKEY_derive(derive_ctx, skey, &skeylen) <= 0)
-        std::cerr << "EVP_PKEY_derive() failed!" << std::endl;
-    
-    printf("Here it is the shared secret: \n");
-    // BIO_dump_fp(stdout, (const char *)skey, skeylen);
-    /*WARNING! YOU SHOULD NOT USE THE DERIVED SECRET AS A SESSION KEY!
-	 * IS COMMON PRACTICE TO HASH THE DERIVED SHARED SECRET TO OBTAIN A SESSION KEY
-     * IN NEXT LABORATORY LESSON WE ADDRESS HASHING!
-    */
 
     // std::cout << "esp.getSize(): "<< esp->getSize() << std::endl;
     // std::cout << "esp.getPayloadSize(): "<< esp->getPayloadSize() << std::endl;

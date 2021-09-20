@@ -161,6 +161,9 @@ int main(int argc, char *argv[])
                     clients.at(server->_receivefd).packet.incCounter();
                     ret = ESPPacketSend(server->_receivefd, &clients.at(server->_receivefd).packet);
 
+                    // SECTION Diffie-Hellman key-exchange
+
+                    // PHASE-1: 
                     /* Load Diffie-Hellman parameters in dh_params */
                     EVP_PKEY* dh_params;
                     if (NULL == (dh_params = EVP_PKEY_new()))
@@ -170,6 +173,7 @@ int main(int argc, char *argv[])
                     if(1 != EVP_PKEY_set1_DH(dh_params, temp_params))
                         std::cerr << "EVP_PKEY_set1_DH failed (fail to set the dh key)" << std::endl;
 
+                    // PHASE-2:
                     /* Create context for the key generation */
                     EVP_PKEY_CTX* dh_ctx;
                     if(!(dh_ctx = EVP_PKEY_CTX_new(dh_params, NULL)))
@@ -216,6 +220,74 @@ int main(int argc, char *argv[])
                     std::cout << "DH Server Key\n";
                     BIO_dump_fp(stdout, (const char *)response.dh_key._dh_key, response.dh_key._dh_lenght);
                     
+                    /* SECTION */
+
+                    FILE *p1w = fopen("dhkey.pem", "w");
+                    if (!p1w)
+                    {
+                        std::cerr << "Error: cannot open file '"
+                                  << "dhkey"
+                                  << "' (missing?)\n";
+                        exit(1);
+                    }
+                    PEM_write_PUBKEY(p1w, my_dhkey);
+                    fclose(p1w);
+
+                    EVP_PKEY_CTX *derive_ctx;
+                    unsigned char *skey;
+                    size_t skeylen;
+                    std::string peer_pubkey_file_name;
+                    std::cout << "Please, type the PEM file that contains the peer's DH public key: ";
+                    getline(std::cin, peer_pubkey_file_name);
+                    if (!std::cin)
+                    {
+                        std::cerr << "Error during input\n";
+                        exit(1);
+                    }
+
+                    /* Load peer public key from a file */
+                    FILE *p2r = fopen(peer_pubkey_file_name.c_str(), "r");
+                    if (!p2r)
+                    {
+                        std::cerr << "Error: cannot open file '" << peer_pubkey_file_name << "' (missing?)\n";
+                        exit(1);
+                    }
+                    EVP_PKEY *peer_pubkey = PEM_read_PUBKEY(p2r, NULL, NULL, NULL);
+                    fclose(p2r);
+                    if (!peer_pubkey)
+                    {
+                        std::cerr << "Error: PEM_read_PUBKEY returned NULL\n";
+                        exit(1);
+                    }
+
+                    derive_ctx = EVP_PKEY_CTX_new(my_dhkey, NULL);
+                    if (!derive_ctx)
+                        std::cerr << "EVP_PKEY_CTX_new() failed!" << std::endl;
+
+                    if (EVP_PKEY_derive_init(derive_ctx) <= 0)
+                        std::cerr << "EVP_PKEY_derive_init() failed!" << std::endl;
+
+                    /* Setting the peer with its pubkey */
+                    if (EVP_PKEY_derive_set_peer(derive_ctx, peer_pubkey) <= 0)
+                        std::cerr << "EVP_PKEY_derive_set_peer() failed!" << std::endl;
+
+                    /* Determine buffer length, by performing a derivation but writing the result nowhere */
+                    EVP_PKEY_derive(derive_ctx, NULL, &skeylen);
+
+                    /* allocate buffer for the shared secret */
+                    skey = (unsigned char *)(malloc(int(skeylen)));
+                    if (!skey)
+                        std::cerr << "malloc() failed!" << std::endl;
+
+                    /*Perform again the derivation and store it in skey buffer*/
+                    if (EVP_PKEY_derive(derive_ctx, skey, &skeylen) <= 0)
+                        std::cerr << "EVP_PKEY_derive() failed!" << std::endl;
+
+                    printf("Here it is the shared secret: \n");
+                    BIO_dump_fp(stdout, (const char *)skey, skeylen);
+
+                    /* SECTION */
+
                     /* Receive Client DH Key */
                     
                     /* Retrieve the public key of the peer and store it in peer_pubkey */
